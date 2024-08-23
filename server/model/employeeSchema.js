@@ -82,3 +82,4 @@ employeeSchema.methods.comparePassword = async function (candidatePassword) {
 const Employee = mongoose.model("Employee", employeeSchema);
 
 module.exports = Employee;
+console.log("employee schema is ready to use");
