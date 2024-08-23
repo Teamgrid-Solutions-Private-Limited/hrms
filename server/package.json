@@ -4,12 +4,13 @@
   },
   "name": "hrms",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "app.js",
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
   },
   "author": "Team grid solutions",
   "license": "ISC",
-  "description": ""
+  "description": "human resources management sysytem"
 }
