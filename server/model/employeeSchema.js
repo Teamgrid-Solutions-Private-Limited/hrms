@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const Schema = mongoose.Schema;
 
 const employeeSchema = new Schema({
@@ -82,3 +82,4 @@ employeeSchema.methods.comparePassword = async function (candidatePassword) {
 const Employee = mongoose.model("Employee", employeeSchema);
 
 module.exports = Employee;
+console.log("employee schema is ready to use");
