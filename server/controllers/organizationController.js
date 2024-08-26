@@ -110,6 +110,18 @@ class organizationController {
             res.status(404).json({message:'organization not found',error:error.message});
         }
     }
+    static getOrganizationById = async(req,res)=>{
+        try{
+            const organizationId = req.params;
+            const data = await Organization.find(organizationId);
+            res.status(200).json({message:'data retrive successfully',info:data});
+
+        }catch(error)
+        {
+            res.status(404).json({message:'organization not found',error:error.message});
+        }
+    }
+
 
     static updateOrganization = async(req,res)=>{
         try{
