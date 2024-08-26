@@ -50,6 +50,6 @@ const workTypeAssignmentSchema = new Schema({
     }
 });
 
-const WorkTypeAssignment = mongoose.model('WorkTypeAssignment', workTypeAssignmentSchema);
+const WorkTypeAssignment = mongoose.model('workTypeAssignment', workTypeAssignmentSchema);
 
 module.exports = WorkTypeAssignment;
