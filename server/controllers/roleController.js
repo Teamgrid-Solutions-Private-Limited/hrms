@@ -32,6 +32,37 @@ class RoleController {
       next(error);
     }
   }
+
+  //Method for get Roles ----------
+  async getRoles(req, res, next) {
+    try {
+      const roles = await Role.find();
+      // Respond with success message
+      res.status(201).json({
+        message: "Role retrieved successfully",
+        role: roles,
+      });
+    } catch (error) {
+      // Pass any errors to the error-handling middleware
+      next(error);
+    }
+  }
+
+  //get by id
+
+  async getRolesByid(req, res, next) {
+    try {
+      const roles = await Role.findById({ _id: req.params.id });
+      // Respond with success message
+      res.status(201).json({
+        message: "Role retrieved successfully",
+        role: roles,
+      });
+    } catch (error) {
+      // Pass any errors to the error-handling middleware
+      next(error);
+    }
+  }
 }
 
 module.exports = new RoleController(); // Export an instance of RoleController
