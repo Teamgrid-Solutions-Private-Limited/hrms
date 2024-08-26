@@ -68,11 +68,7 @@ const employeeSchema = new Schema(
     contractEndDate: { type: Date },
     baseSalary: { type: Number, required: true },
 
-    // Professional Background
-    certifications: [{ type: String }],
-    licenses: [{ type: String }],
-    trainingCourses: [{ type: String }],
-    expiryDates: [{ type: Date }],
+   
 
     // Emergency Contacts
     emergencyContacts: { type: [EmergencyContactSchema], required: true },
