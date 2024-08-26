@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("./db/conn"); // Import mongoose instance
 const roleRoutes = require("./routes/roleRoute");
+const organizatioRoute = require("./routes/organizationRoutes");
+const leavetypeRoute = require("./routes/leaveTypeRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -13,16 +15,13 @@ app.use(express.json()); // To parse JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-const organizationRoute = require('./routes/organizationRoutes');
-
-app.use('/organization',organizationRoute);
-
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
 
 app.use("/api", roleRoutes);
+app.use("/api", organizatioRoute);
+app.use("/api", leavetypeRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
