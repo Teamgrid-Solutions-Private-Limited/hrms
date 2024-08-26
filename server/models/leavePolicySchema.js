@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const leavePolicySchema = new Schema({
     leaveType: { type: Schema.Types.ObjectId, ref: 'leaveType', required: true },
     accrualRate: Number, // Rate at which leave accrues (e.g., per month)

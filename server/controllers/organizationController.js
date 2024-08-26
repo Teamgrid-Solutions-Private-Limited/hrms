@@ -1,6 +1,6 @@
-const Employee = require('../model/employeeSchema');
-const Organization = require('../model/organizationSchema');
-const Role = require('../model/roleSchema');
+const Employee = require('../models/employeeSchema');
+const Organization = require('../models/organizationSchema');
+const Role = require('../models/roleSchema');
 const bcrypt = require('bcryptjs');
 
 class organizationController {

@@ -68,11 +68,7 @@ const employeeSchema = new Schema(
     contractEndDate: { type: Date },
     baseSalary: { type: Number, required: true },
 
-    // Professional Background
-    certifications: [{ type: String }],
-    licenses: [{ type: String }],
-    trainingCourses: [{ type: String }],
-    expiryDates: [{ type: Date }],
+   
 
     // Emergency Contacts
     emergencyContacts: { type: [EmergencyContactSchema], required: true },
@@ -83,7 +79,7 @@ const employeeSchema = new Schema(
     // Authentication Details
     username: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "role", required: true },
     lastLogin: { type: Date, index: { sparse: true } },
 
     // Organization Reference
@@ -132,7 +128,7 @@ employeeSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const Employee = mongoose.model("Employee", employeeSchema);
+const Employee = mongoose.model("employee", employeeSchema);
 
 module.exports = Employee;
 console.log("Employee schema is ready to use");
