@@ -1,5 +1,5 @@
 const leavePolicySchema = new Schema({
-    leaveType: { type: Schema.Types.ObjectId, ref: 'LeaveType', required: true },
+    leaveType: { type: Schema.Types.ObjectId, ref: 'leaveType', required: true },
     accrualRate: Number, // Rate at which leave accrues (e.g., per month)
     maxBalance: Number, // Maximum leave balance allowed
     carryForward: { type: Boolean, default: false }, // Allow carry forward of unused leave
