@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const workTypeRequestSchema = new Schema({
     employeeId: { type: Schema.Types.ObjectId, ref: 'employee', required: true },
     currentWorkType: { type: String, required: true },
