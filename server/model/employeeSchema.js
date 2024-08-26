@@ -79,7 +79,7 @@ const employeeSchema = new Schema(
     // Authentication Details
     username: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "role", required: true },
     lastLogin: { type: Date, index: { sparse: true } },
 
     // Organization Reference
