@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const leaveBalanceSchema = new Schema({
     employee: { type: Schema.Types.ObjectId, ref: 'employee', required: true },
     leaveType: { type: Schema.Types.ObjectId, ref: 'leaveType', required: true },

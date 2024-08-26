@@ -128,7 +128,7 @@ employeeSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const Employee = mongoose.model("Employee", employeeSchema);
+const Employee = mongoose.model("employee", employeeSchema);
 
 module.exports = Employee;
 console.log("Employee schema is ready to use");

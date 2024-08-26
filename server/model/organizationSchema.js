@@ -8,10 +8,18 @@ const organizationSchema = new Schema({
     required: true, 
     unique: true
   },
-  contactInfo: {
-    address: String,
-    phone: String,
-    email: String
+  address:{
+type:String,
+required:true,
+  },
+  email: {
+    type: String,
+    required: true,
+    
+  },
+  phone:{
+    type:Number,
+    required:true,
   },
   logo: {
     type: String

@@ -8,6 +8,14 @@ const PORT = process.env.PORT || 6010;
 const app = express();
 app.use(cors());
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+const organizationRoute = require('./routes/organizationRoutes');
+
+app.use('/organization',organizationRoute);
+
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
