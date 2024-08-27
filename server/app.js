@@ -15,6 +15,16 @@ app.use(express.json()); // To parse JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+<<<<<<< HEAD
+=======
+
+const organizationRoute = require('./routes/organizationRoutes');
+const shiftRequestRoute = require('./routes/shiftRequestRoutes');
+
+app.use('/organization',organizationRoute);
+app.use('/shift',shiftRequestRoute);
+
+>>>>>>> hrms-tanvir
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });

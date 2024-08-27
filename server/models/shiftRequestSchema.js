@@ -1,21 +1,25 @@
-const mongoose = require("mongoose");
+// models/shiftRequestModel.js
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const shiftRequestSchema = new mongoose.schema({
-    employeeId: {
-        type: Schema.Types.ObjectId,
-        ref: 'employee',
-        required: true,
-    },
-    currentShift: String,
-    requestedShift: String,
-    requestDate: { type: Date, default: Date.now },
-    status: {
+const shiftRequestSchema = new Schema({
+    employeeId: { type: Schema.Types.ObjectId, ref: 'Employee', required: true },
+    currentRequestType: { type: String, required: true },
+    newRequestType: {
         type: String,
-        enum: ['pending', 'approved', 'rejected']
-    }
-
+        enum: ['regular', 'day', 'night'],
+        default: 'regular',
+        required: true
+    },
+    requestDate: { type: Date, default: Date.now },
+    requestTillDate: { type: Date, default: Date.now },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    description: { type: String, required: true },
+    managerComments: String,
+    hrComments: String
 });
 
-const model = mongoose.model("shift", shiftRequestSchema);
+// Register the model with Mongoose
+const ShiftRequest = mongoose.model('shiftRequest', shiftRequestSchema);
 
-module.exports = model;
+module.exports = ShiftRequest;

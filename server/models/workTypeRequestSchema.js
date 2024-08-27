@@ -6,7 +6,9 @@ const workTypeRequestSchema = new Schema({
     currentWorkType: { type: String, required: true },
     newWorkType: { type: String, required: true },
     requestDate: { type: Date, default: Date.now },
+    requestTillDate: { type: Date, default: Date.now },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    description:{type:String ,required:true},
     managerComments: String,
     hrComments: String
 });
