@@ -5,6 +5,7 @@ const mongoose = require("./db/conn"); // Import mongoose instance
 const roleRoutes = require("./routes/roleRoute");
 const organizatioRoute = require("./routes/organizationRoutes");
 const leavetypeRoute = require("./routes/leaveTypeRoutes");
+const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 app.use("/api", roleRoutes);
 app.use("/api", organizatioRoute);
 app.use("/api", leavetypeRoute);
+app.use("/api", workAssignRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
