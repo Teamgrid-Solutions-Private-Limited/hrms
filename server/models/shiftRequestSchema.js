@@ -1,3 +1,4 @@
+// models/shiftRequestModel.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -18,12 +19,7 @@ const shiftRequestSchema = new Schema({
     hrComments: String
 });
 
-// Create the ShiftRequest Model
+// Register the model with Mongoose
 const ShiftRequest = mongoose.model('shiftRequest', shiftRequestSchema);
 
 module.exports = ShiftRequest;
-
-
-const model = mongoose.model("shift", shiftRequestSchema);
-
-module.exports = model;

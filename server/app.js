@@ -15,8 +15,10 @@ app.use(express.urlencoded({ extended: true }));
 
 
 const organizationRoute = require('./routes/organizationRoutes');
+const shiftRequestRoute = require('./routes/shiftRequestRoutes');
 
 app.use('/organization',organizationRoute);
+app.use('/shift',shiftRequestRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
