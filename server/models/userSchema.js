@@ -4,9 +4,9 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: {
-    type: String,
-    enum: ["super_admin", "admin", "hr", "employee"],
+  roleId: {
+    type: Schema.Types.ObjectId,
+    ref: "roles",
     required: true,
   },
   last_login: { type: Date },
