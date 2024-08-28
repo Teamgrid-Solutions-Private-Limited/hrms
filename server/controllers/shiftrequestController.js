@@ -20,7 +20,7 @@ class shiftrequestController {
 
         try {
             const shiftRequest = new ShiftRequest({
-                employeeId: req.body.employeeId,
+                userId: req.body.userId,
                 currentRequestType: req.body.currentRequestType,
                 newRequestType: req.body.newRequestType,
                 requestDate: req.body.requestDate,

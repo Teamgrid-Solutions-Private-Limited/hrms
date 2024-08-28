@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 // Define the schema
 const personalInfoSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Ensure 'User' is the correct reference model name
+  fistName:{type:String},
+  lastName:{type:String},
   photo: { type: String },
   adharId: { type: String },
   maritalStatus: {
