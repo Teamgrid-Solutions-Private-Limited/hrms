@@ -1,9 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("./db/conn"); // Import mongoose instance
-const roleRoutes = require("./routes/roleRoute");
+const mongoose = require("./db/conn");
+const roleRoute = require("./routes/roleRoutes");
 const organizatioRoute = require("./routes/organizationRoutes");
+const userRoute = require("./routes/userRoutes");
+
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
 // const shiftRequestRoute = require("./routes/shiftRequestRoutes");
@@ -21,8 +23,9 @@ app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
 
-app.use("/api", roleRoutes);
+app.use("/api", roleRoute);
 app.use("/api", organizatioRoute);
+app.use("/api", userRoute);
 // app.use("/api", leavetypeRoute);
 // app.use("/api", workAssignRoute);
 // app.use("/shift", shiftRequestRoute);
