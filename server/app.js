@@ -6,6 +6,7 @@ const roleRoutes = require("./routes/roleRoute");
 const organizatioRoute = require("./routes/organizationRoutes");
 const leavetypeRoute = require("./routes/leaveTypeRoutes");
 const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
+const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -16,16 +17,6 @@ app.use(express.json()); // To parse JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-<<<<<<< HEAD
-=======
-
-const organizationRoute = require('./routes/organizationRoutes');
-const shiftRequestRoute = require('./routes/shiftRequestRoutes');
-
-app.use('/organization',organizationRoute);
-app.use('/shift',shiftRequestRoute);
-
->>>>>>> hrms-tanvir
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
@@ -34,6 +25,7 @@ app.use("/api", roleRoutes);
 app.use("/api", organizatioRoute);
 app.use("/api", leavetypeRoute);
 app.use("/api", workAssignRoute);
+app.use("/shift", shiftRequestRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
