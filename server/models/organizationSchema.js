@@ -1,34 +1,15 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose");
 
-// Define the Organization Schema
-const organizationSchema = new Schema({
-  name: { 
-    type: String, 
-    required: true, 
-    unique: true
-  },
-  address:{
-type:String,
-required:true,
-  },
-  email: {
-    type: String,
-    required: true,
-    
-  },
-  phone:{
-    type:Number,
-    required:true,
-  },
-  logo: {
-    type: String
-  }
-}, {
-  timestamps: true // Automatically adds createdAt and updatedAt fields
+const organizationSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String },
+  addressLine: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  country: { type: String, required: true },
+  zipCode: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
-// Create the Organization Model
-const Organization = mongoose.model('organization', organizationSchema);
-
-module.exports = Organization;
+module.exports = mongoose.model("organizations", organizationSchema);

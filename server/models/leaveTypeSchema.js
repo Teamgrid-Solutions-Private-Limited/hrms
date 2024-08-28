@@ -1,14 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
- 
 const leaveTypeSchema = new Schema({
   name: { type: String, required: true },
-  description: String,
-  accrualPolicy: { type: String, required: true } // Description of accrual rules
+  description: { type: String },
+  accrualPolicy: { type: String }, // Description of accrual rules
 });
 
- 
-const LeaveType = mongoose.model('leaveType', leaveTypeSchema);
+const LeaveType = mongoose.model("leave_types", leaveTypeSchema);
 
 module.exports = LeaveType;
