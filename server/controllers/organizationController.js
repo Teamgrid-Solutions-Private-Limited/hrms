@@ -13,12 +13,13 @@ class organizationController {
                  city,
                 state,
                 country,
-                zipCode } = req.body;
-                console.log(name,logo,state,zipCode,email,addressLine,phone,description,city,country);
+                zipCode,username } = req.body;
+                console.log(name,logo,state,zipCode,email,addressLine,phone,description,city,country,username);
              
 
             // Check for required fields
-            if (!name || !logo || !email || !addressLine || !phone || !description || !city || !state || !country || !zipCode) {
+            if (!name || !logo || !email || !addressLine || !phone || !description || !city || !state || !country || !zipCode || !username)
+             {
                 return res.status(400).json({ message: "Missing required fields" });
             }
 
@@ -54,7 +55,7 @@ class organizationController {
             // Create and save the admin user
             const user = new User({
                 email,
-                username: 'admin',
+                username,
                 password: hashedPassword,
                 roleId: role._id,
                 organizationId: savedOrganization._id,
@@ -68,7 +69,7 @@ class organizationController {
                 adharId: 'Not Provided',
                 maritalStatus: 'single',
                 nationality: 'Not Provided',
-                dob: 'Not Provided',
+                dob: new Date(),
             });
             await personal.save();
 
