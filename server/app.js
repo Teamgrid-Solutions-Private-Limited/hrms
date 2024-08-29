@@ -14,10 +14,9 @@ const PORT = process.env.PORT || 6010;
 const app = express();
 
 app.use(cors());
-app.use(express.json()); // To parse JSON request bodies
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("my-upload"));
 
 app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
