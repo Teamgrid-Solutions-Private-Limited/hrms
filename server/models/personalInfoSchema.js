@@ -7,7 +7,7 @@ const personalInfoSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    }, // Ensure 'User' is the correct reference model name
+    },
     photo: { type: String },
     adharId: { type: String },
     maritalStatus: {
@@ -22,6 +22,6 @@ const personalInfoSchema = new mongoose.Schema(
 );
 
 // Create the model
-const PersonalInfo = mongoose.model("PersonalInfo", personalInfoSchema);
+const PersonalInfo = mongoose.model("personalinfo", personalInfoSchema);
 
 module.exports = PersonalInfo;
