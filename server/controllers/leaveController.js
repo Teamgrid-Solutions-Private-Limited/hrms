@@ -96,6 +96,43 @@ class LeaveController {
       next(error);
     }
   };
+  static view = async(req,res)=>{
+    try{
+      const data = await LeaveModel.find();
+      res.status(200).json({message:"data retrive successfully",info:data});
+    }catch(error)
+    {
+      res.status(500).json({message:"data retrieval unsuccessfull"});
+    }
+  }
+
+  static delete = async(req,res)=>{
+    const {id} = req.params;
+    try{
+      const data = await PageElement.findByIdAndDelete(id);
+      res.status(200).json({message:" leave  deletetd successfully",info:data});
+
+    }catch(error)
+    {res.status(500).json({message:"error deleting leave elements",error:error.message})};
+  }
+
+  static update = async(req,res)=>{
+    const {id}= req.params.id;
+    const data = req.body;
+    try{ 
+      const  update = await PageElement.findByIdAndUpdate(id,{$set:data},{new:true});
+
+      if(!update)
+      {
+        res.status(404).json({error:" leave id not found"});
+      }
+      res.status(200).json({message:"update done successfully",info:update})
+    }catch(error)
+    {
+      res.status(500).json({message:"update can not be done",error:error.message})
+    }
+   
+  }
 }
 
 module.exports = LeaveController;
