@@ -1,5 +1,4 @@
-// controllers/PageGroupController.js
-const PageGroup = require("../models/PageGroup");
+const PageGroup = require("../models/pageGroupSchema");
 
 class PageGroupController {
   static async createPageGroup(req, res) {
