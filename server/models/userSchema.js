@@ -3,9 +3,20 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "roles",
@@ -16,9 +27,21 @@ const userSchema = new mongoose.Schema(
       ref: "organizations",
       required: true,
     },
-    profilePhoto: { type: String }, // Store the URL or file path to the profile photo
+    profilePhoto: {
+      type: String, // Store the URL or file path to the profile photo
+    },
+    lastLogin: {
+      type: Date,
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "terminated"],
+      default: "active",
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Automatically manages createdAt and updatedAt fields
+  }
 );
 
 // Password hashing middleware

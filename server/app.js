@@ -8,6 +8,7 @@ const userRoute = require("./routes/userRoutes");
 const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
 const pageElemntRoute = require("./routes/pagesElementRoutes");
+const employeeRoute = require("./routes/employeeRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
@@ -31,6 +32,7 @@ app.use("/api", userRoute);
 app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
+app.use("/api", employeeRoute);
 
 // app.use("/api", leavetypeRoute);
 // app.use("/api", workAssignRoute);
