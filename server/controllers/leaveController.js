@@ -1,38 +1,57 @@
 const LeaveModel = require("../../model/Leave/LeaveModel"); // Ensure the model is imported
 
 class LeaveController {
+  /**
+   * @desc Create a new leave record
+   * @access Private
+   * @route POST /api/v1/leave
+   * @method POST
+   */
   static LeaveCreate = async (req, res, next) => {
     try {
-      // Destructure the relevant fields from the request body
+      // Destructure fields from the request body
       const {
         employeeId,
-        leaveType,
-        leaveDetails,
-        numOfDay,
-        hodStatus,
-        adminStatus,
+        leaveTypeId,
+        startDate,
+        endDate,
+        status = "pending",
+        allocatedLeaves,
+        carryForwardDays = 0,
+        additionalDaysRequested,
+        approvalLevel = 1,
+        managerComments,
+        hrComments,
+        reason,
+        supportingDocuments,
       } = req.body;
 
-      // Create and save the document in one step
-      const newLeave = await LeaveModel.create({
+      const newLeave = new LeaveModel({
         employeeId,
-        leaveType,
-        leaveDetails,
-        numOfDay,
-        hodStatus,
-        adminStatus,
+        leaveTypeId,
+        startDate,
+        endDate,
+        status,
+        allocatedLeaves,
+        carryForwardDays,
+        additionalDaysRequested,
+        approvalLevel,
+        managerComments,
+        hrComments,
+        reason,
+        supportingDocuments,
       });
 
-      // Respond with status 201 (Created) and the newly created record
-      res.status(201).json(newLeave);
-    } catch (error) {
-      // Log the error (optional)
-      console.error("Error creating leave:", error);
+      // Save the new leave record to the database
+      const result = await newLeave.save();
 
-      next();
+      // Respond with the newly created leave record
+      res.status(201).json(result);
+    } catch (error) {
+      // Pass the error to the next middleware (error handler)
+      next(new CreateError("Failed to create leave record", 500, error));
     }
   };
-  ed;
 
   /**
    * @desc Leave List
