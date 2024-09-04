@@ -5,7 +5,7 @@ const contactSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: true,
     },
     contactType: {
@@ -27,11 +27,6 @@ const contactSchema = new Schema(
     },
     email: {
       type: String,
-    },
-    organizationId: {
-      type: Schema.Types.ObjectId,
-      ref: "Organization",
-      required: true,
     },
   },
   {

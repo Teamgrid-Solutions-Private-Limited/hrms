@@ -34,10 +34,6 @@ app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
 app.use("/api", employeeRoute);
 
-// app.use("/api", leavetypeRoute);
-// app.use("/api", workAssignRoute);
-// app.use("/shift", shiftRequestRoute);
-
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
   console.error(err.stack);
