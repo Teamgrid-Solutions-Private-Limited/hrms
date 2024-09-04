@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("./db/conn");
 const roleRoute = require("./routes/roleRoutes");
-const organizatioRoute = require("./routes/organizationRoutes");
+
 const userRoute = require("./routes/userRoutes");
 const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", roleRoute);
-app.use("/api", organizatioRoute);
+
 app.use("/api", userRoute);
 app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
