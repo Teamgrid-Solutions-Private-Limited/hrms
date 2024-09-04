@@ -8,7 +8,7 @@ const userRoute = require("./routes/userRoutes");
 const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
 const pageElemntRoute = require("./routes/pagesElementRoutes");
-const employeeRoute = require("./routes/employeeRoutes");
+const documentRoute = require("./routes/documentRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
@@ -27,12 +27,11 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", roleRoute);
-
 app.use("/api", userRoute);
 app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
-app.use("/api", employeeRoute);
+app.use("/api", documentRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
@@ -43,7 +42,7 @@ app.use((err, req, res, next) => {
 // Only start the server after a successful database connection
 mongoose.connection.once("open", () => {
   app.listen(PORT, () => {
-    console.log(`Server has started at port ${PORT}`);
+    console.log(`Server up and down ${PORT}`);
   });
 });
 

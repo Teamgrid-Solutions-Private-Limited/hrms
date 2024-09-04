@@ -1,12 +1,13 @@
 // controllers/documentController.js
-const Document = require("../models/documentSchema"); // Adjust the path to your model
-const User = require("../models/userSchema"); // Adjust the path to your user model
+const Document = require("../models/documentSchema");
+const User = require("../models/userSchema");
 
-class DocumentController {
+const BASE_URL = process.env.BASE_URL;
+UPLOAD_URL = `${BASE_URL}images/`;
+class documentController {
   static async createDocument(req, res) {
     try {
-      const { userId, documentType, expirationDate, status, metadata, notes } =
-        req.body;
+      const { userId, documentType, expirationDate, status, notes } = req.body;
 
       // Check if a file was uploaded
       if (!req.file) {
@@ -17,7 +18,7 @@ class DocumentController {
       }
 
       // Get the document URL from the file's path
-      const documentUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+      const documentUrl = `${UPLOAD_URL}${req.file.filename}` || null;
 
       // Validate and fetch user details using userId
       const user = await User.findById(userId);
@@ -37,7 +38,6 @@ class DocumentController {
         status,
         uploaderName: user.username, // Add the username of the uploader
         notes,
-        metadata, // Assuming metadata is part of the request body
       });
 
       // Save the document to the database
@@ -60,4 +60,4 @@ class DocumentController {
   }
 }
 
-module.exports = DocumentController;
+module.exports = documentController;
