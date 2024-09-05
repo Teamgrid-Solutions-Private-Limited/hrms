@@ -10,6 +10,8 @@ const pagesRoute = require("./routes/pagesRoutes");
 const pageElemntRoute = require("./routes/pagesElementRoutes");
 const documentRoute = require("./routes/documentRoutes");
 
+const professionalInfoRoute = require("./routes/professionalinfoRoutes");
+
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
 // const shiftRequestRoute = require("./routes/shiftRequestRoutes");
@@ -32,6 +34,7 @@ app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
 app.use("/api", documentRoute);
+app.use("/api", professionalInfoRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {

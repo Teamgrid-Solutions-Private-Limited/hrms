@@ -10,7 +10,7 @@ const documentSchema = new mongoose.Schema(
     },
     documentType: {
       type: String,
-      enum: ["ID", "Passport", "Certificate", "Contract", "Other"],
+      enum: ["ID", "adhaar", "Passport", "Certificate", "Contract", "Other"],
       required: [true, "Document type is required"],
     },
     documentUrl: {
