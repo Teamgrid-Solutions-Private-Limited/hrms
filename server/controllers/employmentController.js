@@ -1,4 +1,4 @@
-const EmploymentInfo = require('../models/employmentInfo');
+const EmploymentInfo = require('../models/employeementSchema');
 
 class employmentController {
    
