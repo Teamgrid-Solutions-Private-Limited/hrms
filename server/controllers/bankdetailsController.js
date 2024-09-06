@@ -1,4 +1,4 @@
-const BankDetails = require('../models/BankDetails'); // Adjust the path as necessary
+const BankDetails = require('../models/bankDetailsSchema');  
 
 class bankdetailsController {
   // Error handling function
@@ -9,7 +9,12 @@ class bankdetailsController {
   // Create new bank details
   static createBankDetails = async (req, res) => {
     try {
-      const bankDetails = new BankDetails(req.body);
+      const {userId,bankName,accountNumber,branch,ifsc,bankAddressLine,bankCity,bankState,bankZipCode}= req.body;
+      if(!userId || !bankName || !accountNumber || !branch || !ifsc || !bankAddressLine || !bankCity || !bankState || !bankZipCode)
+      {
+          return res.status(201).json({message:"All fields are required"});
+      }
+      const bankDetails = new BankDetails(userId,bankName,accountNumber,branch,ifsc,bankAddressLine,bankCity,bankState,bankZipCode);
       await bankDetails.save();
       res.status(201).json(bankDetails);
     } catch (error) {
@@ -20,7 +25,8 @@ class bankdetailsController {
   // Get all bank details for a user
   static getBankDetails = async (req, res) => {
     try {
-      const bankDetails = await BankDetails.find({ userId: req.params.userId });
+      const userId = req.params.id;
+      const bankDetails = await BankDetails.find(userId);
       res.status(200).json(bankDetails);
     } catch (error) {
         bankdetailsController.handleError(res, error);
@@ -30,7 +36,8 @@ class bankdetailsController {
   // Get bank details by ID
   static getBankDetailsById = async (req, res) => {
     try {
-      const bankDetails = await BankDetails.findById(req.params.id);
+      const {id}= req.params;
+      const bankDetails = await BankDetails.findById(id);
       if (!bankDetails) {
         return res.status(404).json({ message: 'Bank details not found' });
       }
@@ -43,9 +50,11 @@ class bankdetailsController {
   // Update bank details by ID
   static updateBankDetails = async (req, res) => {
     try {
+      const {id} = req.params;
+      const data = req.body;
       const bankDetails = await BankDetails.findByIdAndUpdate(
-        req.params.id,
-        req.body,
+        id,
+        {$set:data},
         { new: true, runValidators: true }
       );
       if (!bankDetails) {
