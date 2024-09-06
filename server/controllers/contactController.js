@@ -35,7 +35,8 @@ class contactController {
   // Get a contact by ID
   static getContactById = async (req, res) => {
     try {
-      const contact = await Contact.findById(req.params.id).populate('userId');
+      const {id} = req.params.id;
+      const contact = await Contact.findById(id).populate('userId');
       if (!contact) {
         return res.status(404).json({ message: 'Contact not found' });
       }
@@ -48,7 +49,9 @@ class contactController {
   // Update a contact by ID
   static updateContact = async (req, res) => {
     try {
-      const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('userId');
+      const userId = req.params.id;
+      const data = req.body;
+      const contact = await Contact.findByIdAndUpdate(userId, {$set:data}, { new: true, runValidators: true }).populate('userId');
       if (!contact) {
         return res.status(404).json({ message: 'Contact not found' });
       }
@@ -61,7 +64,8 @@ class contactController {
   // Delete a contact by ID
   static deleteContact = async (req, res) => {
     try {
-      const contact = await Contact.findByIdAndDelete(req.params.id);
+      const {id} = req.params.id;
+      const contact = await Contact.findByIdAndDelete(id);
       if (!contact) {
         return res.status(404).json({ message: 'Contact not found' });
       }
