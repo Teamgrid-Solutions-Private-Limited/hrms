@@ -9,8 +9,10 @@ const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
 const pageElemntRoute = require("./routes/pagesElementRoutes");
 const documentRoute = require("./routes/documentRoutes");
-
+const userprofileroute = require("./routes/userProfileRoutes");
+const permissionRoute = require("./routes/permissionRoutes");
 const professionalInfoRoute = require("./routes/professionalinfoRoutes");
+const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
@@ -28,13 +30,16 @@ app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
 
-app.use("/api", roleRoute);
+app.use("/api/roles", roleRoute);
+app.use("/api/permissions", permissionRoute);
+app.use("/api/role-permissions", rolePermissionRoute);
 app.use("/api", userRoute);
 app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
+app.use("/api", userprofileroute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
