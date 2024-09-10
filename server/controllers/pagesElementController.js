@@ -30,43 +30,67 @@ class PageElementController {
     }
   }
 
-  static view = async(req,res)=>{
-    try{
+  static view = async (req, res) => {
+    try {
       const data = await PageElement.find();
-      res.status(200).json({message:"data retrive successfully",info:data});
-    }catch(error)
-    {
-      res.status(500).json({message:"data retrieval unsuccessfull"});
+      res
+        .status(200)
+        .json({ message: "data retrive successfully", info: data });
+    } catch (error) {
+      res.status(500).json({ message: "data retrieval unsuccessfull" });
     }
-  }
+  };
 
-  static delete = async(req,res)=>{
-    const {id} = req.params;
-    try{
+  // Get all elements of a page
+  static getPageElements = async (req, res) => {
+    try {
+      const { pageId } = req.params;
+      const pageElements = await PageElement.find({ pageId });
+      res.status(200).json({ pageElements });
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  };
+
+  static delete = async (req, res) => {
+    const { id } = req.params;
+    try {
       const data = await PageElement.findByIdAndDelete(id);
-      res.status(200).json({message:"pages element deletetd successfully",info:data});
-
-    }catch(error)
-    {res.status(500).json({message:"error deleting pages elements",error:error.message})};
-  }
-
-  static update = async(req,res)=>{
-    const {id}= req.params.id;
-    const data = req.body;
-    try{ 
-      const  update = await PageElement.findByIdAndUpdate(id,{$set:data},{new:true});
-
-      if(!update)
-      {
-        res.status(404).json({error:"pages element id not found"});
-      }
-      res.status(200).json({message:"update done successfully",info:update})
-    }catch(error)
-    {
-      res.status(500).json({message:"update can not be done",error:error.message})
+      res
+        .status(200)
+        .json({ message: "pages element deletetd successfully", info: data });
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          message: "error deleting pages elements",
+          error: error.message,
+        });
     }
-   
-  }
+  };
+
+  static update = async (req, res) => {
+    const { id } = req.params.id;
+    const data = req.body;
+    try {
+      const update = await PageElement.findByIdAndUpdate(
+        id,
+        { $set: data },
+        { new: true }
+      );
+
+      if (!update) {
+        res.status(404).json({ error: "pages element id not found" });
+      }
+      res
+        .status(200)
+        .json({ message: "update done successfully", info: update });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "update can not be done", error: error.message });
+    }
+  };
 }
 
 module.exports = PageElementController;

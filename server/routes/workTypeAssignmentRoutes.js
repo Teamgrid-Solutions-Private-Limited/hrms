@@ -7,5 +7,6 @@ const {
 
 // POST route for creating a new work type assignment
 router.post("/work-type-assignments", createWorkTypeAssignment);
+//router.put("/work-type-assignments", createWorkTypeAssignment);
 
 module.exports = router;
