@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const shiftRequestSchema = new Schema({
-  employeeId: { type: Schema.Types.ObjectId, ref: "Employee", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
   currentRequestType: { type: String, required: true },
   newRequestType: {
     type: String,
