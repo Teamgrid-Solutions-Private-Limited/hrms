@@ -9,10 +9,15 @@ const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
 const pageElemntRoute = require("./routes/pagesElementRoutes");
 const documentRoute = require("./routes/documentRoutes");
-
+const userprofileroute = require("./routes/userProfileRoutes");
+const permissionRoute = require("./routes/permissionRoutes");
 const professionalInfoRoute = require("./routes/professionalinfoRoutes");
+<<<<<<< HEAD
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
+=======
+const rolePermissionRoute = require("./routes/rolePermissionRoutes");
+>>>>>>> hrms-saruk
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
 // const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
@@ -30,15 +35,21 @@ app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
 
-app.use("/api", roleRoute);
+app.use("/api/roles", roleRoute);
+app.use("/api/permissions", permissionRoute);
+app.use("/api/role-permissions", rolePermissionRoute);
 app.use("/api", userRoute);
 app.use("/api", pageGroupRoute);
 app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
+<<<<<<< HEAD
 // app.use("/api", employeeRoute);
 app.use("/api",employmentRoute);
+=======
+app.use("/api", userprofileroute);
+>>>>>>> hrms-saruk
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
