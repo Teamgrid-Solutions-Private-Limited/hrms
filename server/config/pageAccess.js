@@ -86,3 +86,31 @@ const checkPageAccess = (pageSlug) => {
 };
 
 module.exports = checkPageAccess;
+
+const checkPermission = (requiredPermissions) => {
+  return async (req, res, next) => {
+    try {
+      const user = req.user; // Assuming user is set after authentication
+      const role = await Role.findById(user.roleId).populate("permissions");
+
+      // Check if user role has the required permissions
+      const hasPermission = role.permissions.some((permission) =>
+        requiredPermissions.includes(permission.name)
+      );
+
+      if (!hasPermission) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
+// Usage in route
+app.get("/some-secured-page", checkPermission(["view_page"]), (req, res) => {
+  res.send("This is a secured page");
+});
+
+module.exports = checkPermission;

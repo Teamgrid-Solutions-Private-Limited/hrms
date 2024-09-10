@@ -1,22 +1,17 @@
 const express = require("express");
-const authenticate = require("../middlewares/authJwt");
-
-const {
-  addUserProfile,
-  getAllUserProfiles,
-  getUserProfileById,
-} = require("../controllers/userProfileController");
-const checkRole = require("../middlewares/checkRole");
-
 const router = express.Router();
+const UserProfileController = require("../controllers/userProfileController");
+const authenticate = require("../middleware/authenticate");
+const checkRole = require("../middleware/checkRole");
+const checkPageAccess = require("../middleware/checkPageAccess");
 
-router.post("/add-userprofile", addUserProfile);
-router.get("/view-userprofile", getAllUserProfiles);
+// Routes for user profiles with RBAC and page access control
 router.get(
-  "/view-userprofile/:id",
+  "/profile",
   authenticate,
-  checkRole(["employee", "HR", "admin"]),
-  getUserProfileById
+  checkRole(["view_profile"]), // Check if the user has the 'view_profile' permission
+  checkPageAccess("profile"), // Check if the user has access to the 'profile' page
+  UserProfileController.getAllUserProfiles // Handle the request
 );
 
 module.exports = router;
