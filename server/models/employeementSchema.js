@@ -42,4 +42,4 @@ const employmentInfoSchema = new Schema(
   { timestamps: true, versionKey: false }
 );
 
-module.exports = mongoose.model("employmentinfo", employmentInfoSchema);
+module.exports = mongoose.model("employmentinfos", employmentInfoSchema);

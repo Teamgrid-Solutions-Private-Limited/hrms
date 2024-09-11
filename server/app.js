@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("./db/conn");
 const roleRoute = require("./routes/roleRoutes");
-
 const userRoute = require("./routes/userRoutes");
 const pageGroupRoute = require("./routes/pagesGroupRoutes");
 const pagesRoute = require("./routes/pagesRoutes");
@@ -12,8 +11,14 @@ const documentRoute = require("./routes/documentRoutes");
 const userprofileroute = require("./routes/userProfileRoutes");
 const permissionRoute = require("./routes/permissionRoutes");
 const professionalInfoRoute = require("./routes/professionalinfoRoutes");
+const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
+const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes"); 
+const shiftRequestRoute  = require("./routes/shiftRequestRoutes");
+const  rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
+
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
+
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
@@ -44,6 +49,11 @@ app.use("/api", professionalInfoRoute);
 // app.use("/api", employeeRoute);
 app.use("/api",employmentRoute);
 app.use("/api", userprofileroute);
+app.use("/api", userprofileroute);
+app.use("/api", worktyprequestRoute);
+app.use("/api", worktypeAssignRoute);
+app.use("/api", shiftRequestRoute);
+app.use("/api", rotatingShiftRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
@@ -56,8 +66,4 @@ mongoose.connection.once("open", () => {
   app.listen(PORT, () => {
     console.log(`Server up and down ${PORT}`);
   });
-});
-
-mongoose.connection.on("error", (err) => {
-  console.error("Mongoose connection error:", err);
 });

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const rotatingShiftAssignSchema = new mongoose.Schema({
-  employeeId: { type: Schema.Types.ObjectId, ref: "users", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
   currentShiftType: { type: String, required: true },
   newShiftType: { type: String, required: true },
   changeDate: { type: Date, default: Date.now },

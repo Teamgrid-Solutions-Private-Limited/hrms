@@ -11,4 +11,4 @@ const PageGroupSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("pagegroup", PageGroupSchema);
+module.exports = mongoose.model("pagegroups", PageGroupSchema);

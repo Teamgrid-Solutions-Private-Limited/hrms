@@ -13,7 +13,7 @@ const roleSchema = new Schema(
     permissions: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Permission", // Reference to the 'permissions' model
+        ref: "permission", // Reference to the 'permissions' model
       },
     ],
     pageAccess: [
@@ -25,7 +25,7 @@ const roleSchema = new Schema(
     elementAccess: [
       {
         type: Schema.Types.ObjectId,
-        ref: "pageelement", // Reference to the 'pageelement' model
+        ref: "pageelements", // Reference to the 'pageelement' model
       },
     ],
   },
@@ -34,6 +34,6 @@ const roleSchema = new Schema(
   }
 );
 
-const Role = mongoose.model("Role", roleSchema);
+const Role = mongoose.model("roles", roleSchema);
 
 module.exports = Role;
