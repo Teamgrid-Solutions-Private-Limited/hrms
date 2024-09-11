@@ -7,7 +7,7 @@ const checkRole = require('../middlewares/checkRole');
 // Apply JWT authentication middleware to all routes
 router.use(jwtAuth);
 
-// Define routes with appropriate role checks
+ 
 router.post('/work-type/requests', checkRole('create'), WorkTypeRequestController.createWorkTypeRequest);
 router.get('/work-type/requests', checkRole('view'), WorkTypeRequestController.getWorkTypeRequests);
 router.put('/work-type/requests/:id', checkRole('update'), WorkTypeRequestController.updateWorkTypeRequest);
