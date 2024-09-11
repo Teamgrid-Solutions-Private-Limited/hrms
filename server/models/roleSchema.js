@@ -10,19 +10,19 @@ const roleSchema = new Schema(
       unique: true,
       trim: true,
     },
-    permissions: [
+    permissionsId: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "permission", // Reference to the 'permissions' model
       },
     ],
-    pageAccess: [
+    pageAccessId: [
       {
         type: Schema.Types.ObjectId,
         ref: "pages", // Reference to the 'pages' model
       },
     ],
-    elementAccess: [
+    elementAccessId: [
       {
         type: Schema.Types.ObjectId,
         ref: "pageelements", // Reference to the 'pageelement' model

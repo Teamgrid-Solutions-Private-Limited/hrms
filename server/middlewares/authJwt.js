@@ -1,45 +1,28 @@
+///Middleware :
+
 const jwt = require("jsonwebtoken");
-const User = require("../models/userSchema");
 
-module.exports = async function (req, res, next) {
-  // Get the token from the authorization header
-  const authHeader = req.header("Authorization");
-
-  if (!authHeader) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
-  }
-
-  // Split the 'Bearer' prefix and extract the actual token
-  const token = authHeader.split(" ")[1]; // Extracts the token after 'Bearer '
+// Middleware to check if the user has a valid token
+const checkUser = (req, res, next) => {
+  // Extract token from Authorization header
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Extract token from Bearer <token>
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. Invalid token format." });
+    return res.status(401).json({ message: "No token provided" });
   }
 
   try {
-    // Verify the token using the secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Find the user associated with the token
-    const user = await User.findById(decoded.id).select("-password");
-
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invalid token. User not found." });
-    }
-
-    // Attach the user to the request object for further usage
-    req.user = user;
-
-    // Proceed to the next middleware or route handler
-    next();
-  } catch (error) {
-    // Handle any error that occurs during token verification
-    return res.status(400).json({ message: "Invalid token.", error });
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    req.user = decoded; // Attach decoded user info to request object
+    console.log(decoded); // Log decoded information (for debugging purposes)
+    next(); // Proceed to the next middleware or route handler
+  } catch (err) {
+    console.error("Token verification error:", err.message);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+module.exports = checkUser;
+console.log("User check middleware is ready to use");

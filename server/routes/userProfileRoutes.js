@@ -8,17 +8,17 @@ const roleMiddleware = require("../middlewares/checkRole"); // Ensures user has 
 router.get(
   "/profiles",
   authMiddleware,
-  roleMiddleware("view_profiles"), // User must have the 'view_profiles' permission
+  roleMiddleware("view_profile"), // User must have the 'view_profiles' permission
   UserProfileController.getAllUserProfiles
 );
 
 // View a specific user profile (View a single employee)
-router.get(
-  "/profile/:id",
-  authMiddleware,
-  roleMiddleware("view_profile"), // User must have the 'view_profile' permission
-  UserProfileController.getUserProfileById
-);
+// router.get(
+//   "/profile/:id",
+//   authMiddleware,
+//   roleMiddleware("view_profile"), // User must have the 'view_profile' permission
+//   UserProfileController.getUserProfileById
+// );
 
 // Add a new user profile (Add Employee)
 router.post(

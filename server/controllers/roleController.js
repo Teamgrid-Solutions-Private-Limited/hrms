@@ -1,63 +1,94 @@
-// controllers/roleController.js
-const Role = require("../models/roleSchema");
+const Role = require("../models/roleSchema"); // Assuming this is the correct path for your Role model
 
-exports.createRole = async (req, res) => {
+// Create a new role
+const createRole = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    const role = new Role({ name });
-    await role.save();
-    res.status(201).json(role);
+    const { name, permissionsId, pageAccessId } = req.body;
+
+    // Create the new role
+    const newRole = new Role({
+      name,
+      permissionsId,
+      pageAccessId,
+    });
+
+    const savedRole = await newRole.save();
+    res.status(201).json(savedRole);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next(error);
   }
 };
 
-exports.getAllRoles = async (req, res) => {
+// Get all roles
+const getAllRoles = async (req, res, next) => {
   try {
-    const roles = await Role.find();
-    res.status(200).json(roles);
+    const roles = await Role.find()
+      .populate("permissionsId")
+      .populate("pageAccessId");
+
+    res.json(roles);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next();
   }
 };
 
-exports.getRoleById = async (req, res) => {
+// Get role by ID
+const getRoleById = async (req, res, next) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const role = await Role.findById(req.params.id)
+      .populate("permissionsId")
+      .populate("pageAccessId")
+      .populate("elementAccessId");
     if (!role) {
       return res.status(404).json({ message: "Role not found" });
     }
-    res.status(200).json(role);
+    res.json(role);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next();
   }
 };
 
-exports.updateRole = async (req, res) => {
+// Update role by ID
+const updateRole = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    const role = await Role.findByIdAndUpdate(
+    const { name, permissionsId, pageAccessId, elementAccessId } = req.body;
+
+    const updatedRole = await Role.findByIdAndUpdate(
       req.params.id,
-      { name },
+      { name, permissionsId, pageAccessId, elementAccessId },
       { new: true }
-    );
-    if (!role) {
+    )
+      .populate("permissionsId")
+      .populate("pageAccessId")
+      .populate("elementAccessId");
+
+    if (!updatedRole) {
       return res.status(404).json({ message: "Role not found" });
     }
-    res.status(200).json(role);
+
+    res.json(updatedRole);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next();
   }
 };
 
-exports.deleteRole = async (req, res) => {
+// Delete role by ID
+const deleteRole = async (req, res, next) => {
   try {
-    const role = await Role.findByIdAndDelete(req.params.id);
-    if (!role) {
+    const deletedRole = await Role.findByIdAndDelete(req.params.id);
+    if (!deletedRole) {
       return res.status(404).json({ message: "Role not found" });
     }
-    res.status(200).json({ message: "Role deleted successfully" });
+    res.json({ message: "Role deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    next();
   }
+};
+
+module.exports = {
+  createRole,
+  getAllRoles,
+  getRoleById,
+  updateRole,
+  deleteRole,
 };
