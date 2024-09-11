@@ -62,4 +62,4 @@ const ProfessionalInfoSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("professionalinfo", ProfessionalInfoSchema);
+module.exports = mongoose.model("professionalinfos", ProfessionalInfoSchema);

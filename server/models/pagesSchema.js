@@ -6,12 +6,12 @@ const PagesSchema = new Schema({
   slug: { type: String, required: true, unique: true },
   pageGroupId: {
     type: Schema.Types.ObjectId,
-    ref: "PageGroup",
+    ref: "pagegroups",
     required: true,
   },
   order: { type: Number, default: 0 },
   isVisible: { type: Boolean, default: true },
-  accessRoles: [{ type: Schema.Types.ObjectId, ref: "Role" }], // Array of Role references
+  accessRoles: [{ type: Schema.Types.ObjectId, ref: "roles" }], // Array of Role references
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

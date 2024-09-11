@@ -10,4 +10,4 @@ const PageElementSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("pageelement", PageElementSchema);
+module.exports = mongoose.model("pageelements", PageElementSchema);
