@@ -1,24 +1,10 @@
-const Employee = require('../models/employeeSchema');
 const ShiftRequest = require('../models/shiftRequestSchema');
 
-class shiftrequestController {
-    // Static method to check permissions based on employee role and action
-    static checkPermissions = (userRole, action) => {
-        const rolePermissions = {
-            employee: ['view', 'create', 'update', 'delete'],
-            manager: ['approve', 'reject', 'comment'],
-            admin: ['approve', 'reject', 'update', 'delete']
-        };
-        return rolePermissions[userRole] && rolePermissions[userRole].includes(action);
-    };
-
+class ShiftRequestController {
     // Create a new shift request
     static createShiftRequest = async (req, res) => {
-        if (!shiftrequestController.checkPermissions(req.user.role, 'create')) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
         try {
+            // Create shift request
             const shiftRequest = new ShiftRequest({
                 userId: req.body.userId,
                 currentRequestType: req.body.currentRequestType,
@@ -34,18 +20,14 @@ class shiftrequestController {
         }
     };
 
-    // Get shift requests for a specific employee or all if the employee is an admin
+    // Get shift requests
     static getShiftRequests = async (req, res) => {
-        if (!shiftrequestController.checkPermissions(req.user.role, 'view')) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
         try {
             let shiftRequests;
-            if (req.employee.role === 'admin') {
+            if (req.user.role === 'admin') {
                 shiftRequests = await ShiftRequest.find();
             } else {
-                shiftRequests = await ShiftRequest.find({ employeeId: req.employee._id });
+                shiftRequests = await ShiftRequest.find({ userId: req.user._id });
             }
             res.status(200).json(shiftRequests);
         } catch (error) {
@@ -55,16 +37,14 @@ class shiftrequestController {
 
     // Update a shift request
     static updateShiftRequest = async (req, res) => {
-        if (!shiftrequestController.checkPermissions(req.user.role, 'update')) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
         try {
             const shiftRequest = await ShiftRequest.findById(req.params.id);
             if (!shiftRequest) {
                 return res.status(404).json({ message: 'Shift Request not found' });
             }
-            if (req.employee.role === 'employee' && shiftRequest.employeeId.toString() !== req.employee._id.toString()) {
+
+            // Ensure the user is authorized to update this request
+            if (req.user.role === 'employee' && shiftRequest.userId.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'Forbidden' });
             }
 
@@ -83,10 +63,6 @@ class shiftrequestController {
 
     // Delete a shift request
     static deleteShiftRequest = async (req, res) => {
-        if (!shiftrequestController.checkPermissions(req.user.role, 'delete')) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
         try {
             const shiftRequest = await ShiftRequest.findByIdAndDelete(req.params.id);
             if (!shiftRequest) {
@@ -100,16 +76,12 @@ class shiftrequestController {
 
     // Approve or reject a shift request (Manager/Admin only)
     static updateShiftRequestStatus = async (req, res) => {
-        if (!shiftrequestController.checkPermissions(req.user.role, 'approve') && !ShiftRequestController.checkPermissions(req.employee.role, 'reject')) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
         try {
             const shiftRequest = await ShiftRequest.findById(req.params.id);
             if (!shiftRequest) {
                 return res.status(404).json({ message: 'Shift Request not found' });
             }
-            if (req.employee.role === 'employee') {
+            if (req.user.role === 'employee') {
                 return res.status(403).json({ message: 'Forbidden' });
             }
 
@@ -131,4 +103,4 @@ class shiftrequestController {
     };
 }
 
-module.exports = shiftrequestController;
+module.exports = ShiftRequestController;
