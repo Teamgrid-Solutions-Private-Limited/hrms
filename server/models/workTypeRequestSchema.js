@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const workTypeRequestSchema = new mongoose.Schema({
-  employeeId: { type: Schema.Types.ObjectId, ref: "users", required: true },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    required: true,
+  },
   currentWorkType: { type: String, required: true },
   newWorkType: { type: String, required: true },
   requestDate: { type: Date, default: Date.now },

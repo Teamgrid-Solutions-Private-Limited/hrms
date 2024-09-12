@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const Role = require("../models/roleSchema");
+=======
+const RolePermission = require("../models/rolePermissionSchema");
+>>>>>>> main
 
 module.exports = (requiredPermission) => {
   return async (req, res, next) => {

@@ -11,6 +11,9 @@ const documentRoute = require("./routes/documentRoutes");
 const userprofileroute = require("./routes/userProfileRoutes");
 const permissionRoute = require("./routes/permissionRoutes");
 const professionalInfoRoute = require("./routes/professionalinfoRoutes");
+const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
+const shiftRequestRoute = require("./routes/shiftRequestRoutes");
+const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
 
 // const employeeRoute = require("./routes/employeeRoutes");
 //const employmentRoute = require("./routes/employmentRoutes");
@@ -18,7 +21,7 @@ const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
-// const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
+const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
 // const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 
 const PORT = process.env.PORT || 6010;
@@ -43,6 +46,10 @@ app.use("/api", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
 app.use("/api", userprofileroute);
+app.use("/api", worktyprequestRoute);
+app.use("/api", worktypeAssignRoute);
+app.use("/api", shiftRequestRoute);
+app.use("/api", rotatingShiftRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
