@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-<<<<<<< HEAD
 
 const jwtAuth = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
@@ -11,11 +10,7 @@ const {
   deleteWorkTypeRequest,
   updateWorkTypeRequestStatus,
 } = require("../controllers/workTypeRequestControler");
-=======
-const WorkTypeRequestController = require('../controllers/workTypeRequestControler');
-const jwtAuth = require('../middlewares/authJwt');  
-const checkRole = require('../middlewares/checkRole');  
->>>>>>> hrms-tanvir
+ 
 
 // Apply JWT authentication middleware to all routes
 router.use(jwtAuth);
