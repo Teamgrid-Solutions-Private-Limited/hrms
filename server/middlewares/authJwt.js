@@ -1,45 +1,39 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/userSchema");
+const User = require("../models/userSchema"); // Adjust path as needed
+const Role = require("../models/roleSchema"); // Adjust path as needed
+const RolePermission = require("../models/rolePermissionSchema"); // Adjust path as needed
 
-module.exports = async function (req, res, next) {
-  // Get the token from the authorization header
-  const authHeader = req.header("Authorization");
+const checkPermission = (requiredPermissions) => {
+  return async (req, res, next) => {
+    try {
+      // Extract token from headers
+      const token = req.headers["authorization"]?.split(" ")[1];
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-  if (!authHeader) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
-  }
+      // Verify token and extract user information
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId).populate("roleId");
+      if (!user) return res.status(404).json({ message: "User not found" });
 
-  // Split the 'Bearer' prefix and extract the actual token
-  const token = authHeader.split(" ")[1]; // Extracts the token after 'Bearer '
+      // Get permissions for the user's role
+      const role = await Role.findById(user.roleId);
+      const permissions = await RolePermission.find({
+        roleId: role._id,
+      }).populate("permissionId");
 
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. Invalid token format." });
-  }
+      const userPermissions = permissions.map((p) => p.permissionId.name);
 
-  try {
-    // Verify the token using the secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // Check if user has required permissions
+      const hasPermission = requiredPermissions.every((permission) =>
+        userPermissions.includes(permission)
+      );
+      if (!hasPermission) return res.status(403).json({ message: "Forbidden" });
 
-    // Find the user associated with the token
-    const user = await User.findById(decoded.id).select("-password");
-
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invalid token. User not found." });
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-
-    // Attach the user to the request object for further usage
-    req.user = user;
-
-    // Proceed to the next middleware or route handler
-    next();
-  } catch (error) {
-    // Handle any error that occurs during token verification
-    return res.status(400).json({ message: "Invalid token.", error });
-  }
+  };
 };
+
+module.exports = checkPermission;

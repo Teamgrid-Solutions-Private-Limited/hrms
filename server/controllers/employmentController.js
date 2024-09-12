@@ -1,19 +1,16 @@
 const EmploymentInfo = require("../models/employeementSchema");
 
-class EmploymentController {
+class EmploymentInfoController {
   // Helper function to handle errors
-  static handleError = (res, error, statusCode = 500) => {
-    res.status(statusCode).json({ error: error.message });
-  };
 
-  // Create employment info
-  static createEmploymentInfo = async (req, res, next) => {
+  // Create Employment Info
+  static createEmploymentInfo = async (req, res) => {
     try {
       const employmentInfo = new EmploymentInfo(req.body);
       await employmentInfo.save();
-      res.status(201).json(employmentInfo);
+      return res.status(201).json(employmentInfo);
     } catch (error) {
-      next(error); // Let Express handle uncaught errors via middleware
+      return res.status(500).json({ error: error.message });
     }
   };
 
@@ -23,7 +20,7 @@ class EmploymentController {
       const employmentInfos = await EmploymentInfo.find().populate("userId");
       res.status(200).json(employmentInfos);
     } catch (error) {
-      EmploymentController.handleError(res, error);
+      next(error);
     }
   };
 
@@ -40,7 +37,7 @@ class EmploymentController {
       }
       res.status(200).json(employmentInfo);
     } catch (error) {
-      EmploymentController.handleError(res, error);
+      next(error);
     }
   };
 
@@ -59,7 +56,7 @@ class EmploymentController {
       }
       res.status(200).json(employmentInfo);
     } catch (error) {
-      EmploymentController.handleError(res, error, 400);
+      next(error);
     }
   };
 
@@ -76,9 +73,9 @@ class EmploymentController {
       }
       res.status(204).send();
     } catch (error) {
-      EmploymentController.handleError(res, error);
+      next(error);
     }
   };
 }
 
-module.exports = EmploymentController;
+module.exports = EmploymentInfoController;

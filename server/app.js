@@ -20,9 +20,7 @@ const employmentRoute = require("./routes/employmentRoutes");
 
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
-// const leavetypeRoute = require("./routes/leaveTypeRoutes");
 const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
-// const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 
 const PORT = process.env.PORT || 6010;
 const app = express();
@@ -45,14 +43,12 @@ app.use("/api", pagesRoute);
 app.use("/api", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
-// app.use("/api", employeeRoute);
-app.use("/api",employmentRoute);
-app.use("/api", userprofileroute);
 app.use("/api", userprofileroute);
 app.use("/api", worktyprequestRoute);
 app.use("/api", worktypeAssignRoute);
 app.use("/api", shiftRequestRoute);
 app.use("/api", rotatingShiftRoute);
+app.use("/api", employmentRoute);
 
 // Error-handling middleware (should be the last middleware)
 app.use((err, req, res, next) => {
