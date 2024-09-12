@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const workTypeAssignmentSchema = new mongoose.Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
   currentWorkType: { type: String, required: true },
   newWorkType: { type: String, required: true },
   changeDate: { type: Date, default: Date.now },

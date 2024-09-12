@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const WorkTypeRequestController = require('../controllers/workTypeRequestController');
+const WorkTypeRequestController = require('../controllers/workTypeRequestControler');
 const jwtAuth = require('../middlewares/authJwt');  
 const checkRole = require('../middlewares/checkRole');  
 

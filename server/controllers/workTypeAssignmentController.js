@@ -1,4 +1,4 @@
-const WorkTypeAssignment = require("../models/WorkTypeAssignment");
+const WorkTypeAssignment = require("../models/workTypeAssignSchema");
 
 class WorkTypeAssignmentController {
   // Create a new work type assignment
