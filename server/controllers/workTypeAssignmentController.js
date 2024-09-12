@@ -1,4 +1,4 @@
-const WorkTypeAssignment = require("../models/WorkTypeAssignment");
+const WorkTypeAssignment = require("../models/workTypeAssignSchema");
 
 class WorkTypeAssignmentController {
   // Create a new work type assignment
@@ -66,7 +66,9 @@ class WorkTypeAssignmentController {
     try {
       const assignment = await WorkTypeAssignment.findById(req.params.id);
       if (!assignment) {
-        return res.status(404).json({ message: "Work type assignment not found" });
+        return res
+          .status(404)
+          .json({ message: "Work type assignment not found" });
       }
       res.status(200).json(assignment);
     } catch (error) {
@@ -109,7 +111,9 @@ class WorkTypeAssignmentController {
       );
 
       if (!updatedAssignment) {
-        return res.status(404).json({ message: "Work type assignment not found" });
+        return res
+          .status(404)
+          .json({ message: "Work type assignment not found" });
       }
 
       res.status(200).json({
@@ -125,11 +129,17 @@ class WorkTypeAssignmentController {
   // Delete a work type assignment by ID
   static async deleteWorkTypeAssignment(req, res) {
     try {
-      const deletedAssignment = await WorkTypeAssignment.findByIdAndDelete(req.params.id);
+      const deletedAssignment = await WorkTypeAssignment.findByIdAndDelete(
+        req.params.id
+      );
       if (!deletedAssignment) {
-        return res.status(404).json({ message: "Work type assignment not found" });
+        return res
+          .status(404)
+          .json({ message: "Work type assignment not found" });
       }
-      res.status(200).json({ message: "Work type assignment deleted successfully" });
+      res
+        .status(200)
+        .json({ message: "Work type assignment deleted successfully" });
     } catch (error) {
       console.error("Error deleting work type assignment:", error);
       res.status(500).json({ message: "Internal server error" });

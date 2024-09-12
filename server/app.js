@@ -12,9 +12,8 @@ const userprofileroute = require("./routes/userProfileRoutes");
 const permissionRoute = require("./routes/permissionRoutes");
 const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
-const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes"); 
-const shiftRequestRoute  = require("./routes/shiftRequestRoutes");
-const  rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
+const shiftRequestRoute = require("./routes/shiftRequestRoutes");
+const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
 
 // const employeeRoute = require("./routes/employeeRoutes");
 //const employmentRoute = require("./routes/employmentRoutes");
@@ -22,7 +21,7 @@ const  rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
 // const leavetypeRoute = require("./routes/leaveTypeRoutes");
-// const workAssignRoute = require("./routes/workTypeAssignmentRoutes");
+const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
 // const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 
 const PORT = process.env.PORT || 6010;
