@@ -7,7 +7,7 @@ const roleMiddleware = require("../middlewares/checkRole"); // Ensures user has 
 // View all user profiles (Employee Directory View)
 router.get(
   "/profiles",
-  authMiddleware,
+
   roleMiddleware("view_profile"), // User must have the 'view_profiles' permission
   UserProfileController.getAllUserProfiles
 );
@@ -23,7 +23,7 @@ router.get(
 // Add a new user profile (Add Employee)
 router.post(
   "/profile",
-  authMiddleware,
+
   roleMiddleware("add_profile"), // User must have the 'add_profile' permission
   UserProfileController.addUserProfile
 );
@@ -31,7 +31,7 @@ router.post(
 // Update a user profile (Edit Employee)
 router.put(
   "/profile/:id",
-  authMiddleware,
+
   roleMiddleware("edit_profile"), // User must have the 'edit_profile' permission
   UserProfileController.updateUserProfile
 );
@@ -39,7 +39,7 @@ router.put(
 // Delete a user profile (Delete Employee)
 router.delete(
   "/profile/:id",
-  authMiddleware,
+
   roleMiddleware("delete_profile"), // User must have the 'delete_profile' permission
   UserProfileController.deleteUserProfile
 );

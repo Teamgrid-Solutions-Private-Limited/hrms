@@ -1,15 +1,29 @@
-const { createEmploymentInfo, getAllEmploymentInfos, getEmploymentInfoById, updateEmploymentInfo, deleteEmploymentInfo } = require('../controllers/employmentController');
-const express = require('express');
-
-
-
+const express = require("express");
+const EmploymentInfoController = require("../controllers/employmentController");
 const router = express.Router();
 
-router.post('/employment/add',createEmploymentInfo);
-router.get('/employment/view',getAllEmploymentInfos);
-router.get('/employment/viewById',getEmploymentInfoById);
-router.put('/employment/update/:id',updateEmploymentInfo);
-router.delete('/employment/delete/:id',deleteEmploymentInfo);
+// Create employment info (POST)
+router.post("/employmentinfo", EmploymentInfoController.createEmploymentInfo);
 
- module.exports= router;
+// Get all employment infos (GET)
+router.get("/employmentinfo", EmploymentInfoController.getAllEmploymentInfos);
 
+// Get employment info by ID (GET)
+router.get(
+  "/employmentinfo/:id",
+  EmploymentInfoController.getEmploymentInfoById
+);
+
+// Update employment info by ID (PUT)
+router.put(
+  "/employmentinfo/:id",
+  EmploymentInfoController.updateEmploymentInfo
+);
+
+// Delete employment info by ID (DELETE)
+router.delete(
+  "/employmentinfo/:id",
+  EmploymentInfoController.deleteEmploymentInfo
+);
+
+module.exports = router;

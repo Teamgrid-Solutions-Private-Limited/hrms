@@ -5,7 +5,7 @@ const roleSchema = new Schema(
   {
     name: {
       type: String,
-      enum: ["super_admin", "admin", "hr", "employee"], // Enum-like validation
+      enum: ["super_admin", "admin", "hr", "employee"],
       required: true,
       unique: true,
       trim: true,
@@ -13,19 +13,19 @@ const roleSchema = new Schema(
     permissionsId: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "permission", // Reference to the 'permissions' model
+        ref: "permission",
       },
     ],
     pageAccessId: [
       {
         type: Schema.Types.ObjectId,
-        ref: "pages", // Reference to the 'pages' model
+        ref: "pages",
       },
     ],
     elementAccessId: [
       {
         type: Schema.Types.ObjectId,
-        ref: "pageelements", // Reference to the 'pageelement' model
+        ref: "pageelements",
       },
     ],
   },

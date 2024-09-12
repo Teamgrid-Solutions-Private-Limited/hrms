@@ -12,7 +12,7 @@ const jwtAuth = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
 
 // Apply JWT authentication middleware to all routes
-router.use(jwtAuth);
+// router.use(jwtAuth);
 
 router.post(
   "/work-type/assignments",
