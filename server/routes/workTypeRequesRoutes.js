@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const jwtAuth = require("../middlewares/authJwt");
+//const jwtAuth = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
 const {
   createWorkTypeRequest,
@@ -13,7 +13,7 @@ const {
  
 
 // Apply JWT authentication middleware to all routes
-router.use(jwtAuth);
+//router.use(jwtAuth);
 
 router.post("/work-type/requests", checkRole("create"), createWorkTypeRequest);
 router.get("/work-type/requests", checkRole("view"), getWorkTypeRequests);

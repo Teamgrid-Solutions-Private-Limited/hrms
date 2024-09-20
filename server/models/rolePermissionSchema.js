@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const rolePermissionSchema = new mongoose.Schema(
+const rolePermissionSchema = new Schema(
   {
     roleId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "roles",
+      type: Schema.Types.ObjectId,
+      ref: "roles", // Reference to the Role model
+      required: true,
+    },
+    permissionId: {
+      type: Schema.Types.ObjectId,
+      ref: "permission", // Reference to the Permission model
       required: true,
     },
     permissionId: {
@@ -13,7 +19,11 @@ const rolePermissionSchema = new mongoose.Schema(
       required :true,
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Automatically add createdAt and updatedAt fields
+  }
 );
 
-module.exports = mongoose.model("rolepermissions", rolePermissionSchema);
+const RolePermission = mongoose.model("rolepermissions", rolePermissionSchema);
+
+module.exports = RolePermission;
