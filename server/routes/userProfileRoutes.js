@@ -8,7 +8,7 @@ const roleMiddleware = require("../middlewares/checkRole"); // Ensures user has 
 router.get(
   "/profiles",
   authMiddleware,
-  roleMiddleware("view_profiles"), // User must have the 'view_profiles' permission
+  roleMiddleware("read"), // User must have the 'view_profiles' permission
   UserProfileController.getAllUserProfiles
 );
 
@@ -16,7 +16,7 @@ router.get(
 router.get(
   "/profile/:id",
   authMiddleware,
-  roleMiddleware("view_profile"), // User must have the 'view_profile' permission
+  roleMiddleware("read"), // User must have the 'view_profile' permission
   UserProfileController.getUserProfileById
 );
 
@@ -24,7 +24,7 @@ router.get(
 router.post(
   "/profile",
   authMiddleware,
-  roleMiddleware("add_profile"), // User must have the 'add_profile' permission
+  roleMiddleware("add"), // User must have the 'add_profile' permission
   UserProfileController.addUserProfile
 );
 
@@ -32,7 +32,7 @@ router.post(
 router.put(
   "/profile/:id",
   authMiddleware,
-  roleMiddleware("edit_profile"), // User must have the 'edit_profile' permission
+  roleMiddleware("update"), // User must have the 'edit_profile' permission
   UserProfileController.updateUserProfile
 );
 
@@ -40,7 +40,7 @@ router.put(
 router.delete(
   "/profile/:id",
   authMiddleware,
-  roleMiddleware("delete_profile"), // User must have the 'delete_profile' permission
+  roleMiddleware("delete"), // User must have the 'delete_profile' permission
   UserProfileController.deleteUserProfile
 );
 

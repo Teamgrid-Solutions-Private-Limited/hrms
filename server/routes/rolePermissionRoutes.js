@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 const rolePermissionController = require("../controllers/rolePermissionController");
 
-router.post("/", rolePermissionController.assignPermissionToRole);
-router.get("/", rolePermissionController.getRolePermissionsByRoleId);
+router.post("/addrole", rolePermissionController.assignPermissionToRole);
+router.get("/viewrole", rolePermissionController.getRolePermissionsByRoleId);
 
 //router.delete("/:id", rolePermissionController.removePermissionFromRole);
 
