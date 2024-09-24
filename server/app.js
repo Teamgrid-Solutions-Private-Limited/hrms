@@ -34,13 +34,13 @@ app.get("/", (req, res) => {
   res.send("Welcome to the homepage!");
 });
 
-app.use("/api/roles", roleRoute);
-app.use("/api/permissions", permissionRoute);
-app.use("/api/role-permissions", rolePermissionRoute);
+app.use("/roles", roleRoute);
+app.use("/permissions", permissionRoute);
+app.use("/role-permissions", rolePermissionRoute);
 app.use("/api", userRoute);
-app.use("/api", pageGroupRoute);
-app.use("/api", pagesRoute);
-app.use("/api", pageElemntRoute);
+app.use("/page-group", pageGroupRoute);
+app.use("/pages", pagesRoute);
+app.use("/page-elelment", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
 app.use("/api", userprofileroute);

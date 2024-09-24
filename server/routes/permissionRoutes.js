@@ -1,12 +1,12 @@
 // routes/permissionRoutes.js
 const express = require("express");
 const router = express.Router();
-const permissionController = require("../controllers/permissionController");
+const PC = require("../controllers/permissionController");
 
-router.post("/", permissionController.createPermission);
-router.get("/", permissionController.getAllPermissions);
-router.get("/:id", permissionController.getPermissionById);
-router.put("/:id", permissionController.updatePermission);
-router.delete("/:id", permissionController.deletePermission);
+router.post("/add", PC.createPermission);
+router.get("/viewall",PC.getAllPermissions);
+router.get("/viewbyid/:id",PC.getPermissionById);
+router.put("/update/:id",PC.updatePermission);
+router.delete("/delete/:id",PC.deletePermission);
 
 module.exports = router;

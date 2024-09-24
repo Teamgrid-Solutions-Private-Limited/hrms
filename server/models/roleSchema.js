@@ -10,24 +10,7 @@ const roleSchema = new Schema(
       unique: true,
       trim: true,
     },
-    permissionsId: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "permission",
-      },
-    ],
-    pageAccessId: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "pages",
-      },
-    ],
-    elementAccessId: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "pageelements",
-      },
-    ],
+   
   },
   {
     timestamps: true,

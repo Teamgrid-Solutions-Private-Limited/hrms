@@ -8,16 +8,12 @@ const rolePermissionSchema = new Schema(
       ref: "roles", // Reference to the Role model
       required: true,
     },
-    permissionId: {
-      type: Schema.Types.ObjectId,
-      ref: "permission", // Reference to the Permission model
-      required: true,
-    },
-    permissionId: {
+   
+    permissionId: [{
       type : mongoose.Schema.Types.ObjectId,
       ref : "permission",
       required :true,
-    }
+    }]
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields

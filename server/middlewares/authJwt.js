@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/userSchema"); // Adjust path as needed
-const Role = require("../models/roleSchema"); // Adjust path as needed
-const RolePermission = require("../models/rolePermissionSchema"); // Adjust path as needed
+const User = require("../models/userSchema");
+const Role = require("../models/roleSchema");
+const RolePermission = require("../models/rolePermissionSchema");
 
-const checkPermission = (requiredPermissions) => {
+const checkRoleAndPermission = (requiredPermission) => {
   return async (req, res, next) => {
     try {
       // Extract token from headers
@@ -12,28 +12,33 @@ const checkPermission = (requiredPermissions) => {
 
       // Verify token and extract user information
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId).populate("roleId");
+      const userId = decoded.id; // Make sure this matches your JWT payload
+
+      // Find user and populate role
+      const user = await User.findById(userId).populate("roleId");
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      // Get permissions for the user's role
-      const role = await Role.findById(user.roleId);
-      const permissions = await RolePermission.find({
-        roleId: role._id,
-      }).populate("permissionId");
+      // Fetch the role and its permissions
+      const rolePermissions = await RolePermission.findOne({ roleId: user.roleId }).populate("permissionId");
+      if (!rolePermissions) return res.status(404).json({ message: "Role permissions not found" });
 
-      const userPermissions = permissions.map((p) => p.permissionId.name);
+      // Extract permissions
+      const permissions = rolePermissions.permissionId.map(permission => permission.name);
+      console.log("User Permissions:", permissions); // Debugging line
 
-      // Check if user has required permissions
-      const hasPermission = requiredPermissions.every((permission) =>
-        userPermissions.includes(permission)
-      );
-      if (!hasPermission) return res.status(403).json({ message: "Forbidden" });
+      // Check if user has the required permission
+      if (!permissions.includes(requiredPermission)) {
+        return res.status(403).json({ message: "Forbidden: You do not have the required permissions" });
+      }
 
+      // Set user information in the request for later use
+      req.user = { id: user._id, role: user.roleId };
       next();
     } catch (err) {
+      console.error("Error in authorization middleware:", err);
       return res.status(401).json({ message: "Unauthorized" });
     }
   };
 };
 
-module.exports = checkPermission;
+module.exports = checkRoleAndPermission;
