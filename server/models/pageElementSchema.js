@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
- mongoose.Schema
+ 
 
-const pageElementSchema = new Schema({
+const pageElementSchema = new mongoose.Schema({
   pageId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "pages",
