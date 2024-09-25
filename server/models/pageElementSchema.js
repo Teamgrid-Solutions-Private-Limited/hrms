@@ -1,13 +1,28 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+ mongoose.Schema
 
-const PageElementSchema = new Schema(
-  {
-    elementName: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    pageId: { type: Schema.Types.ObjectId, ref: "pages", required: true }, // Reference to the Pages collection
+const pageElementSchema = new Schema({
+  pageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "pages",
+    required: true
   },
-  { timestamps: true }
-);
+  type: {
+    type: String,
+    required: true,
+    enum: ["input", "button", "text"], // Restricting types to specific options
+  },
+ 
+  disabledForRoles: [{
+    type: String,
+    enum: ["admin", "hr", "employee", "manager"], 
+  }],
+  status: {
+    type: String,
+    enum: ["active", "inactive"],
+    default: "active"
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model("pageelements", PageElementSchema);
+const PageElement = mongoose.model("pageelements", pageElementSchema);
+module.exports = PageElement;
