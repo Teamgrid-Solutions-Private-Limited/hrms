@@ -40,7 +40,7 @@ app.use("/role-permissions", rolePermissionRoute);
 app.use("/api", userRoute);
 app.use("/page-group", pageGroupRoute);
 app.use("/pages", pagesRoute);
-app.use("/page-elelment", pageElemntRoute);
+app.use("/pageelement", pageElemntRoute);
 app.use("/api", documentRoute);
 app.use("/api", professionalInfoRoute);
 app.use("/api", userprofileroute);

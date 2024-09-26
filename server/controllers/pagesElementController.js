@@ -1,96 +1,112 @@
-const PageElement = require("../models/pageElementSchema"); // Adjust the path as needed
+const PageElement = require('../models/pageElementSchema');  
 
 class PageElementController {
-  static async addPageElement(req, res) {
+  
+  static createPageElement = async (req, res) => {
     try {
-      const { elementName, pageId } = req.body;
-
-      if (!elementName || !pageId) {
-        return res
-          .status(400)
-          .json({ message: "Element name and page ID are required" });
-      }
-
-      // Create a new PageElement
+      const { pageId, type, disabledForRoles, status } = req.body;
+ 
       const newPageElement = new PageElement({
-        elementName,
         pageId,
+        type,
+        disabledForRoles,
+        status
       });
 
-      const savedPageElement = await newPageElement.save();
-
-      // Send response
-      return res.status(201).json({
-        message: "PageElement created successfully",
-        data: savedPageElement,
+      const savedElement = await newPageElement.save();
+      res.status(201).json({
+        message: 'Page element created successfully',
+        pageElement: savedElement
       });
     } catch (error) {
-      console.error("Error creating PageElement:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({
+        message: 'Error creating page element',
+        error: error.message
+      });
     }
   }
 
-  static view = async (req, res) => {
+  // Get all page elements
+  static getAllPageElements = async (req, res) => {
     try {
-      const data = await PageElement.find();
-      res
-        .status(200)
-        .json({ message: "data retrive successfully", info: data });
+      const pageElements = await PageElement.find().populate('pageId');
+      res.status(200).json(pageElements);
     } catch (error) {
-      res.status(500).json({ message: "data retrieval unsuccessfull" });
+      res.status(500).json({
+        message: 'Error fetching page elements',
+        error: error.message
+      });
     }
-  };
+  }
 
-  // Get all elements of a page
-  static getPageElements = async (req, res) => {
+  // Get a specific page element by ID
+  static getPageElementById = async (req, res) => {
     try {
-      const { pageId } = req.params;
-      const pageElements = await PageElement.find({ pageId });
-      res.status(200).json({ pageElements });
+      const pageElementId = req.params.id;
+      const pageElement = await PageElement.findById(pageElementId).populate('pageId');
+
+      if (!pageElement) {
+        return res.status(404).json({ message: 'Page element not found' });
+      }
+
+      res.status(200).json(pageElement);
     } catch (error) {
-      res.status(500).json({ error: "Server error", details: error.message });
+      res.status(500).json({
+        message: 'Error fetching page element',
+        error: error.message
+      });
     }
-  };
+  }
 
-  static delete = async (req, res) => {
-    const { id } = req.params;
+  // Update a page element
+  static updatePageElement = async (req, res) => {
     try {
-      const data = await PageElement.findByIdAndDelete(id);
-      res
-        .status(200)
-        .json({ message: "pages element deletetd successfully", info: data });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "error deleting pages elements",
-          error: error.message,
-        });
-    }
-  };
+      const pageElementId = req.params.id;
+      const updatedData = req.body;
 
-  static update = async (req, res) => {
-    const { id } = req.params.id;
-    const data = req.body;
-    try {
-      const update = await PageElement.findByIdAndUpdate(
-        id,
-        { $set: data },
-        { new: true }
+      const updatedElement = await PageElement.findByIdAndUpdate(
+        pageElementId,
+        updatedData,
+        { new: true, runValidators: true }
       );
 
-      if (!update) {
-        res.status(404).json({ error: "pages element id not found" });
+      if (!updatedElement) {
+        return res.status(404).json({ message: 'Page element not found' });
       }
-      res
-        .status(200)
-        .json({ message: "update done successfully", info: update });
+
+      res.status(200).json({
+        message: 'Page element updated successfully',
+        pageElement: updatedElement
+      });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "update can not be done", error: error.message });
+      res.status(500).json({
+        message: 'Error updating page element',
+        error: error.message
+      });
     }
-  };
+  }
+
+  // Delete a page element
+  static deletePageElement = async (req, res) => {
+    try {
+      const pageElementId = req.params.id;
+
+      const deletedElement = await PageElement.findByIdAndDelete(pageElementId);
+
+      if (!deletedElement) {
+        return res.status(404).json({ message: 'Page element not found' });
+      }
+
+      res.status(200).json({
+        message: 'Page element deleted successfully'
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error deleting page element',
+        error: error.message
+      });
+    }
+  }
 }
 
 module.exports = PageElementController;
