@@ -1,28 +1,33 @@
 const mongoose = require("mongoose");
- mongoose.Schema
+const Schema = mongoose.Schema;
 
-const pageElementSchema = new Schema({
-  pageId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "pages",
-    required: true
+const pageElementSchema = new Schema(
+  {
+    pageId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "pages",
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      enum: ["input", "button", "text"], // Restricting types to specific options
+    },
+
+    disabledForRoles: [
+      {
+        type: String,
+        enum: ["admin", "hr", "employee", "manager"],
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },
   },
-  type: {
-    type: String,
-    required: true,
-    enum: ["input", "button", "text"], // Restricting types to specific options
-  },
- 
-  disabledForRoles: [{
-    type: String,
-    enum: ["admin", "hr", "employee", "manager"], 
-  }],
-  status: {
-    type: String,
-    enum: ["active", "inactive"],
-    default: "active"
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 const PageElement = mongoose.model("pageelements", pageElementSchema);
 module.exports = PageElement;
