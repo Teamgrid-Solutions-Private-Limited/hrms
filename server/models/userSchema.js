@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema(
       ref: "roles",
       required: true,
     },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "organizations",
+      required: true,
+    },
     profilePhoto: {
       type: String, // Store the URL or file path to the profile photo
     },
