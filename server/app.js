@@ -14,6 +14,7 @@ const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
 const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
+const authRoute = require('./routes/authroutes');
 
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
@@ -30,10 +31,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("my-upload"));
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the homepage!");
-});
-
+ 
+app.use("/auth",authRoute);
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);
 app.use("/role-permissions", rolePermissionRoute);
@@ -50,13 +49,13 @@ app.use("/api", shiftRequestRoute);
 app.use("/api", rotatingShiftRoute);
 app.use("/api", employmentRoute);
 
-// Error-handling middleware (should be the last middleware)
+ 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });
 });
 
-// Only start the server after a successful database connection
+ 
 mongoose.connection.once("open", () => {
   app.listen(PORT, () => {
     console.log(`Server up and down ${PORT}`);
