@@ -36,7 +36,7 @@ app.use("/auth",authRoute);
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);
 app.use("/role-permissions", rolePermissionRoute);
-app.use("/api", userRoute);
+app.use("/user", userRoute);
 app.use("/page-group", pageGroupRoute);
 app.use("/pages", pagesRoute);
 app.use("/pageelement", pageElemntRoute);

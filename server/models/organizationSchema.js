@@ -7,7 +7,7 @@ const organizationSchema = new mongoose.Schema({
     },
  logo:{
     type: String,
-    required:true
+     
 
  },
  email:{
@@ -17,7 +17,7 @@ const organizationSchema = new mongoose.Schema({
  },
  addressLine:{
     type:String,
-    required:true
+     
 
  },
  phone:{
@@ -28,20 +28,20 @@ const organizationSchema = new mongoose.Schema({
  
 city:{
     type:String,
-    required:true
+    
 
 },
 state:{
     type:String,
-    required:true
+  
 },
 country:{
     type:String,
-    required:true
+     
 },
 zipCode:{
     type:String,
-    required:true
+   
 }
 });
 organization = mongoose.model('organizations',organizationSchema);
