@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const RotatingShiftAssignController = require("../controllers/rotatingShiftAssignController");
-const authMiddleware = require('../middleware/authJwt');
+const authMiddleware = require('../middlewares/authJwt');
 
 // Apply JWT authentication middleware to all routes
 

@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-//const jwtAuth = require("../middlewares/authJwt");
-const checkRole = require("../middlewares/checkRole");
+ 
 const {
   createWorkTypeRequest,
   getWorkTypeRequests,
@@ -11,7 +10,7 @@ const {
   updateWorkTypeRequestStatus,
 } = require("../controllers/workTypeRequestControler");
  
-const authMiddleware = require('../middleware/authJwt');
+const authMiddleware = require('../middlewares/authJwt');
 
 router.post("/work-type/requests",authMiddleware("create"), createWorkTypeRequest);
 router.get("/work-type/requests",authMiddleware("view"), getWorkTypeRequests);

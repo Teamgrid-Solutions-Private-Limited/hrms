@@ -8,7 +8,7 @@ const {
   updateWorkTypeAssignment,
   deleteWorkTypeAssignment,
 } = require("../controllers/workTypeAssignmentController");
-const authMiddleware = require('../middleware/authJwt');
+const authMiddleware = require('../middlewares/authJwt');
 
  
 
