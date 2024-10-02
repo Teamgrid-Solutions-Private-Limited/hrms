@@ -172,9 +172,9 @@ class UserController {
   };
   static deleteUser = async (req, res) => {
     try {
-      const userId = req.params.id; // Get the user ID from the request params
+      const userId = req.params.id;  
 
-      // Find the user by ID and remove
+     
       const deletedUser = await User.findByIdAndDelete(userId);
 
       if (!deletedUser) {

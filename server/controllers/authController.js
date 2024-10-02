@@ -15,15 +15,21 @@ class authController {
             {
                 return res.status(200).json({message:"user  already exist"});
             }
-
-            let role = await Role.find({name:'super_admin'})
-            if(!role)
-            {
-                role = new Role({
-                    name: 'super_admin'
-                })
+            let role = await Role.findOne({ name: 'super_admin' });  
+            if (!role) {
+            
+                role = new Role({ name: 'super_admin' });
                 await role.save();
             }
+
+            // let role = await Role.find({name:'super_admin'})
+            // if(!role)
+            // {
+            //     role = new Role({
+            //         name: 'super_admin'
+            //     })
+            //     await role.save();
+            // }
 
             const user = new User({ name, email, password, phone, roleId: role._id });
             const savedUser = await user.save();

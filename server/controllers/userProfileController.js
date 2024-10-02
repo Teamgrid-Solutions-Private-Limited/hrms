@@ -1,7 +1,7 @@
 const UserProfile = require("../models/userProfileSchema"); // Assuming UserProfile is the Mongoose model
 
 class UserProfileController {
-  // Get all user profiles (Employee Directory View)
+  
   static async getAllUserProfiles(req, res) {
     try {
       const userProfiles = await UserProfile.find().populate("userId", "email"); // Populate the userId field with user's email
@@ -14,7 +14,7 @@ class UserProfileController {
     }
   }
 
-  // Get a specific user profile (View a single employee)
+  
   static async getUserProfileById(req, res) {
     try {
       const userProfile = await UserProfile.findById(req.params.id).populate(
@@ -33,7 +33,7 @@ class UserProfileController {
     }
   }
 
-  // Add a new user profile (Add Employee)
+  
   static async addUserProfile(req, res) {
     try {
       const newUserProfile = new UserProfile(req.body);
@@ -47,7 +47,7 @@ class UserProfileController {
     }
   }
 
-  // Update an existing user profile (Edit Employee)
+  
   static async updateUserProfile(req, res) {
     try {
       const updatedUserProfile = await UserProfile.findByIdAndUpdate(
@@ -67,7 +67,7 @@ class UserProfileController {
     }
   }
 
-  // Delete a user profile (Delete Employee)
+  
   static async deleteUserProfile(req, res) {
     try {
       const deletedUserProfile = await UserProfile.findByIdAndDelete(
