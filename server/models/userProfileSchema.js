@@ -7,7 +7,7 @@ const UserProfileSchema = new Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     dob: { type: Date, required: true },
-    contactNumber: { type: String, required: true, unique: true },
+    contactNumber: { type: String, required: true},
   },
   { timestamps: true }
 );

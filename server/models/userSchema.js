@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "organizations",
-      required: true,
+      
     },
     profilePhoto: {
       type: String, // Store the URL or file path to the profile photo
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically manages createdAt and updatedAt fields
+    timestamps: true, 
   }
 );
 
