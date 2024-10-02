@@ -11,25 +11,23 @@ const {
   updateWorkTypeRequestStatus,
 } = require("../controllers/workTypeRequestControler");
  
+const authMiddleware = require('../middleware/authJwt');
 
-// Apply JWT authentication middleware to all routes
-//router.use(jwtAuth);
-
-router.post("/work-type/requests", checkRole("create"), createWorkTypeRequest);
-router.get("/work-type/requests", checkRole("view"), getWorkTypeRequests);
+router.post("/work-type/requests",authMiddleware("create"), createWorkTypeRequest);
+router.get("/work-type/requests",authMiddleware("view"), getWorkTypeRequests);
 router.put(
   "/work-type/requests/:id",
-  checkRole("update"),
+  authMiddleware("update"),
   updateWorkTypeRequest
 );
 router.delete(
   "/work-type/requests/:id",
-  checkRole("delete"),
+  authMiddleware("delete"),
   deleteWorkTypeRequest
 );
 router.patch(
   "/work-type/requests/:id/status",
-  checkRole("approve"),
+  authMiddleware("approve"),
   updateWorkTypeRequestStatus
 );
 

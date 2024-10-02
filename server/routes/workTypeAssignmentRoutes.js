@@ -8,31 +8,29 @@ const {
   updateWorkTypeAssignment,
   deleteWorkTypeAssignment,
 } = require("../controllers/workTypeAssignmentController");
-const jwtAuth = require("../middlewares/authJwt");
-const checkRole = require("../middlewares/checkRole");
+const authMiddleware = require('../middleware/authJwt');
 
-// Apply JWT authentication middleware to all routes
-// router.use(jwtAuth);
+ 
 
 router.post(
   "/work-type/assignments",
-  checkRole("create"),
+  authMiddleware("create"),
   createWorkTypeAssignment
 );
-router.get("/work-type/assignments", checkRole("view"), getWorkTypeAssignments);
+router.get("/work-type/assignments",  authMiddleware("view"), getWorkTypeAssignments);
 router.get(
   "/work-type/assignments/:id",
-  checkRole("view"),
+  authMiddleware("view"),
   getWorkTypeAssignmentById
 );
 router.put(
   "/work-type/assignments/:id",
-  checkRole("update"),
+  authMiddleware("update"),
   updateWorkTypeAssignment
 );
 router.delete(
   "/work-type/assignments/:id",
-  checkRole("delete"),
+  authMiddleware("delete"),
   deleteWorkTypeAssignment
 );
 

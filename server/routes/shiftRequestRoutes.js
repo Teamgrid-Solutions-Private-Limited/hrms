@@ -1,22 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const SC = require("../controllers/shiftrequestController");
-const jwtAuth = require("../middlewares/authJwt");
-const checkRole = require("../middlewares/checkRole");
-
+const authMiddleware = require('../middleware/authJwt');
+ 
 // Apply JWT authentication middleware to all routes
 
-router.post("/shift/requests", checkRole("create"), SC.createShiftRequest);
-router.get("/shift/requests", checkRole("view"), SC.getShiftRequests);
-router.put("/shift/requests/:id", checkRole("update"), SC.updateShiftRequest);
+router.post("/shift/requests",authMiddleware("create"), SC.createShiftRequest);
+router.get("/shift/requests",authMiddleware("view"), SC.getShiftRequests);
+router.put("/shift/requests/:id",authMiddleware("update"), SC.updateShiftRequest);
 router.delete(
   "/shift/requests/:id",
-  checkRole("delete"),
+  authMiddleware("delete"),
   SC.deleteShiftRequest
 );
 router.patch(
   "/shift/requests/:id/status",
-  checkRole("approve"),
+  authMiddleware("approve"),
   SC.updateShiftRequestStatus
 );
 

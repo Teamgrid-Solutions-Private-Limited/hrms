@@ -1,5 +1,5 @@
 const express = require('express');
-const BC = require('../controllers/BankDetailsController'); // Adjust path
+const BC = require('../controllers/bankdetailsController');  
 
 const router = express.Router();
 

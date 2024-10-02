@@ -1,34 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const RotatingShiftAssignController = require("../controllers/rotatingShiftAssignController");
-const jwtAuth = require("../middlewares/authJwt");
-const checkRole = require("../middlewares/checkRole");
+const authMiddleware = require('../middleware/authJwt');
 
 // Apply JWT authentication middleware to all routes
 
 router.post(
   "/rotating-shift-assigns",
-  checkRole("create"),
+  authMiddleware("create"),
   RotatingShiftAssignController.createRotatingShiftAssign
 );
 router.get(
   "/rotating-shift-assigns",
-  checkRole("view"),
+  authMiddleware("view"),
   RotatingShiftAssignController.getRotatingShiftAssigns
 );
 router.get(
   "/rotating-shift-assigns/:id",
-  checkRole("view"),
+  authMiddleware("view"),
   RotatingShiftAssignController.getRotatingShiftAssignById
 );
 router.put(
   "/rotating-shift-assigns/:id",
-  checkRole("update"),
+  authMiddleware("update"),
   RotatingShiftAssignController.updateRotatingShiftAssign
 );
 router.delete(
   "/rotating-shift-assigns/:id",
-  checkRole("delete"),
+  authMiddleware("delete"),
   RotatingShiftAssignController.deleteRotatingShiftAssign
 );
 
