@@ -5,7 +5,7 @@ class WorkTypeRequestController {
     static createWorkTypeRequest = async (req, res) => {
         try {
             const workTypeRequest = new WorkTypeRequest({
-                employeeId: req.body.employeeId,
+                userId: req.body.userId,
                 currentWorkType: req.body.currentWorkType,
                 newWorkType: req.body.newWorkType,
                 requestDate: req.body.requestDate,
