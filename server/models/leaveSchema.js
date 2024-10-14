@@ -14,9 +14,7 @@ const leaveSchema = new Schema({
     default: "pending",
   },
   allocatedLeaves: { type: Number },
-  carryForwardDays: { type: Number, default: 0 },
-  additionalDaysRequested: { type: Number },
-  approvalLevel: { type: Number, default: 1 },
+ 
   managerComments: { type: String },
   hrComments: { type: String },
   reason: { type: String },
