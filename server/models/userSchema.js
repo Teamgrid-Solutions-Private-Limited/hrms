@@ -8,31 +8,34 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    firstName: {
+       type:String
+    },
+    lastName:{
+      type: String
+    },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      
     },
     password: {
       type: String,
-      required: true,
+     
+       
     },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "roles",
-      required: true,
+       
     },
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "organizations",
       
     },
-    profilePhoto: {
-      type: String, // Store the URL or file path to the profile photo
-    },
-    lastLogin: {
-      type: Date,
-    },
+    verificationToken: { type: String },
+    isVerified: { type: Boolean, default: false },
+    
     status: {
       type: String,
       enum: ["active", "inactive", "terminated"],
@@ -40,7 +43,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, 
+    timestamps: true, // Automatically manages createdAt and updatedAt fields
   }
 );
 

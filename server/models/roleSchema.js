@@ -7,8 +7,7 @@ const roleSchema = new Schema(
       type: String,
       enum: ["super_admin", "admin", "hr", "employee"],
       required: true,
-      unique: true,
-      trim: true,
+      
     },
    
   },

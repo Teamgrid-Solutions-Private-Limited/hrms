@@ -10,7 +10,7 @@ const contactSchema = new Schema(
     },
     contactType: {
       type: String,
-      enum: ["personal", "emergency"],
+      enum: ["emergency"],
       required: true,
     },
     contactName: {
