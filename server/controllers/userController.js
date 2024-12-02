@@ -10,9 +10,9 @@ class UserController {
       const { username, email, password, roleId, organizationId , firstName, lastName } = req.body;
 
       // Validate required fields
-      // if (!username || !email || !password || !roleId) {
-      //   return res.status(400).json({ error: "All fields are required" });
-      // }
+      if ( !firstName || !lastName) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
