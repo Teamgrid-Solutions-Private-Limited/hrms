@@ -1,89 +1,97 @@
-const UserProfile = require("../models/userProfileSchema"); // Assuming UserProfile is the Mongoose model
+const UserProfile = require("../models/userProfileSchema"); // Import the UserProfile model
+const User = require("../models/userSchema"); // Import the User model
 
 class UserProfileController {
-  
-  static async getAllUserProfiles(req, res) {
+  // Create a new user profile
+  static createUserProfile = async (req, res) => {
     try {
-      const userProfiles = await UserProfile.find().populate("userId", "email"); // Populate the userId field with user's email
-      res.status(200).json(userProfiles);
-    } catch (err) {
-      res.status(500).json({
-        message: "Failed to retrieve user profiles",
-        error: err.message,
-      });
-    }
-  }
+      const { userId, address,city,zipCode,country,state,idDocument,idNumber, dob, contactNumber } = req.body;
 
-  
-  static async getUserProfileById(req, res) {
-    try {
-      const userProfile = await UserProfile.findById(req.params.id).populate(
-        "userId",
-        "email"
-      );
-      if (!userProfile) {
-        return res.status(404).json({ message: "User profile not found" });
+      // Validate required fields
+      if (!userId || !dob || !contactNumber) {
+        return res.status(400).json({ error: "All fields are required" });
       }
-      res.status(200).json(userProfile);
-    } catch (err) {
-      res.status(500).json({
-        message: "Failed to retrieve the user profile",
-        error: err.message,
-      });
-    }
-  }
 
-  
-  static async addUserProfile(req, res) {
-    try {
-      const newUserProfile = new UserProfile(req.body);
-      await newUserProfile.save();
-      res.status(201).json(newUserProfile);
-    } catch (err) {
-      res.status(400).json({
-        message: "Failed to create a new user profile",
-        error: err.message,
-      });
-    }
-  }
-
-  
-  static async updateUserProfile(req, res) {
-    try {
-      const updatedUserProfile = await UserProfile.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true, runValidators: true }
-      );
-      if (!updatedUserProfile) {
-        return res.status(404).json({ message: "User profile not found" });
+      // Check if user exists
+      const userExists = await User.findById(userId);
+      if (!userExists) {
+        return res.status(404).json({ error: "User not found" });
       }
-      res.status(200).json(updatedUserProfile);
-    } catch (err) {
-      res.status(400).json({
-        message: "Failed to update the user profile",
-        error: err.message,
-      });
-    }
-  }
 
-  
-  static async deleteUserProfile(req, res) {
+      // Create and save the user profile
+      const userProfile = new UserProfile({
+        userId,
+         country,
+         zipCode,
+         state,
+         idDocument,
+         idNumber,
+         address,
+         city,
+        dob,
+        contactNumber,
+      });
+      const savedProfile = await userProfile.save();
+
+      res
+        .status(201)
+        .json({
+          message: "User profile created successfully",
+          profile: savedProfile,
+        });
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  };
+
+  // Get user profile by ID
+  static getUserProfileById = async (req, res) => {
+    const { id } = req.params;
     try {
-      const deletedUserProfile = await UserProfile.findByIdAndDelete(
-        req.params.id
-      );
-      if (!deletedUserProfile) {
-        return res.status(404).json({ message: "User profile not found" });
+      const profile = await UserProfile.findById(id);
+      if (!profile) {
+        return res.status(404).json({ error: "User profile not found" });
+      }
+      res.status(200).json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  };
+
+  // Update user profile by ID
+  static updateUserProfile = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const updatedProfile = await UserProfile.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      if (!updatedProfile) {
+        return res.status(404).json({ error: "User profile not found" });
+      }
+      res
+        .status(200)
+        .json({
+          message: "User profile updated successfully",
+          profile: updatedProfile,
+        });
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  };
+
+  // Delete user profile by ID
+  static deleteUserProfile = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const deletedProfile = await UserProfile.findByIdAndDelete(id);
+      if (!deletedProfile) {
+        return res.status(404).json({ error: "User profile not found" });
       }
       res.status(200).json({ message: "User profile deleted successfully" });
-    } catch (err) {
-      res.status(500).json({
-        message: "Failed to delete the user profile",
-        error: err.message,
-      });
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
     }
-  }
+  };
 }
 
 module.exports = UserProfileController;
