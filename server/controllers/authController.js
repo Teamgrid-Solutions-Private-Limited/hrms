@@ -1,7 +1,7 @@
-const Role = require("../models/role");
-const User = require("../models/user-model");
+const Role = require("../models/roleSchema");
+const User = require("../models/userSchema");
 const Organization = require("../models/organizationSchema");
-const upload = require("../middleware/fileUploads");
+const upload = require("../middlewares/fileUpload");
 
 const BASE_URL = "http://localhost:8080/";
 const upload_URL = `${BASE_URL}images/`;
