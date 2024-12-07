@@ -1,19 +1,19 @@
 const express = require("express");
-const upload = require("../middlewares/fileUpload");
-const {
-  createDocument,
-  getDocument,
-  getDocumentById,
-  updateDocument,
-  deleteDocument,
-} = require("../controllers/documentController");
-
 const router = express.Router();
+const DocumentService = require("../controllers/documentController"); // Updated controller import
+const upload = require("../middlewares/fileUpload");
+const authJwt = require("../middlewares/authJwt");
+const checkRole = require("../middlewares/checkRole");
 
-router.post("/add-documents", upload.single("document"), createDocument);
-router.get("/view-documents", getDocument);
-router.get("/view-documents/:id", getDocumentById);
-router.put("/update-documents/:id", updateDocument);
-router.delete("/delete-documents/:id", deleteDocument);
+// Route: Upload a document with recipients
+router.post(
+  "/upload",
+  authJwt("create"), // Middleware to verify JWT and authenticate the user
+  checkRole(["admin", "hr", "manager"]), // Middleware to verify user roles/permissions
+  upload.single("file"), // Middleware to handle file uploads
+  (req, res, next) => {
+    DocumentService.uploadDocumentWithRecipients(req, res).catch(next);
+  }
+);
 
 module.exports = router;
