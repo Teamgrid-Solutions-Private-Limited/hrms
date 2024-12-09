@@ -1,51 +1,24 @@
-// models/documentModel.js
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const documentSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: [true, "User ID is required"],
+const documentSchema = new Schema({
+  title: { type: String, required: true }, // Document title
+  description: { type: String }, // Optional description
+  filePath: { type: String, required: true }, // File path
+  categoryId: { type: Schema.Types.ObjectId, ref: "documentcategory" }, // Document category (Public, Private)
+  uploadedBy: { type: Schema.Types.ObjectId, ref: "users" }, // Who uploaded the document
+  recipients: [
+    {
+      recipientId: { type: Schema.Types.ObjectId, ref: "users" },
+      status: {
+        type: String,
+        enum: ["pending", "viewed", "acknowledged"],
+        default: "pending",
+      },
     },
-    documentType: {
-      type: String,
-      enum: ["ID", "adhaar", "Passport", "Certificate", "Contract", "Other"],
-      required: [true, "Document type is required"],
-    },
-    documentUrl: {
-      type: String,
-      required: [true, "Document URL is required"],
-    },
-    expirationDate: {
-      type: Date,
-      default: null,
-    },
-    status: {
-      type: String,
-      enum: ["active", "expired", "revoked"],
-      default: "active",
-    },
-    uploaderName: {
-      type: String,
-      required: [true, "Uploader name is required"],
-    },
-    notes: {
-      type: String,
-      maxlength: [1000, "Notes cannot exceed 1000 characters"],
-      default: "",
-    },
-    metadata: {
-      type: Map,
-      of: String,
-      default: {},
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+  ], // Track recipients and their acknowledgment status
+  isTemplate: { type: Boolean, default: false }, // If this document is a template
+  createdAt: { type: Date, default: Date.now },
+});
 
-const Document = mongoose.model("documents", documentSchema);
-
-module.exports = Document;
+module.exports = mongoose.model("documents", documentSchema);
