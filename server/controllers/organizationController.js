@@ -6,7 +6,7 @@ const upload = require("../middleware/fileUploads");
 const BASE_URL = "http://localhost:8080/";
 const upload_URL = `${BASE_URL}images/`;
 
-class authController {
+class organizationController {
   static handleFileUpload = (req, res, next) => {
     upload.single("logo")(req, res, (err) => {
       if (err) {
@@ -139,4 +139,4 @@ class authController {
   
 }
 
-module.exports = authController;
+module.exports = organizationController;
