@@ -1,38 +1,54 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
-const maxSize = 2 * 1024 * 1024;
+const maxSize = 5 * 1024 * 1024; // Maximum file size (5 MB)
 
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, "../my-upload/images");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure multer storage
 const storage = multer.diskStorage({
-  destination: "my-upload/images",
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + file.originalname);
+  destination: (req, file, cb) => {
+    cb(null, uploadDir); // Set upload directory
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_"); // Sanitize filename
+    cb(null, `${uniqueSuffix}-${sanitizedFilename}`);
   },
 });
 
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    // Log file mimetype and extension
-    console.log("File mimetype:", file.mimetype);
-    console.log("File extension:", path.extname(file.originalname));
+// Configure file filter
+const fileFilter = (req, file, cb) => {
+  const allowedMimetypes = [
+    "image/png",
+    "image/jpg",
+    "image/jpeg",
+    "image/svg+xml",
+    "application/pdf",
+  ];
+  const extension = path.extname(file.originalname).toLowerCase();
 
-    if (
-      file.mimetype === "image/png" ||
-      file.mimetype === "image/jpg" ||
-      file.mimetype === "image/jpeg" ||
-      file.mimetype === "image/svg+xml" ||
-      file.mimetype === "application/pdf"
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(
-        new Error("Only .jpg, .jpeg, .png and .svg formats are allowed!")
-      );
-    }
-  },
+  console.log("File mimetype:", file.mimetype);
+  console.log("File extension:", extension);
+
+  if (allowedMimetypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(
+      new Error("Only .jpg, .jpeg, .png, .svg, and .pdf formats are allowed!")
+    );
+  }
+};
+
+// Configure multer instance
+const upload = multer({
+  storage,
+  fileFilter,
   limits: { fileSize: maxSize },
 });
 
