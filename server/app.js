@@ -14,8 +14,11 @@ const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
 const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
-const authRoute = require('./routes/authroutes');
-
+const authRoute = require("./routes/authroutes");
+const documentTemplateRoute = require("./routes/documentTemplateRoute");
+const documentSubmissionRoute = require("./routes/documentSubmissionRoute");
+const documentRequestRoute = require("./routes/documentRRoute");
+const documentCategoryRoute = require("./routes/documentcRoute");
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
 
@@ -31,8 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("my-upload"));
 
- 
-app.use("/auth",authRoute);
+app.use("/auth", authRoute);
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);
 app.use("/role-permissions", rolePermissionRoute);
@@ -48,14 +50,17 @@ app.use("/api", worktypeAssignRoute);
 app.use("/api", shiftRequestRoute);
 app.use("/api", rotatingShiftRoute);
 app.use("/api", employmentRoute);
+app.use("/documents/v1", documentCategoryRoute);
+app.use("/documents/v1", documentRequestRoute);
+app.use("/documentsubmission/v1", documentSubmissionRoute);
+app.use("/documents/v1", documentRoute);
+app.use("/documents-template/v1", documentTemplateRoute);
 
- 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });
 });
 
- 
 mongoose.connection.once("open", () => {
   app.listen(PORT, () => {
     console.log(`Server up and down ${PORT}`);
