@@ -46,7 +46,7 @@
 
 const path = require("path");
 const Document = require("../models/documentSchema"); // Assuming this is your Document model
-const notifyUsers = require("../utility/notifyUsers");
+// const notifyUsers = require("../utility/notifyUsers");
 const User = require("../models/userSchema");
 
 // const BASE_URL = process.env.BASE_URL || "http://localhost:3000"; // Fallback for base URL
