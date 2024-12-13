@@ -21,7 +21,7 @@ const documentRequestRoute = require("./routes/documentRRoute");
 const documentCategoryRoute = require("./routes/documentcRoute");
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
-const organizationRoute = require("./routes/leaveTypeRoutes");
+const organizationRoute = require("./routes/organizationRoutes");
 
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 

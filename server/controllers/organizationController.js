@@ -1,9 +1,9 @@
 const Role = require("../models/roleSchema");
 const User = require("../models/userSchema");
 const Organization = require("../models/organizationSchema");
-const upload = require("../middleware/fileUploads");
+const upload = require("../middlewares/fileUpload");
 
-const BASE_URL = "http://localhost:8080/";
+const BASE_URL = "http://localhost:6010/";
 const upload_URL = `${BASE_URL}images/`;
 
 class organizationController {
@@ -39,9 +39,9 @@ class organizationController {
           return res.status(400).json({ message: "Missing required fields" });
         }
         const user = await User.findById(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
+        // if (!user) {
+        //   return res.status(404).json({ message: "User not found" });
+        // }
 
         const organization = new Organization({
           name,
@@ -59,17 +59,17 @@ class organizationController {
         });
         try {
           const savedOrganization = await organization.save();
-          user.organizationId = savedOrganization._id;
-          savedOrganization.users.push(user._id);
+          // user.organizationId = savedOrganization._id;
+          // savedOrganization.users.push(user._id);
           await savedOrganization.save();
-          await user.save();
+          // await user.save();
           res.status(200).json({
             message: "organization setup successfully",
             organization: savedOrganization,
-            user: user,
+            // user: user,
           });
         } catch (error) {
-          res.status(500).json({ message: "error saving organization" });
+          res.status(500).json({ message: "error saving organization" ,error:error.message});
         }
       });
     } catch (error) {
