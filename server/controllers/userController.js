@@ -16,9 +16,9 @@ class UserController {
       if ( !firstName || !lastName) {
         return res.status(400).json({ error: "All fields are required" });
       }
-      if (!mongoose.Types.ObjectId.isValid(roleId) || !mongoose.Types.ObjectId.isValid(organizationId)) {
-        return res.status(400).json({ error: "Invalid roleId or organizationId" });
-      }
+      // if (!mongoose.Types.ObjectId.isValid(roleId) || !mongoose.Types.ObjectId.isValid(organizationId)) {
+      //   return res.status(400).json({ error: "Invalid roleId or organizationId" });
+      // }
       
 
       // Check if user already exists
