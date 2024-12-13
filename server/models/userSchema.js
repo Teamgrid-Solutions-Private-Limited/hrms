@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "organizations",
+      required: true,
       
     },
     verificationToken: { type: String },
