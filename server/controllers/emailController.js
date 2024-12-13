@@ -55,6 +55,47 @@ class emailController {
 
     };
 
+    // method to set password
+
+    async sendEmail(req, res) {
+        console.log("Request body:", req.body); // Log the incoming request body
+        const { to } = req.body;
+    
+        // Basic validation for email address
+        if (!to || !this.validateEmail(to)) {
+          return res.status(400).json({ message: "Invalid email address" });
+        }
+    
+        try {
+          const user = await User.findOne({ email: to });
+    
+          if (!user) {
+            return res.status(404).json({ message: "User not found" });
+          }
+    
+          const id = user._id;
+          const reseturl = `https://bracketocracy-reset-password.netlify.app/reset-password/${id}`;
+    
+          const mailOptions = {
+            from: "no-reply@bracketocracy.com",
+            to: to,
+            subject: "set Password",
+            text: `Click the link below to set the password:\n\n ${reseturl}`,
+          };
+    
+          let info = await this.transporter.sendMail(mailOptions);
+          console.log("Email sent:", info.response);
+          res
+            .status(200)
+            .json({ message: "Email sent successfully", response: info.response });
+        } catch (error) {
+          console.error("Error sending email:", error);
+          res
+            .status(500)
+            .json({ message: "Error sending email", error: error.message });
+        }
+      }
+
     //simple email verification function
     validateEmail(email) {
         // Basic regex for validating email address

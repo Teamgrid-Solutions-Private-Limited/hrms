@@ -3,7 +3,8 @@ const emailController = require('../controllers/emailController');
 const router = express.Router();
 const User =  require('../models/user-model');
 
-router.post('/mail', (req, res) => emailController.sendVerification(req,res));
+router.post('/mail-verification', (req, res) => emailController.sendVerification(req,res));
+router.post('/mail', (req, res) => emailController.sendEmail(req,res));
 router.get('/verify-email', async(req,res)=>{
     const {token}= req.query;
     console.log(token);

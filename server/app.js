@@ -22,7 +22,7 @@ const documentCategoryRoute = require("./routes/documentcRoute");
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
 const organizationRoute = require("./routes/organizationRoutes");
-
+const emailRoute = require("./routes/emailRoutes");
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
 const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
@@ -57,6 +57,7 @@ app.use("/documentsubmission/v1", documentSubmissionRoute);
 app.use("/documents/v1", documentRoute);
 app.use("/documents-template/v1", documentTemplateRoute);
 app.use("/organization",organizationRoute);
+app.use("/email",emailRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
