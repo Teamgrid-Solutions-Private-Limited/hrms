@@ -22,7 +22,7 @@ class organizationController {
     try {
       organizationController.handleFileUpload(req, res, async () => {
         const {
-          userId,
+           
           name,
           noEmployees,
           industry,
@@ -107,7 +107,7 @@ class organizationController {
   static viewOrganization = async (req,res) => {
     try {
       const organizationId = req.params.id;
-      const data = await Organization.findById(organizationId).populate('users');
+      const data = await Organization.findById(organizationId);
       if (!data) {
         return res.status(404).json({message:"organization not found"});
       }
@@ -117,25 +117,25 @@ class organizationController {
     }
     
   };
-  static getOrganizationByUserId = async (req, res) => {
-    try {
-      const { userId } = req.params; // Expecting userId to be passed as a URL parameter
+  // static getOrganizationByUserId = async (req, res) => {
+  //   try {
+  //     const { userId } = req.params; // Expecting userId to be passed as a URL parameter
   
-      // Find the organization that contains the userId in its users array
-      const organization = await Organization.findOne({ users: userId });
+  //     // Find the organization that contains the userId in its users array
+  //     const organization = await Organization.findOne({ users: userId });
       
-      if (!organization) {
-        return res.status(404).json({ message: "Organization not found for the specified user." });
-      }
+  //     if (!organization) {
+  //       return res.status(404).json({ message: "Organization not found for the specified user." });
+  //     }
   
-      return res.status(200).json({
-        message: "Organization retrieved successfully",
-        organization,
-      });
-    } catch (error) {
-      return res.status(500).json({ message: "Error retrieving organization", error: error.message });
-    }
-  };
+  //     return res.status(200).json({
+  //       message: "Organization retrieved successfully",
+  //       organization,
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({ message: "Error retrieving organization", error: error.message });
+  //   }
+  // };
   
 }
 
