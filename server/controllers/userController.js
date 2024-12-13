@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "jwt-token";
 class UserController {
   static addUser = async (req, res) => {
     try {
-      const { username, email, password, roleId, organizationId , firstName, lastName } = req.body;
+      const {email, password, roleId, organizationId , firstName, lastName } = req.body;
 
       // Validate required fields
       if ( !firstName || !lastName) {
@@ -24,7 +24,7 @@ class UserController {
 
       // Create a new user object
       const user = new User({
-        username,
+        
         email,
         password,
         roleId,
