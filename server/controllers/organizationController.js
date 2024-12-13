@@ -20,7 +20,7 @@ class organizationController {
 
   static addOrganization = async (req, res) => {
     try {
-      authController.handleFileUpload(req, res, async () => {
+      organizationController.handleFileUpload(req, res, async () => {
         const {
           userId,
           name,
@@ -82,7 +82,7 @@ class organizationController {
   static updateOrganization = async (req, res) => {
     const { id } = req.params.id;
     try {
-      authController.handleFileUpload(req, res, async () => {
+      organizationController.handleFileUpload(req, res, async () => {
         const updateData = req.body;
         if (req.file) {
           updateData.logo = `${upload_URL}${req.file.filename}`;
