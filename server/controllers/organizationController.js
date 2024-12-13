@@ -2,6 +2,7 @@ const Role = require("../models/roleSchema");
 const User = require("../models/userSchema");
 const Organization = require("../models/organizationSchema");
 const upload = require("../middlewares/fileUpload");
+const mongoose = require('mongoose');
 
 const BASE_URL = "http://localhost:6010/";
 const upload_URL = `${BASE_URL}images/`;
