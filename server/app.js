@@ -21,6 +21,7 @@ const documentRequestRoute = require("./routes/documentRRoute");
 const documentCategoryRoute = require("./routes/documentcRoute");
 // const employeeRoute = require("./routes/employeeRoutes");
 const employmentRoute = require("./routes/employmentRoutes");
+const organizationRoute = require("./routes/leaveTypeRoutes");
 
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 
@@ -55,6 +56,7 @@ app.use("/documents/v1", documentRequestRoute);
 app.use("/documentsubmission/v1", documentSubmissionRoute);
 app.use("/documents/v1", documentRoute);
 app.use("/documents-template/v1", documentTemplateRoute);
+app.use("/organization",organizationRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
