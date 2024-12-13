@@ -1,5 +1,6 @@
 const User = require("../models/userSchema");
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET || "jwt-token";
@@ -8,11 +9,17 @@ class UserController {
   static addUser = async (req, res) => {
     try {
       const {email, password, roleId, organizationId , firstName, lastName } = req.body;
+      console.log(email,password,roleId,organizationId,firstName,lastName);
+      
 
       // Validate required fields
       if ( !firstName || !lastName) {
         return res.status(400).json({ error: "All fields are required" });
       }
+      if (!mongoose.Types.ObjectId.isValid(roleId) || !mongoose.Types.ObjectId.isValid(organizationId)) {
+        return res.status(400).json({ error: "Invalid roleId or organizationId" });
+      }
+      
 
       // Check if user already exists
       const existingUser = await User.findOne({ email });
@@ -21,12 +28,17 @@ class UserController {
           .status(400)
           .json({ error: "User already exists with this email" });
       }
+         // If password is provided, hash it
+    let hashedPassword = undefined;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
 
       // Create a new user object
       const user = new User({
         
         email,
-        password,
+        password:hashedPassword,
         roleId,
         organizationId,
         firstName,
