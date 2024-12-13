@@ -105,19 +105,25 @@ class organizationController {
   // };
 
   static updateOrganization = async (req, res) => {
-    const { id } = req.params; // Fix destructuring of id
+    const { id } = req.params; // Extract id from URL params
+  
     try {
+      // Validate the organization ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid organization ID" });
+      }
+  
       organizationController.handleFileUpload(req, res, async () => {
         const updateData = req.body;
   
-        // Check if a file was uploaded and update the logo URL
+        // If a file is uploaded, include the logo URL in updateData
         if (req.file) {
           updateData.logo = `${upload_URL}${req.file.filename}`;
         }
   
-        // Correct method name: findByIdAndUpdate
+        // Update the organization in the database
         const updatedData = await Organization.findByIdAndUpdate(
-          id, // Pass the correct id
+          id,
           updateData,
           { new: true } // Return the updated document
         );
@@ -126,6 +132,7 @@ class organizationController {
           return res.status(404).json({ message: "Organization not found" });
         }
   
+        // Success response
         res.status(200).json({ message: "Updated successfully", updatedData });
       });
     } catch (error) {
