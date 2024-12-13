@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const {URL} =  require('url');
 
-const User =  require('../models/user-model');
+const User =  require('../models/userSchema');
  
 class emailController {
     constructor(){

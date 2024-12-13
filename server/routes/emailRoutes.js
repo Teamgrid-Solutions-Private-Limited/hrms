@@ -1,7 +1,7 @@
 const express = require('express');
 const emailController = require('../controllers/emailController');
 const router = express.Router();
-const User =  require('../models/user-model');
+const User =  require('../models/userSchema');
 
 router.post('/mail-verification', (req, res) => emailController.sendVerification(req,res));
 router.post('/mail', (req, res) => emailController.sendEmail(req,res));
