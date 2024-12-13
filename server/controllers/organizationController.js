@@ -79,31 +79,65 @@ class organizationController {
     }
   };
 
+  // static updateOrganization = async (req, res) => {
+  //   const { id } = req.params.id;
+  //   try {
+  //     organizationController.handleFileUpload(req, res, async () => {
+  //       const updateData = req.body;
+  //       if (req.file) {
+  //         updateData.logo = `${upload_URL}${req.file.filename}`;
+  //       }
+  //       const updatedData = await Organization.findByIdAndUpadte(
+  //         id,
+  //         updateData,
+  //         { new: true }
+  //       );
+  //       if (!updatedData) {
+  //         return res.status(404).json({ message: "organization not found" });
+  //       }
+  //       res.status(201).json({ message: "updated successfully" });
+  //     });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "error updating organization", error: error.message });
+  //   }
+  // };
+
   static updateOrganization = async (req, res) => {
-    const { id } = req.params.id;
+    const { id } = req.params; // Fix destructuring of id
     try {
       organizationController.handleFileUpload(req, res, async () => {
         const updateData = req.body;
+  
+        // Check if a file was uploaded and update the logo URL
         if (req.file) {
           updateData.logo = `${upload_URL}${req.file.filename}`;
         }
-        const updatedData = await Organization.findByIdAndUpadte(
-          id,
+  
+        // Correct method name: findByIdAndUpdate
+        const updatedData = await Organization.findByIdAndUpdate(
+          id, // Pass the correct id
           updateData,
-          { new: true }
+          { new: true } // Return the updated document
         );
+  
         if (!updatedData) {
-          return res.status(404).json({ message: "organization not found" });
+          return res.status(404).json({ message: "Organization not found" });
         }
-        res.status(201).json({ message: "updated successfully" });
+  
+        res.status(200).json({ message: "Updated successfully", updatedData });
       });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "error updating organization", error: error.message });
+      // Log and return the error message
+      console.error("Error updating organization:", error);
+      res.status(500).json({
+        message: "Error updating organization",
+        error: error.message,
+      });
     }
   };
-
+  
   static viewOrganization = async (req,res) => {
     try {
       const organizationId = req.params.id;
