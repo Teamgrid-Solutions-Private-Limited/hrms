@@ -3,10 +3,21 @@ const BC = require('../controllers/bankdetailsController');
 
 const router = express.Router();
 
-router.post('/bank-details', BC.createBankDetails);
-router.get('/bank-details/:userId',  BC.getBankDetails);
-router.get('/bank-details/:id',  BC.getBankDetailsById);
-router.put('/bank-details/:id',  BC.updateBankDetails);
-router.delete('/bank-details/:id',  BC.deleteBankDetails);
+router.post('/bank-details',authJwt(),
+checkRole(["admin", "super_admin", "hr"]), BC.createBankDetails);
+
+router.get('/bank-details/:userId',authJwt(),
+checkRole(["admin", "super_admin", "employee", "hr"]),  BC.getBankDetails);
+
+router.get('/bank-details/:id', authJwt(),
+checkRole(["admin", "super_admin", "finance"]),  BC.getBankDetailsById);
+
+router.put('/bank-details/:id',authJwt(),
+checkRole(["admin", "super_admin"]),  BC.updateBankDetails);
+
+router.delete('/bank-details/:id',   authJwt(),
+checkRole(["super_admin"]),BC.deleteBankDetails);
 
 module.exports = router;
+
+

@@ -14,7 +14,7 @@ const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
 const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
-const authRoute = require("./routes/authroutes");
+
 const documentTemplateRoute = require("./routes/documentTemplateRoute");
 const documentSubmissionRoute = require("./routes/documentSubmissionRoute");
 const documentRequestRoute = require("./routes/documentRRoute");
@@ -35,7 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("my-upload"));
 
-app.use("/auth", authRoute);
+
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);
 app.use("/role-permissions", rolePermissionRoute);
