@@ -126,46 +126,110 @@ class UserController {
   };
   
   
+  // static updateUser = async (req, res) => {
+  //   try {
+  //     const { username, email, password, roleId ,firstName, lastName} = req.body;
+  //     const userId = req.params.id; // Assuming user ID is passed as a parameter
+
+  //     // Validate that at least one field to update is provided
+  //     if (!username && !email && !password && !roleId && firstName && lastName) {
+  //       return res.status(400).json({ error: "No fields to update" });
+  //     }
+
+  //     // Find the user by ID
+  //     const user = await User.findById(userId);
+  //     if (!user) {
+  //       return res.status(404).json({ error: "User not found" });
+  //     }
+
+  //     if (email && email !== user.email) {
+  //       const existingUser = await User.findOne({ email });
+  //       if (existingUser) {
+  //         return res.status(400).json({ error: "Email already in use" });
+  //       }
+  //     }
+
+  //     // Update user fields if provided
+  //     if (username) user.username = username;
+  //     if (email) user.email = email;
+  //     if (password) user.password = password; // Password hashing is handled in the schema
+  //     if (roleId) user.roleId = roleId;
+  //     if (firstName) user.firstName = firstName;
+  //     if (lastName) user.lastName = lastName;
+
+  //     // Update profile photo if a new one is uploaded
+
+  //     // Save the updated user to the database
+  //     await user.save(); // password will be hashed if updated
+  //     res.status(200).json({ message: "User updated successfully", user });
+  //   } catch (error) {
+  //     res.status(500).json({ error: "Server error", details: error.message });
+  //   }
+  // };
+
   static updateUser = async (req, res) => {
     try {
-      const { username, email, password, roleId ,firstName, lastName} = req.body;
+      const { username, email, password, roleId, firstName, lastName } = req.body;
       const userId = req.params.id; // Assuming user ID is passed as a parameter
-
+  
       // Validate that at least one field to update is provided
-      if (!username && !email && !password && !roleId && firstName && lastName) {
-        return res.status(400).json({ error: "No fields to update" });
+      if (!username && !email && !password && !roleId && !firstName && !lastName) {
+        return res.status(400).json({
+          error: "VALIDATION_ERROR",
+          message: "At least one field must be provided to update.",
+        });
       }
-
+  
       // Find the user by ID
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({
+          error: "USER_NOT_FOUND",
+          message: "User not found.",
+        });
       }
-
+  
+      // Check for duplicate email if email is updated
       if (email && email !== user.email) {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-          return res.status(400).json({ error: "Email already in use" });
+          return res.status(400).json({
+            error: "EMAIL_IN_USE",
+            message: "Email already in use.",
+          });
         }
+        user.email = email;
       }
-
+  
       // Update user fields if provided
       if (username) user.username = username;
-      if (email) user.email = email;
-      if (password) user.password = password; // Password hashing is handled in the schema
       if (roleId) user.roleId = roleId;
       if (firstName) user.firstName = firstName;
       if (lastName) user.lastName = lastName;
-
-      // Update profile photo if a new one is uploaded
-
+  
+      // Hash and update the password if provided
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+      }
+  
       // Save the updated user to the database
-      await user.save(); // password will be hashed if updated
-      res.status(200).json({ message: "User updated successfully", user });
+      await user.save();
+  
+      res.status(200).json({
+        message: "User updated successfully",
+        user,
+      });
     } catch (error) {
-      res.status(500).json({ error: "Server error", details: error.message });
+      console.error("Error updating user:", error);
+      res.status(500).json({
+        error: "SERVER_ERROR",
+        message: "An error occurred while updating the user.",
+        details: error.message,
+      });
     }
   };
+  
   static deleteUser = async (req, res) => {
     try {
       const userId = req.params.id; // Get the user ID from the request params

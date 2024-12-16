@@ -74,7 +74,7 @@ class emailController {
           }
     
           const id = user._id;
-          const reseturl = `https://bracketocracy-reset-password.netlify.app/reset-password/${id}`;
+          const reseturl = `http://localhost:5173/set-password/${id}`;
     
           const mailOptions = {
             from: "no-reply@bracketocracy.com",
