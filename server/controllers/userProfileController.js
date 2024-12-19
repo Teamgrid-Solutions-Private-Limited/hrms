@@ -52,7 +52,7 @@ class UserProfileController {
       if (!profile) {
         return res.status(404).json({ error: "User profile not found" });
       }
-      res.status(200).json(profile);
+      res.status(200).json({message:"profile retrive successfully", info:profile});
     } catch (error) {
       res.status(500).json({ error: "Server error", details: error.message });
     }
@@ -60,12 +60,17 @@ class UserProfileController {
 // get user profile by user ID
   static getProfileById = async (req, res) => {
     const { id } = req.params;// user ID
+     
+    
     try {
-      const profile = await UserProfile.findById({userId:id});
+      const profile = await UserProfile.findOne({userId:id});
+     
       if (!profile) {
         return res.status(404).json({ error: "User profile not found" });
       }
-      res.status(200).json(profile);
+   
+      
+      res.status(200).json({ message: "profile retrieved successfully", info: profile });
     } catch (error) {
       res.status(500).json({ error: "Server error", details: error.message });
     }
