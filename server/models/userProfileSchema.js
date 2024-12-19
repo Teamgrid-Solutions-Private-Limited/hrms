@@ -10,6 +10,16 @@ const UserProfileSchema = new Schema(
     city:{
       type:String
     },
+    gender:{
+      type:String,
+      enum: ["male", "female", "other","select"],
+      default: "select",
+     
+      
+    },
+    photo:{
+      type:String
+    },
     zipcode:{
       type:String
     },
