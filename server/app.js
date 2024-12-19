@@ -14,7 +14,7 @@ const professionalInfoRoute = require("./routes/professionalinfoRoutes");
 const worktyprequestRoute = require("./routes/workTypeRequesRoutes");
 const shiftRequestRoute = require("./routes/shiftRequestRoutes");
 const rotatingShiftRoute = require("./routes/rotatingShiftRoutes");
-
+const contactRoute = require("./routes/contactRoutes");
 const documentTemplateRoute = require("./routes/documentTemplateRoute");
 const documentSubmissionRoute = require("./routes/documentSubmissionRoute");
 const documentRequestRoute = require("./routes/documentRRoute");
@@ -24,7 +24,7 @@ const employmentRoute = require("./routes/employmentRoutes");
 const organizationRoute = require("./routes/organizationRoutes");
 const emailRoute = require("./routes/emailRoutes");
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
-
+const bankRoute = require("./routes/bankdetailsRoutes");
 const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
 
 const PORT = process.env.PORT || 6010;
@@ -58,6 +58,8 @@ app.use("/documents/v1", documentRoute);
 app.use("/documents-template/v1", documentTemplateRoute);
 app.use("/organization",organizationRoute);
 app.use("/email",emailRoute);
+app.use('/bank',bankRoute);
+app.use('/contact',contactRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
