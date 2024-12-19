@@ -57,6 +57,19 @@ class UserProfileController {
       res.status(500).json({ error: "Server error", details: error.message });
     }
   };
+// get user profile by user ID
+  static getProfileById = async (req, res) => {
+    const { id } = req.params;// user ID
+    try {
+      const profile = await UserProfile.findById({userId:id});
+      if (!profile) {
+        return res.status(404).json({ error: "User profile not found" });
+      }
+      res.status(200).json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  };
 
   // Update user profile by ID
   static updateUserProfile = async (req, res) => {

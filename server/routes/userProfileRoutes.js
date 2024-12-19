@@ -15,6 +15,13 @@ router.get(
   checkRole(["super_admin", "admin","employee"]), // Ensure the user has 'view' permission
   UserProfileController.getUserProfileById // Controller function to get user profile
 );
+// get by user Id
+router.get(
+  "/profile/viewUserId/:id",
+  authJwt(),
+  checkRole(["super_admin", "admin","employee"]),  
+  UserProfileController.getProfileById  
+);
 
 router.post(
   "/profile/add", authJwt(),
