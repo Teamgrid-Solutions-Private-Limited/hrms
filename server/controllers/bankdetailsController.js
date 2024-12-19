@@ -32,6 +32,16 @@ class bankdetailsController {
         bankdetailsController.handleError(res, error);
     }
   };
+// get bank details by userID
+  static getBankUser = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const bankDetails = await BankDetails.findOne(userId);
+      res.status(200).json({message:"Bank details retrive successfully", info:bankDetails});
+    } catch (error) {
+        bankdetailsController.handleError(res, error);
+    }
+  };
 
   // Get bank details by ID
   static getBankDetailsById = async (req, res) => {

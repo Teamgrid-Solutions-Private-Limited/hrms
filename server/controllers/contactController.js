@@ -32,6 +32,16 @@ class contactController {
     }
   };
 
+  // get contact by user ID
+  static getByuser = async (req, res) => {
+    try {
+      const contacts = await Contact.findOne({ userId: req.params.userId }).populate('userId');
+      res.status(200).json(contacts);
+    } catch (error) {
+      contactController.handleError(res, error);
+    }
+  };
+
   // Get a contact by ID
   static getContactById = async (req, res) => {
     try {
