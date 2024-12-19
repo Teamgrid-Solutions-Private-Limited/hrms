@@ -1,4 +1,4 @@
-const Contact = require('../models/Contact');
+const Contact = require('../models/contactSchema');
 
 class contactController {
   // Error handling function

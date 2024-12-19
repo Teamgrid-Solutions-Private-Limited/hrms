@@ -1,4 +1,6 @@
 const express = require('express');
+const authJwt = require('../middlewares/authJwt');
+const checkRole = require('../middlewares/checkRole');
 const BC = require('../controllers/bankdetailsController');  
 
 const router = express.Router();
