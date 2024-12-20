@@ -10,12 +10,16 @@ class contactController {
   static createContact = async (req, res) => {
     try {
       const {userId,contactName,contactRelationship,contactNumber} = req.body;
+      console.log("request body",req.body);
+      
       if(!userId || !contactNumber)
       {
           return res.status(201).json({message:"All fields are required "})
       }
-      const contact = new Contact();
-      await contact.save(userId,contactName,contactRelationship,contactNumber);
+      const contact = new Contact({
+        userId,contactName,contactRelationship,contactNumber
+      });
+      await contact.save();
       res.status(201).json(contact);
     } catch (error) {
       contactController.handleError(res, error, 400);
