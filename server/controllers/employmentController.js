@@ -40,6 +40,22 @@ class EmploymentInfoController {
       next(error);
     }
   };
+  //get by userId
+
+  static getEmploymentInfoByIdUserID = async (req, res) => {
+    try {
+      const employmentInfo = await EmploymentInfo.findOne({ userId: req.params.id }).populate("userId");
+      if (!employmentInfo) {
+        return res
+          .status(404)
+          .json({ message: "Employment information not found" });
+      }
+      res.status(200).json(employmentInfo);
+    } catch (error) {
+      next(error);
+    }
+  };
+
 
   // Update employment info by ID
   static updateEmploymentInfo = async (req, res) => {
