@@ -43,8 +43,7 @@ router.post("/loginuser", loginUser);
 // Route to update a user
 router.put(
   "/update-user/:id",
-  authJwt(),
-  checkRole(["admin", "super_admin"]),
+  
   updateUser
 );
 
@@ -59,8 +58,7 @@ router.delete(
 // Route to view a specific user by ID
 router.get(
   "/view-user/:id",
-  authJwt(),
-  checkRole(["admin", "super_admin", "employee"]),
+  
   viewUserById
 );
 
