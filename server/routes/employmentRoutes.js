@@ -9,7 +9,7 @@ router.post("/employmentinfo", EmploymentInfoController.createEmploymentInfo);
 router.get("/employmentinfo", EmploymentInfoController.getAllEmploymentInfos);
 
 // Get employment info by user ID (GET)
-router.get("/employmentinfo", EmploymentInfoController.getEmploymentInfoByIdUserID);
+router.get("/employmentinfo/:id", EmploymentInfoController.getEmploymentInfoByIdUserID);
 
 // Get employment info by ID (GET)
 router.get(
