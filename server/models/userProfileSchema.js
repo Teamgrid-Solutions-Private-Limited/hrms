@@ -20,7 +20,7 @@ const UserProfileSchema = new Schema(
     photo:{
       type:String
     },
-    zipcode:{
+    zipCode:{
       type:String
     },
     state:{

@@ -11,15 +11,15 @@ const contactSchema = new Schema(
     contactType: {
       type: String,
       enum: ["emergency"],
-      required: true,
+      // required: true,
     },
     contactName: {
       type: String,
-      required: true,
+      // required: true,
     },
     contactRelationship: {
       type: String,
-      required: true,
+      // required: true,
     },
     contactNumber: {
       type: String,

@@ -14,6 +14,8 @@ class UserProfileController {
           return res.status(500).json({ error: err.message });
         }
         const { userId, address,city,zipCode,country,state,idDocument,idNumber, dob, contactNumber,gender,photo } = req.body;
+        console.log("reuest body",req.body);
+        
 
         // Validate required fields
         if (!userId || !dob || !contactNumber) {

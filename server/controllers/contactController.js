@@ -10,7 +10,7 @@ class contactController {
   static createContact = async (req, res) => {
     try {
       const {userId,contactName,contactRelationship,contactNumber} = req.body;
-      if(!userId || !contactName || !contactRelationship ||!contactNumber)
+      if(!userId || !contactNumber)
       {
           return res.status(201).json({message:"All fields are required "})
       }
@@ -34,9 +34,10 @@ class contactController {
 
   // get contact by user ID
   static getByuser = async (req, res) => {
+    const userId = req.params.id;
     try {
-      const contacts = await Contact.findOne({ userId: req.params.userId }).populate('userId');
-      res.status(200).json(contacts);
+      const contacts = await Contact.findOne({ userId: userId }).populate('userId');
+      res.status(200).json({message:"retrieve successfully",info:contacts});
     } catch (error) {
       contactController.handleError(res, error);
     }
