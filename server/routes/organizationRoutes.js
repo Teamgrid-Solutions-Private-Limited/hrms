@@ -11,8 +11,7 @@ router.put("/organization/update/:id",
     authJwt(), // JWT middleware to authenticate
     checkRole(["super_admin", "admin"]),updateOrganization);
 
-router.get("/organization/viewById/:id", authJwt(), // JWT middleware to authenticate
-checkRole(["super_admin", "admin", "employee"]),viewOrganization);
+router.get("/organization/viewById/:id",viewOrganization);
 
 // router.get("/organization/viewByuserId/:id",getOrganizationByUserId);
 
