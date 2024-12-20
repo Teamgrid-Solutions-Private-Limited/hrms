@@ -32,6 +32,9 @@ const UserProfileSchema = new Schema(
     idDocument:{
       type:String
     },
+    idexpiryDate:{
+      type:Date
+    },
     idNumber:{
       type:String
     },

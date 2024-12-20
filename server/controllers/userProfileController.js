@@ -13,7 +13,7 @@ class UserProfileController {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-        const { userId, address,city,zipCode,country,state,idDocument,idNumber, dob, contactNumber,gender,photo } = req.body;
+        const { userId, address,city,zipCode,country,state,idDocument,idNumber, dob, contactNumber,gender,photo,idExpiryDate } = req.body;
         console.log("reuest body",req.body);
         
 
@@ -36,6 +36,7 @@ class UserProfileController {
            state,
            idDocument,
            idNumber,
+           idExpiryDate,
            address,
            city,
            gender,
