@@ -6,14 +6,17 @@ const router = express.Router();
 router.post("/employmentinfo", EmploymentInfoController.createEmploymentInfo);
 
 // Get all employment infos (GET)
-router.get("/employmentinfo", EmploymentInfoController.getAllEmploymentInfos);
+router.get("/employmentinfo",authJwt(),
+checkRole(["admin", "super_admin","hr"]), EmploymentInfoController.getAllEmploymentInfos);
 
 // Get employment info by user ID (GET)
-router.get("/employmentinfo/:id", EmploymentInfoController.getEmploymentInfoByIdUserID);
+router.get("/employmentinfo/:id",authJwt(),
+checkRole(["admin", "super_admin", "employee", "hr"]),EmploymentInfoController.getEmploymentInfoByIdUserID);
 
 // Get employment info by ID (GET)
 router.get(
-  "/employmentinfo/:id",
+  "/employmentinfo/:id",authJwt(),
+  checkRole(["admin", "super_admin", "employee", "hr"]),
   EmploymentInfoController.getEmploymentInfoById
 );
 

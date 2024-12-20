@@ -15,7 +15,7 @@ router.get('/bank-details/:id', authJwt(),
 checkRole(["admin", "super_admin", "finance"]),  BC.getBankDetailsById);
 // get by user Id
 router.get('/bank-detailsUser/:id', authJwt(),
-checkRole(["admin", "super_admin", "finance"]),  BC.getBankUser);
+checkRole(["admin", "super_admin","employee", "finance"]),  BC.getBankUser);
 
 router.put('/bank-details/:id',authJwt(),
 checkRole(["admin", "super_admin"]),  BC.updateBankDetails);
