@@ -9,19 +9,45 @@ class bankdetailsController {
   // Create new bank details
   static createBankDetails = async (req, res) => {
     try {
-      const {userId,bankName,accountNumber,branch,ifsc,bankAddressLine,bankCity,bankState,bankZipCode}= req.body;
-      if(!userId ||   !accountNumber ||  !ifsc)
-      {
-          return res.status(201).json({message:"All fields are required"});
+      const {
+        userId,
+        bankName,
+        accountNumber,
+        branch,
+        ifsc,
+        bankAddressLine,
+        bankCity,
+        bankState,
+        bankZipCode,
+      } = req.body;
+  
+      // Validate required fields
+      if (!userId || !accountNumber || !ifsc) {
+        return res.status(400).json({ message: "User ID, Account Number, and IFSC are required" });
       }
-      const bankDetails = new BankDetails(userId,bankName,accountNumber,branch,ifsc,bankAddressLine,bankCity,bankState,bankZipCode);
-      await bankDetails.save();
-      res.status(201).json(bankDetails);
+  
+      // Create a new bank details instance
+      const bankDetails = new BankDetails({
+        userId,
+        bankName,
+        accountNumber,
+        branch,
+        ifsc,
+        bankAddressLine,
+        bankCity,
+        bankState,
+        bankZipCode,
+      });
+  
+      // Save the bank details to the database
+      const savedBankDetails = await bankDetails.save();
+      res.status(201).json(savedBankDetails);
     } catch (error) {
-        bankdetailsController.handleError(res, error, 400);
+      console.error("Error creating bank details:", error);
+      bankdetailsController.handleError(res, error, 400);
     }
   };
-
+  
   // Get all bank details for a user
   static getBankDetails = async (req, res) => {
     try {
