@@ -33,7 +33,7 @@ const UserProfileSchema = new Schema(
       type:String
     },
     idNumber:{
-      type:Number
+      type:String
     },
     dob: { type: Date, required: true },
     contactNumber: { type: String, required: true},
