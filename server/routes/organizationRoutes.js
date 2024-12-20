@@ -6,7 +6,7 @@ const authJwt = require("../middlewares/authJwt");
 const upload = require("../middlewares/fileUpload");
  
 
-router.post("/organization/create",authJwt(),checkRole(["super_admin"]), addOrganization);
+router.post("/organization/create",addOrganization);
 router.put("/organization/update/:id",
     authJwt(), // JWT middleware to authenticate
     checkRole(["super_admin", "admin"]),updateOrganization);

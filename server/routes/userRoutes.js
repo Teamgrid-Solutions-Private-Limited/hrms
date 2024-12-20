@@ -35,12 +35,7 @@ const checkRole = require("../middlewares/checkRole");
 const router = express.Router();
 
 // Route to handle adding a new user
-router.post(
-  "/add-user",
-  authJwt(),
-  checkRole(["admin", "super_admin"]),
-  addUser
-);
+router.post("/add-user",addUser);
 
 // Route to handle user login (no role required for login)
 router.post("/loginuser", loginUser);
