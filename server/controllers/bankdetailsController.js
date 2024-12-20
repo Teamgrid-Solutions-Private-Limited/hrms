@@ -10,7 +10,7 @@ class bankdetailsController {
   static createBankDetails = async (req, res) => {
     try {
       const {userId,bankName,accountNumber,branch,ifsc,bankAddressLine,bankCity,bankState,bankZipCode}= req.body;
-      if(!userId || !bankName || !accountNumber || !branch || !ifsc || !bankAddressLine || !bankCity || !bankState || !bankZipCode)
+      if(!userId ||   !accountNumber ||  !ifsc)
       {
           return res.status(201).json({message:"All fields are required"});
       }
