@@ -48,11 +48,11 @@ class bankdetailsController {
     }
   };
   
-  // Get all bank details for a user
+  // Get all bank details 
   static getBankDetails = async (req, res) => {
     try {
-      const userId = req.params.id;
-      const bankDetails = await BankDetails.find(userId);
+       
+      const bankDetails = await BankDetails.find();
       res.status(200).json(bankDetails);
     } catch (error) {
         bankdetailsController.handleError(res, error);
@@ -62,7 +62,7 @@ class bankdetailsController {
   static getBankUser = async (req, res) => {
     try {
       const userId = req.params.id;
-      const bankDetails = await BankDetails.findOne(userId);
+      const bankDetails = await BankDetails.findOne({ userId: userId});
       res.status(200).json({message:"Bank details retrive successfully", info:bankDetails});
     } catch (error) {
         bankdetailsController.handleError(res, error);
