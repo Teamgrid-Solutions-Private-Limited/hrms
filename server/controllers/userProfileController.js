@@ -9,7 +9,7 @@ class UserProfileController {
   // Create a new user profile
   static createUserProfile = async (req, res) => {
     try {
-      upload.single("Photo")(req, res, async (err) =>{
+      upload.single("photo")(req, res, async (err) =>{
         if (err) {
           return res.status(500).json({ error: err.message });
         }
@@ -97,7 +97,7 @@ class UserProfileController {
   static updateUserProfile = async (req, res) => {
     const { id } = req.params;
     try {
-      upload.single("Photo")(req, res, async (err) =>{
+      upload.single("photo")(req, res, async (err) =>{
         if (err) {
           return res.status(500).json({ error: err.message });
         }
