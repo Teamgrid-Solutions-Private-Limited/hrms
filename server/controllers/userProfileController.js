@@ -101,8 +101,9 @@ class UserProfileController {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
+         
         if (req.file) {
-          req.body.Photo = `/uploads/${req.file.filename}`;  
+          req.body.Photo = `${upload_URL}${req.file.filename}`;
         }
   
         const updatedProfile = await UserProfile.findByIdAndUpdate(id, req.body, {
