@@ -18,9 +18,9 @@ class UserProfileController {
         
 
         // Validate required fields
-        if (!userId || !dob || !contactNumber) {
-          return res.status(400).json({ error: "All fields are required" });
-        }
+        // if (!userId || !dob || !contactNumber) {
+        //   return res.status(400).json({ error: "All fields are required" });
+        // }
   
         // Check if user exists
         const userExists = await User.findById(userId);
@@ -101,9 +101,8 @@ class UserProfileController {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-         
         if (req.file) {
-          req.body.Photo = `${upload_URL}${req.file.filename}`;
+          req.body.Photo = `/uploads/${req.file.filename}`;  
         }
   
         const updatedProfile = await UserProfile.findByIdAndUpdate(id, req.body, {
