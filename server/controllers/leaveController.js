@@ -99,7 +99,7 @@ class leaveController {
       // Fetch the employee's specific leave allocation
       const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
         employeeId: leaveRequest.employeeId._id,
-        // leaveTypeId: leaveRequest.leaveTypeId._id,
+        leaveTypeId: leaveRequest.leaveTypeId._id,
       });
 
       if (!employeeLeaveAllocation) {
