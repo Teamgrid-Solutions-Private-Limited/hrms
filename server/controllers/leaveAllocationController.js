@@ -1,4 +1,4 @@
-const  Allocation = require('../models/leaveAllocation');
+const  Allocation = require('../models/leaveAllocationSchema');
 
 class  leaveAllocationController {
     
