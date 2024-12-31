@@ -64,7 +64,7 @@ app.use('/bank',bankRoute);
 app.use('/contact',contactRoute);
 app.use("/leave", leaveRoute);
 app.use("/allocation",leaveAllocationRoute);
-app.use("/leaveType",levaeTypeRoute);
+app.use("/leaveType",leaveTypeRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
