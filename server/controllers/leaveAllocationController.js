@@ -35,7 +35,7 @@ class  leaveAllocationController {
     static getLeaveAllocationByEmployee = async (req, res) => {
         try {
             const { userId } = req.params;
-            const allocation = await  Allocation.find({ employeeId })
+            const allocation = await  Allocation.find({ userId })
                 .populate('leaveTypeId');
             if (!allocation) {
                 return res.status(404).json({ message: 'Leave allocation not found' });
