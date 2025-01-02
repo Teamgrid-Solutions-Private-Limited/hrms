@@ -5,7 +5,7 @@ class  leaveAllocationController {
     // Create a new leave allocation
     static createLeaveAllocation = async (req, res) => {
         try {
-            const { employeeId, leaveTypeId, allocatedLeaves } = req.body;
+            const { userId, leaveTypeId, allocatedLeaves } = req.body;
             const newAllocation = new  Allocation({
                 userId,
                 leaveTypeId,
