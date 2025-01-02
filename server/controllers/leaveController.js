@@ -5,7 +5,7 @@ const EmployeeLeaveAllocation = require("../models/leaveAllocationSchema");
 class leaveController {
   static createLeaveRequest = async (req, res) => {
     const {
-      employeeId,
+      userId,
       leaveTypeId,
       startDate,
       endDate,
@@ -15,7 +15,7 @@ class leaveController {
 
     try {
       const leaveRequest = new Leave({
-        employeeId,
+        userId,
         leaveTypeId,
         startDate,
         endDate,
@@ -80,7 +80,7 @@ class leaveController {
     try {
       // Find the leave request
       const leaveRequest = await Leave.findById(leaveId)
-        .populate("employeeId")
+        .populate("userId")
         .populate("leaveTypeId");
       if (!leaveRequest) {
         return res.status(404).json({ message: "Leave request not found" });
@@ -98,7 +98,7 @@ class leaveController {
 
       // Fetch the employee's specific leave allocation
       const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
-        employeeId: leaveRequest.employeeId._id,
+        userId: leaveRequest.userId._id,
         leaveTypeId: leaveRequest.leaveTypeId._id,
       });
 
@@ -176,7 +176,7 @@ class leaveController {
       const validOrganizationId = new mongoose.Types.ObjectId(organizationId);
 
       const leaveRequest = await Leave.find().populate({
-        path: "employeeId",
+        path: "userId",
         select: "name organizationId",
         match: { organizationId: validOrganizationId },
       });
@@ -203,7 +203,7 @@ class leaveController {
       const validOrganizationId = new mongoose.Types.ObjectId(organizationId);
 
       const leaveRequest = await Leave.findById(userId).populate({
-        path: "employeeId",
+        path: "userId",
         select: "name organizationId",
         match: { organizationId: validOrganizationId },
       });
