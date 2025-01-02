@@ -7,7 +7,7 @@ class  leaveAllocationController {
         try {
             const { employeeId, leaveTypeId, allocatedLeaves } = req.body;
             const newAllocation = new  Allocation({
-                employeeId,
+                userId,
                 leaveTypeId,
                 allocatedLeaves,
                 usedLeaves: 0  // Default value
@@ -23,7 +23,7 @@ class  leaveAllocationController {
     static getLeaveAllocations = async (req, res) => {
         try {
             const allocations = await  Allocation.find()
-                .populate('employeeId')
+                .populate('userId')
                 .populate('leaveTypeId');
             res.status(200).json(allocations);
         } catch (err) {
@@ -34,7 +34,7 @@ class  leaveAllocationController {
     // Get leave allocations for a specific employee
     static getLeaveAllocationByEmployee = async (req, res) => {
         try {
-            const { employeeId } = req.params;
+            const { userId } = req.params;
             const allocation = await  Allocation.find({ employeeId })
                 .populate('leaveTypeId');
             if (!allocation) {
