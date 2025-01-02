@@ -9,7 +9,7 @@ class UserProfileController {
   // Create a new user profile
   static createUserProfile = async (req, res) => {
     try {
-      upload.single("Photo")(req, res, async (err) =>{
+      upload.single("photo")(req, res, async (err) =>{
         if (err) {
           return res.status(500).json({ error: err.message });
         }
@@ -18,9 +18,9 @@ class UserProfileController {
         
 
         // Validate required fields
-        if (!userId || !dob || !contactNumber) {
-          return res.status(400).json({ error: "All fields are required" });
-        }
+        // if (!userId || !dob || !contactNumber) {
+        //   return res.status(400).json({ error: "All fields are required" });
+        // }
   
         // Check if user exists
         const userExists = await User.findById(userId);
@@ -94,35 +94,73 @@ class UserProfileController {
   };
 
   // Update user profile by ID
+  // static updateUserProfile = async (req, res) => {
+  //   const { id } = req.params;
+  //   try {
+  //     upload.single("photo")(req, res, async (err) =>{
+  //       if (err) {
+  //         return res.status(500).json({ error: err.message });
+  //       }
+  //       if (req.file) {
+  //         req.body.Photo = `/uploads/${req.file.filename}`;  
+  //       }
+  
+  //       const updatedProfile = await UserProfile.findByIdAndUpdate(id, req.body, {
+  //         new: true,
+  //       });
+  //       if (!updatedProfile) {
+  //         return res.status(404).json({ error: "User profile not found" });
+  //       }
+  //       res
+  //         .status(200)
+  //         .json({
+  //           message: "User profile updated successfully",
+  //           profile: updatedProfile,
+  //         });
+  //     });
+      
+  //   } catch (error) {
+  //     res.status(500).json({ error: "Server error", details: error.message });
+  //   }
+  // };
+
   static updateUserProfile = async (req, res) => {
     const { id } = req.params;
     try {
-      upload.single("Photo")(req, res, async (err) =>{
+      upload.single("photo")(req, res, async (err) => {
         if (err) {
+          console.error("Multer Error:", err);
           return res.status(500).json({ error: err.message });
         }
+        console.log("Uploaded file:", req.file);
+  
         if (req.file) {
-          req.body.Photo = `/uploads/${req.file.filename}`;  
+          req.body.photo = `${upload_URL}${req.file.filename}`;
+        } else {
+          console.warn("No file uploaded.");
         }
+  
+        console.log("Request body after file upload:", req.body);
   
         const updatedProfile = await UserProfile.findByIdAndUpdate(id, req.body, {
           new: true,
         });
+  
         if (!updatedProfile) {
           return res.status(404).json({ error: "User profile not found" });
         }
-        res
-          .status(200)
-          .json({
-            message: "User profile updated successfully",
-            profile: updatedProfile,
-          });
+  
+        res.status(200).json({
+          message: "User profile updated successfully",
+          profile: updatedProfile,
+        });
       });
-      
     } catch (error) {
+      console.error("Server Error:", error);
       res.status(500).json({ error: "Server error", details: error.message });
     }
   };
+  
 
   // Delete user profile by ID
   static deleteUserProfile = async (req, res) => {

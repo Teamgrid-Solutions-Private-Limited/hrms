@@ -26,7 +26,9 @@ const emailRoute = require("./routes/emailRoutes");
 const rolePermissionRoute = require("./routes/rolePermissionRoutes");
 const bankRoute = require("./routes/bankdetailsRoutes");
 const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
-
+const leaveRoute = require("./routes/leaveRoutes");
+const leaveAllocationRoute =require("./routes/leaveAllocationRoutes");
+const leaveTypeRoute = require("./routes/leaveTypeRoutes");
 const PORT = process.env.PORT || 6010;
 const app = express();
 
@@ -60,6 +62,9 @@ app.use("/organization",organizationRoute);
 app.use("/email",emailRoute);
 app.use('/bank',bankRoute);
 app.use('/contact',contactRoute);
+app.use("/leave", leaveRoute);
+app.use("/allocation",leaveAllocationRoute);
+app.use("/leaveType",leaveTypeRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

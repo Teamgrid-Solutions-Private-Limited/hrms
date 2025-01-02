@@ -11,7 +11,7 @@ const employmentInfoSchema = new Schema(
     employmentStatus: {
       type: String,
       enum: ["active", "inactive", "terminated", "on_leave"],
-      required: true,
+       
     },
     jobTitle: {
       type: String,
@@ -33,7 +33,7 @@ const employmentInfoSchema = new Schema(
     employmentType: {
       type: String,
       enum: ["full_time", "part_time", "contract", "intern"],
-      required: true,
+       
     },
     salary: {
       type: Schema.Types.Decimal128,

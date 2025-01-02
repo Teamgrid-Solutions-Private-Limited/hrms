@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const UserProfileSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "users",required:true},
     address :{
       type:String
     },
@@ -32,14 +32,14 @@ const UserProfileSchema = new Schema(
     idDocument:{
       type:String
     },
-    idexpiryDate:{
+    idExpiryDate:{
       type:Date
     },
     idNumber:{
       type:String
     },
-    dob: { type: Date, required: true },
-    contactNumber: { type: String, required: true},
+    dob: { type: Date},
+    contactNumber: { type: String},
   },
   { timestamps: true }
 );
