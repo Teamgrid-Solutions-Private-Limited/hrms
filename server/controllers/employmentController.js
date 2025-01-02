@@ -6,6 +6,15 @@ class EmploymentInfoController {
   // Create Employment Info
   static createEmploymentInfo = async (req, res) => {
     try {
+      const { userId } = req.body;
+
+      const existingEmploymentInfo = await EmploymentInfo.findOne({ userId });
+
+      if(existingEmploymentInfo){
+        return res
+          .status(400)
+          .json({ error: "Employment information already exists for this user"});
+    }
       const employmentInfo = new EmploymentInfo(req.body);
       await employmentInfo.save();
       return res.status(201).json(employmentInfo);
