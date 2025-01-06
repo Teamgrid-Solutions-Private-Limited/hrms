@@ -12,6 +12,16 @@ const leaveSchema = mongoose.Schema({
   },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  leaveDuration: {
+    type: String,
+    enum: ["half_day", "full_day", "multiple_days"],
+    default: "full_day", // Default to a full-day leave
+  },
+  leaveUnits: {
+    type: Number, // Calculated as 0.5 (half-day), 1 (full-day), or more for multiple days
+    required: true,
+    default: 1, // Default to 1 day if not specified
+  },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected", "allocated", "cancelled"],

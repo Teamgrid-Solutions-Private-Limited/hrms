@@ -7,6 +7,7 @@ const employmentInfoSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "users", // Reference to the User model
       required: true,
+      unique: true,
     },
     employmentStatus: {
       type: String,
