@@ -22,6 +22,10 @@ const leaveSchema = mongoose.Schema({
     required: true,
     default: 1, // Default to 1 day if not specified
   },
+  half:{
+    type:String,
+    enum: ["first_half","second_half"],
+  }
   status: {
     type: String,
     enum: ["pending", "approved", "rejected", "allocated", "cancelled"],
