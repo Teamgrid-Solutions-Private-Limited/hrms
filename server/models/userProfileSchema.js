@@ -14,7 +14,6 @@ const UserProfileSchema = new Schema(
       type:String,
       enum: ["male", "female", "other","select"],
       default: "select",
-     
       
     },
     photo:{

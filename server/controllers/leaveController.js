@@ -220,7 +220,6 @@
 // }
 
 // module.exports = leaveController;
-
 const { default: mongoose } = require("mongoose");
 const Leave = require("../models/leaveSchema");
 const User = require("../models/userSchema");
@@ -234,18 +233,28 @@ class leaveController {
       leaveTypeId,
       startDate,
       endDate,
-      leaveDuration,  // "full-day" or "half-day"
+      leaveDuration, // "full-day", "half-day", "first-half", "second-half"
       reason,
       supportingDocuments,
     } = req.body;
 
     try {
+      // Dynamically calculate leaveUnits
+      let leaveUnits = 0;
+
+      if (leaveDuration === "half-day" || leaveDuration === "first-half" || leaveDuration === "second-half") {
+        leaveUnits = 0.5; // Set to 0.5 for any half-day-related leave
+      } else {
+        leaveUnits = this.calculateLeaveDays(startDate, endDate, leaveDuration); // Full-day or multiple days
+      }
+
       const leaveRequest = new Leave({
         userId,
         leaveTypeId,
         startDate,
         endDate,
-        leaveDuration,  // store duration as well
+        leaveDuration,
+        leaveUnits, // Store calculated units
         reason,
         supportingDocuments,
       });
@@ -275,16 +284,22 @@ class leaveController {
         return res.status(404).json({ message: "Leave request not found" });
       }
 
-      // Approve the leave request and update manager comments
+      // Dynamically calculate leaveUnits during approval
+      let leaveUnits = 0;
+
+      if (leaveRequest.leaveDuration === "half-day" || leaveRequest.leaveDuration === "first-half" || leaveRequest.leaveDuration === "second-half") {
+        leaveUnits = 0.5; // Set to 0.5 for any half-day-related leave
+      } else {
+        leaveUnits = this.calculateLeaveDays(
+          leaveRequest.startDate,
+          leaveRequest.endDate,
+          leaveRequest.leaveDuration
+        ); // Full-day or multiple days
+      }
+
+      leaveRequest.leaveUnits = leaveUnits; // Update leaveUnits in the request
       leaveRequest.status = "approved";
       leaveRequest.managerComments = managerComments;
-
-      // Calculate the leave days based on full or half-day
-      let leaveDays = this.calculateLeaveDays(
-        leaveRequest.startDate,
-        leaveRequest.endDate,
-        leaveRequest.leaveDuration
-      );
 
       // Fetch employee's leave allocation
       const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
@@ -298,14 +313,15 @@ class leaveController {
 
       // Check if the employee has enough allocated leaves
       const remainingLeaves =
-        employeeLeaveAllocation.allocatedLeaves - employeeLeaveAllocation.usedLeaves;
+        employeeLeaveAllocation.allocatedLeaves -
+        employeeLeaveAllocation.usedLeaves;
 
-      if (leaveDays > remainingLeaves) {
+      if (leaveUnits > remainingLeaves) {
         return res.status(400).json({ message: "Insufficient allocated leaves" });
       }
 
       // Update the used leaves
-      employeeLeaveAllocation.usedLeaves += leaveDays;
+      employeeLeaveAllocation.usedLeaves += leaveUnits;
 
       // Save updated leave request and allocation
       await leaveRequest.save();
@@ -348,13 +364,13 @@ class leaveController {
 
     // If it's a half-day leave, set the leave days to 0.5
     if (leaveDuration === "half-day") {
-      return 0.5;  // Half-day leave
+      return 0.5; // Half-day leave
     }
 
     // If it's a full day, calculate the difference between start and end date
     const diffTime = Math.abs(end - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include the end date
-    return diffDays;  // Full-day leave
+    return diffDays; // Full-day leave
   }
 
   // View all leave requests
@@ -417,4 +433,7 @@ class leaveController {
 }
 
 module.exports = leaveController;
+
+
+
 
