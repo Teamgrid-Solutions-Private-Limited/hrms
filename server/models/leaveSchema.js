@@ -32,6 +32,8 @@ const leaveSchema = mongoose.Schema({
   hrComments: { type: String },
   reason: { type: String },
   supportingDocuments: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("leaves", leaveSchema);
