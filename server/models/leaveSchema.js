@@ -25,7 +25,7 @@ const leaveSchema = mongoose.Schema({
   half:{
     type:String,
     enum: ["first_half","second_half"],
-  }
+  },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected", "allocated", "cancelled"],
