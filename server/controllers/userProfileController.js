@@ -179,7 +179,7 @@ class UserProfileController {
   static findAll = async (req,res) =>
   {
     try {
-      profile = await UserProfile.find();
+    const  profile = await UserProfile.find();
       res.status(200).json({message: "All user profile retrieve successfully",info:profile});
     } catch (error) {
       res.status(500).json({message:"server error",error:error.message});
