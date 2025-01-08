@@ -9,7 +9,7 @@ const maxSize = 2 * 1024 * 1024;
 const storage = multer.diskStorage({
   // Destination folder
   destination: (req, file, cb) => {
-    const dir = "my-upload/images";
+    const dir = "my-upload/uploads";
     // Ensure the directory exists or create it
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -43,7 +43,9 @@ const fileFilter = (req, file, cb) => {
     cb(null, true); // Accept the file
   } else {
     cb(null, false); // Reject the file
-    return cb(new Error("Only .jpg, .jpeg, .png, .svg, and .pdf formats are allowed!"));
+    return cb(
+      new Error("Only .jpg, .jpeg, .png, .svg, and .pdf formats are allowed!")
+    );
   }
 };
 

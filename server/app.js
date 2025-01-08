@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const mongoose = require("./db/conn");
 const roleRoute = require("./routes/roleRoutes");
 const userRoute = require("./routes/userRoutes");
@@ -35,8 +36,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("my-upload"));
-
+app.use("/uploads", express.static(path.join(__dirname, "my-upload/uploads")));
 
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);

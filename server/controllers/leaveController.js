@@ -1,10 +1,11 @@
 const { default: mongoose } = require("mongoose");
 const Leave = require("../models/leaveSchema");
 const User = require("../models/userSchema");
+const fs = require("fs");
+const path = require("path");
 const EmployeeLeaveAllocation = require("../models/leaveAllocationSchema");
 
 class leaveController {
-  // Create a new leave request
   static createLeaveRequest = async (req, res) => {
     const {
       userId,
@@ -13,7 +14,6 @@ class leaveController {
       endDate,
       leaveDuration, // "half_day", "full_day", "multiple_days"
       reason,
-      supportingDocuments,
     } = req.body;
 
     try {
@@ -21,16 +21,12 @@ class leaveController {
       let half = null; // Default value for half-day indication
 
       if (leaveDuration === "half_day") {
-        // Ensure start and end dates are the same for half-day leave
         if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
           return res
             .status(400)
             .json({ error: "Half-day leave must have the same start and end date" });
         }
-
-        // Automatically determine if it's "first_half" or "second_half" based on time
-        const currentHour = new Date(startDate).getHours();
-        half = currentHour < 12 ? "first_half" : "second_half";
+        half = "first_half"; // Default to "first_half"
       }
 
       // Dynamically calculate leaveUnits
@@ -48,13 +44,41 @@ class leaveController {
         startDate,
         endDate,
         leaveDuration,
-        half, // Dynamically set the specified half
+        half,
         leaveUnits,
         reason,
-        supportingDocuments,
+        supportingDocuments: null, // Default null; updated after processing file
       });
 
+      // Save leaveRequest to get its ID
       await leaveRequest.save();
+
+      // Handle file upload if supporting document is present
+      if (req.file) {
+        const leaveId = leaveRequest._id.toString(); // Get leave ID
+        const originalFileName = req.file.originalname;
+        const timestamp = Date.now();
+        const fileName = `${timestamp}-${originalFileName}`;
+
+        // Create user and leave-specific folder
+        const userFolderPath = path.join(
+          "my-upload/uploads/leaves",
+          userId,
+          leaveId
+        );
+
+        // Ensure the folder exists
+        fs.mkdirSync(userFolderPath, { recursive: true });
+
+        // Move the file to the specific folder
+        const filePath = path.join(userFolderPath, fileName);
+        fs.renameSync(req.file.path, filePath);
+
+        // Save the file name (not full path) in the leave request
+        leaveRequest.supportingDocuments = fileName;
+        await leaveRequest.save();
+      }
+
       res
         .status(201)
         .json({ message: "Leave request created successfully", leaveRequest });
@@ -63,6 +87,85 @@ class leaveController {
       res.status(500).json({ error: "Error creating leave request" });
     }
   };
+
+  // Calculate leave days (inclusive of both start and end dates)
+  static calculateLeaveDays(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive
+    return diffDays;
+  }
+
+  // Calculate leave days (inclusive of both start and end dates)
+  static calculateLeaveDays(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive
+    return diffDays;
+  }
+
+  // static createLeaveRequest = async (req, res) => {
+  //   const {
+  //     userId,
+  //     leaveTypeId,
+  //     startDate,
+  //     endDate,
+  //     leaveDuration, // "half_day", "full_day", "multiple_days"
+  //     reason,
+  //     supportingDocuments,
+  //   } = req.body;
+
+  //   try {
+  //     // Validate inputs for half-day leave
+  //     let half = null; // Default value for half-day indication
+
+  //     if (leaveDuration === "half_day") {
+  //       // Ensure start and end dates are the same for half-day leave
+  //       if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
+  //         return res
+  //           .status(400)
+  //           .json({ error: "Half-day leave must have the same start and end date" });
+  //       }
+
+  //       // Automatically determine if it's "first_half" or "second_half" based on time
+  //       const currentHour = new Date(startDate).getHours();
+  //       half = currentHour < 12 ? "first_half" : "second_half";
+  //     }
+
+  //     // Dynamically calculate leaveUnits
+  //     let leaveUnits = 0;
+  //     if (leaveDuration === "half_day") {
+  //       leaveUnits = 0.5; // Set for half-day leave
+  //     } else {
+  //       leaveUnits = this.calculateLeaveDays(startDate, endDate); // Full-day or multiple days
+  //     }
+
+  //     // Create the leave request
+  //     const leaveRequest = new Leave({
+  //       userId,
+  //       leaveTypeId,
+  //       startDate,
+  //       endDate,
+  //       leaveDuration,
+  //       half, // Dynamically set the specified half
+  //       leaveUnits,
+  //       reason,
+  //       supportingDocuments,
+  //     });
+
+  //     await leaveRequest.save();
+  //     res
+  //       .status(201)
+  //       .json({ message: "Leave request created successfully", leaveRequest });
+  //   } catch (err) {
+  //     console.error("Error creating leave request:", err);
+  //     res.status(500).json({ error: "Error creating leave request" });
+  //   }
+  // };
 
   // Approve leave request
   static approveLeaveRequest = async (req, res) => {
@@ -116,7 +219,9 @@ class leaveController {
         employeeLeaveAllocation.usedLeaves;
 
       if (leaveUnits > remainingLeaves) {
-        return res.status(400).json({ message: "Insufficient allocated leaves" });
+        return res
+          .status(400)
+          .json({ message: "Insufficient allocated leaves" });
       }
 
       // Update used leaves
@@ -154,7 +259,10 @@ class leaveController {
       console.error("Error rejecting leave request:", error);
       res
         .status(500)
-        .json({ message: "Error rejecting leave request", error: error.message });
+        .json({
+          message: "Error rejecting leave request",
+          error: error.message,
+        });
     }
   };
 
@@ -198,33 +306,76 @@ class leaveController {
   };
 
   // View leave request by ID
-  static viewLeaveById = async (req, res) => {
-    try {
-      const userId = req.user._id;
-      const organizationId = req.user?.organizationId || req.user.body;
+  // static viewLeaveById = async (req, res) => {
+  //   try {
+  //     const userId = req.user._id;
+  //     const organizationId = req.user?.organizationId || req.user.body;
 
-      if (!organizationId) {
-        return res.status(404).json({ message: "Organization Id is missing" });
+  //     if (!organizationId) {
+  //       return res.status(404).json({ message: "Organization Id is missing" });
+  //     }
+
+  //     const validOrganizationId = new mongoose.Types.ObjectId(organizationId);
+
+  //     const leaveRequest = await Leave.findById(userId).populate({
+  //       path: "userId",
+  //       select: "name organizationId",
+  //       match: { organizationId: validOrganizationId },
+  //     });
+
+  //     return res.status(200).json({
+  //       message: "Leave requests retrieved successfully",
+  //       info: leaveRequest,
+  //     });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Error retrieving leaves", error: error.message });
+  //   }
+  // };
+
+  // View leave request by ID
+  
+
+    // Get leave requests by userId
+    static getLeaveByUserId = async (req, res) => {
+      try {
+        // Extract userId from request parameters
+        const userId = req.params.userId;
+  
+        if (!userId) {
+          return res.status(400).json({ message: "User ID is required" });
+        }
+  
+        // Validate userId format
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+          return res.status(400).json({ message: "Invalid User ID" });
+        }
+  
+        // Fetch leave requests for the given userId
+        const leaveRequests = await Leave.find({ userId })
+          .populate("leaveTypeId", "name description") // Populate leave type details
+          .sort({ createdAt: -1 }); // Sort by newest leave requests first
+  
+        if (leaveRequests.length === 0) {
+          return res.status(404).json({
+            message: "No leave requests found for the specified user",
+          });
+        }
+  
+        return res.status(200).json({
+          message: "Leave requests retrieved successfully",
+          data: leaveRequests,
+        });
+      } catch (error) {
+        return res.status(500).json({
+          message: "Error retrieving leave requests",
+          error: error.message,
+        });
       }
+    };
+  
 
-      const validOrganizationId = new mongoose.Types.ObjectId(organizationId);
-
-      const leaveRequest = await Leave.findById(userId).populate({
-        path: "userId",
-        select: "name organizationId",
-        match: { organizationId: validOrganizationId },
-      });
-
-      return res.status(200).json({
-        message: "Leave requests retrieved successfully",
-        info: leaveRequest,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error retrieving leaves", error: error.message });
-    }
-  };
 }
 
 module.exports = leaveController;
