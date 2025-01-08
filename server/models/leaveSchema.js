@@ -22,6 +22,10 @@ const leaveSchema = mongoose.Schema({
     required: true,
     default: 1, // Default to 1 day if not specified
   },
+  half:{
+    type:String,
+    enum: ["first_half","second_half"],
+  },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected", "allocated", "cancelled"],
@@ -32,6 +36,8 @@ const leaveSchema = mongoose.Schema({
   hrComments: { type: String },
   reason: { type: String },
   supportingDocuments: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("leaves", leaveSchema);

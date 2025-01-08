@@ -44,4 +44,11 @@ router.delete(
   UserProfileController.deleteUserProfile
 );
 
+router.get(
+  "/profile/findAll/",
+  authJwt(),
+  checkRole(["super_admin", "admin"]),  
+  UserProfileController.findAll  
+);
+
 module.exports = router;
