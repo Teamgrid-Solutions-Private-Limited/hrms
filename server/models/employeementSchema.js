@@ -11,7 +11,7 @@ const employeementSchema = new Schema(
     },
     employmentStatus: {
       type: String,
-      enum: ["active", "inactive", "terminated", "on_leave"],
+      enum: ["active", "inactive", "terminated", "on leave"],
        
     },
     jobTitle: {

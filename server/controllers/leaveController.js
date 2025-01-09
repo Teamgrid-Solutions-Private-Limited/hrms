@@ -307,7 +307,7 @@ class leaveController {
         }
 
         // Update user status to "on_leave" or other appropriate status
-        user.employmentStatus = "on_leave";
+        user.employmentStatus = "on leave";
 
         // Save changes
         await leaveRequest.save();
