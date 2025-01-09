@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const Leave = require("../models/leaveSchema");
 const User = require("../models/userSchema");
+const Employment = require("../models/employeementSchema");
 const fs = require("fs");
 const path = require("path");
 const EmployeeLeaveAllocation = require("../models/leaveAllocationSchema");
@@ -298,14 +299,14 @@ class leaveController {
         employeeLeaveAllocation.usedLeaves += leaveUnits;
 
         // Update user status if necessary
-        const user = await User.findById(leaveRequest.userId._id);
+        const user = await Employment.findById(leaveRequest.userId._id);
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
         // Update user status to "on_leave" or other appropriate status
-        user.status = "on_leave";
+        user.employmentStatus = "on_leave";
 
         // Save changes
         await leaveRequest.save();
