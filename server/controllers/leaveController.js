@@ -168,75 +168,157 @@ class leaveController {
   // };
 
   // Approve leave request
+  // static approveLeaveRequest = async (req, res) => {
+  //   const { leaveId } = req.params;
+  //   const { managerComments } = req.body;
+
+  //   try {
+  //     const leaveRequest = await Leave.findById(leaveId)
+  //       .populate("userId")
+  //       .populate("leaveTypeId");
+
+  //     if (!leaveRequest) {
+  //       return res.status(404).json({ message: "Leave request not found" });
+  //     }
+
+  //     // Logic for leaveUnits based on leave type
+  //     let leaveUnits = 0;
+  //     if (leaveRequest.leaveDuration === "half_day") {
+  //       leaveUnits = 0.5;
+
+  //       // Handle first-half or second-half logic
+  //       if (leaveRequest.half === "first_half") {
+  //         console.log("Leave is for the first half of the day.");
+  //       } else if (leaveRequest.half === "second_half") {
+  //         console.log("Leave is for the second half of the day.");
+  //       }
+  //     } else {
+  //       leaveUnits = this.calculateLeaveDays(
+  //         leaveRequest.startDate,
+  //         leaveRequest.endDate
+  //       );
+  //     }
+
+  //     leaveRequest.leaveUnits = leaveUnits;
+  //     leaveRequest.status = "approved";
+  //     leaveRequest.managerComments = managerComments;
+
+  //     // Fetch leave allocation
+  //     const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
+  //       userId: leaveRequest.userId._id,
+  //       leaveTypeId: leaveRequest.leaveTypeId._id,
+  //     });
+
+  //     if (!employeeLeaveAllocation) {
+  //       return res.status(400).json({ message: "No leave allocation found" });
+  //     }
+
+  //     // Check if sufficient leaves are available
+  //     const remainingLeaves =
+  //       employeeLeaveAllocation.allocatedLeaves -
+  //       employeeLeaveAllocation.usedLeaves;
+
+  //     if (leaveUnits > remainingLeaves) {
+  //       return res
+  //         .status(400)
+  //         .json({ message: "Insufficient allocated leaves" });
+  //     }
+
+  //     // Update used leaves
+  //     employeeLeaveAllocation.usedLeaves += leaveUnits;
+
+  //     // Save changes
+  //     await leaveRequest.save();
+  //     await employeeLeaveAllocation.save();
+
+  //     res.status(200).json({ message: "Leave request approved", leaveRequest });
+  //   } catch (err) {
+  //     console.error("Error approving leave request:", err);
+  //     res.status(500).json({ error: "Error approving leave request" });
+  //   }
+  // };
+
   static approveLeaveRequest = async (req, res) => {
     const { leaveId } = req.params;
     const { managerComments } = req.body;
 
     try {
-      const leaveRequest = await Leave.findById(leaveId)
-        .populate("userId")
-        .populate("leaveTypeId");
+        const leaveRequest = await Leave.findById(leaveId)
+            .populate("userId")
+            .populate("leaveTypeId");
 
-      if (!leaveRequest) {
-        return res.status(404).json({ message: "Leave request not found" });
-      }
-
-      // Logic for leaveUnits based on leave type
-      let leaveUnits = 0;
-      if (leaveRequest.leaveDuration === "half_day") {
-        leaveUnits = 0.5;
-
-        // Handle first-half or second-half logic
-        if (leaveRequest.half === "first_half") {
-          console.log("Leave is for the first half of the day.");
-        } else if (leaveRequest.half === "second_half") {
-          console.log("Leave is for the second half of the day.");
+        if (!leaveRequest) {
+            return res.status(404).json({ message: "Leave request not found" });
         }
-      } else {
-        leaveUnits = this.calculateLeaveDays(
-          leaveRequest.startDate,
-          leaveRequest.endDate
-        );
-      }
 
-      leaveRequest.leaveUnits = leaveUnits;
-      leaveRequest.status = "approved";
-      leaveRequest.managerComments = managerComments;
+        // Logic for leaveUnits based on leave type
+        let leaveUnits = 0;
+        if (leaveRequest.leaveDuration === "half_day") {
+            leaveUnits = 0.5;
 
-      // Fetch leave allocation
-      const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
-        userId: leaveRequest.userId._id,
-        leaveTypeId: leaveRequest.leaveTypeId._id,
-      });
+            // Handle first-half or second-half logic
+            if (leaveRequest.half === "first_half") {
+                console.log("Leave is for the first half of the day.");
+            } else if (leaveRequest.half === "second_half") {
+                console.log("Leave is for the second half of the day.");
+            }
+        } else {
+            leaveUnits = this.calculateLeaveDays(
+                leaveRequest.startDate,
+                leaveRequest.endDate
+            );
+        }
 
-      if (!employeeLeaveAllocation) {
-        return res.status(400).json({ message: "No leave allocation found" });
-      }
+        leaveRequest.leaveUnits = leaveUnits;
+        leaveRequest.status = "approved";
+        leaveRequest.managerComments = managerComments;
 
-      // Check if sufficient leaves are available
-      const remainingLeaves =
-        employeeLeaveAllocation.allocatedLeaves -
-        employeeLeaveAllocation.usedLeaves;
+        // Fetch leave allocation
+        const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
+            userId: leaveRequest.userId._id,
+            leaveTypeId: leaveRequest.leaveTypeId._id,
+        });
 
-      if (leaveUnits > remainingLeaves) {
-        return res
-          .status(400)
-          .json({ message: "Insufficient allocated leaves" });
-      }
+        if (!employeeLeaveAllocation) {
+            return res.status(400).json({ message: "No leave allocation found" });
+        }
 
-      // Update used leaves
-      employeeLeaveAllocation.usedLeaves += leaveUnits;
+        // Check if sufficient leaves are available
+        const remainingLeaves =
+            employeeLeaveAllocation.allocatedLeaves -
+            employeeLeaveAllocation.usedLeaves;
 
-      // Save changes
-      await leaveRequest.save();
-      await employeeLeaveAllocation.save();
+        if (leaveUnits > remainingLeaves) {
+            return res
+                .status(400)
+                .json({ message: "Insufficient allocated leaves" });
+        }
 
-      res.status(200).json({ message: "Leave request approved", leaveRequest });
+        // Update used leaves
+        employeeLeaveAllocation.usedLeaves += leaveUnits;
+
+        // Update user status if necessary
+        const user = await User.findById(leaveRequest.userId._id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update user status to "on_leave" or other appropriate status
+        user.status = "on_leave";
+
+        // Save changes
+        await leaveRequest.save();
+        await employeeLeaveAllocation.save();
+        await user.save();
+
+        res.status(200).json({ message: "Leave request approved", leaveRequest });
     } catch (err) {
-      console.error("Error approving leave request:", err);
-      res.status(500).json({ error: "Error approving leave request" });
+        console.error("Error approving leave request:", err);
+        res.status(500).json({ error: "Error approving leave request" });
     }
-  };
+};
+
 
   // Reject leave request
   static rejectLeaveRequest = async (req, res) => {
