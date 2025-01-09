@@ -299,7 +299,7 @@ class leaveController {
         employeeLeaveAllocation.usedLeaves += leaveUnits;
 
         // Update user status if necessary
-        const user = await Employment.findById(leaveRequest.userId._id);
+        const user = await Employment.findOne({ userId: leaveRequest.userId._id });
         console.log(user);
 
         if (!user) {
