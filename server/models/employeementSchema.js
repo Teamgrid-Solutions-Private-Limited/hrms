@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const employmentInfoSchema = new Schema(
+const employeementSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -43,4 +43,4 @@ const employmentInfoSchema = new Schema(
   { timestamps: true, versionKey: false }
 );
 
-module.exports = mongoose.model("employmentinfos", employmentInfoSchema);
+module.exports = mongoose.model("employmentinfos", employeementSchema);

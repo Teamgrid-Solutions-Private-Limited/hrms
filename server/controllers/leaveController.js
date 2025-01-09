@@ -300,6 +300,7 @@ class leaveController {
 
         // Update user status if necessary
         const user = await Employment.findById(leaveRequest.userId._id);
+        console.log(user);
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
