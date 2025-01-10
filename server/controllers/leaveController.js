@@ -458,6 +458,36 @@ class leaveController {
         });
       }
     };
+
+
+static updateLeave = async (req, res) => {
+  const { leaveId } = req.params; // Get leave ID from URL params
+  const updateData = req.body; // Data to update
+
+  try {
+    // Find and update the leave request
+    const updatedLeave = await Leave.findByIdAndUpdate(
+      leaveId,
+      updateData, // Directly update all fields provided in the request body
+      { new: true } // Return updated document
+    );
+
+    // If leave request doesn't exist
+    if (!updatedLeave) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Return success response
+    res.status(200).json({
+      message: "Leave request updated successfully",
+      leaveRequest: updatedLeave,
+    });
+  } catch (error) {
+    console.error("Error updating leave request:", error);
+    res.status(500).json({ error: "Error updating leave request" });
+  }
+};
+
   
 
 }
