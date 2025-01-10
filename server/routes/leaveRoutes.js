@@ -19,6 +19,7 @@ router.get(
 );
 router.put("/leaves/:leaveId/reject",authJwt(),
 checkRole(["super_admin", "admin"]), LeaveController.rejectLeaveRequest);
+router.put("/leaves/:leaveId/update",authJwt(),checkRole(["employee", "admin","hr"]), LeaveController.updateLeave);
 router.get("/leaves/view/:userId",authJwt(),
 checkRole(["super_admin", "admin","employee"]), LeaveController.getLeaveByUserId);
 

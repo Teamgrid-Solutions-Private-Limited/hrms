@@ -459,7 +459,7 @@ class leaveController {
       }
     };
 
-
+//mployee: Can update their own leave request (before approval).
 static updateLeave = async (req, res) => {
   const { leaveId } = req.params; // Get leave ID from URL params
   const updateData = req.body; // Data to update
