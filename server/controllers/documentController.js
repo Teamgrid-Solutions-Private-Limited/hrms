@@ -125,6 +125,159 @@ class DocumentService {
       });
     }
   }
+  // Get all documents
+  static async getAllDocuments(req, res) {
+    try {
+      const documents = await Document.find().populate("uploadedBy", "name email").populate("categoryId", "name");
+      return res.status(200).json({
+        success: true,
+        message: "Documents fetched successfully.",
+        data: documents,
+      });
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while fetching documents.",
+        error: error.message,
+      });
+    }
+  }
+
+  // Get a single document by ID
+  static async getDocumentById(req, res) {
+    try {
+      const { documentId } = req.params;
+
+      const document = await Document.findById(documentId)
+        .populate("uploadedBy", "name email")
+        .populate("categoryId", "name");
+
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          message: "Document not found.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Document fetched successfully.",
+        data: document,
+      });
+    } catch (error) {
+      console.error("Error fetching document by ID:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while fetching the document.",
+        error: error.message,
+      });
+    }
+  }
+
+  // Update document status for a recipient
+  static async updateRecipientStatus(req, res) {
+    try {
+      const { documentId, recipientId } = req.params;
+      const { status } = req.body;
+
+      if (!["pending", "viewed", "acknowledged"].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid status value.",
+        });
+      }
+
+      const document = await Document.findOneAndUpdate(
+        {
+          _id: documentId,
+          "recipients.userId": recipientId,
+        },
+        {
+          $set: { "recipients.$.status": status },
+        },
+        { new: true }
+      );
+
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          message: "Document or recipient not found.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Recipient status updated successfully.",
+        data: document,
+      });
+    } catch (error) {
+      console.error("Error updating recipient status:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while updating recipient status.",
+        error: error.message,
+      });
+    }
+  }
+
+  // Delete a document
+  static async deleteDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+
+      const document = await Document.findByIdAndDelete(documentId);
+
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          message: "Document not found.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Document deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while deleting the document.",
+        error: error.message,
+      });
+    }
+  }
+  // Search for documents by title
+  static async searchDocuments(req, res) {
+    try {
+      const { query } = req.query;
+
+      if (!query) {
+        return res.status(400).json({
+          success: false,
+          message: "Query parameter is required.",
+        });
+      }
+
+      const documents = await Document.find({
+        title: { $regex: query, $options: "i" },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Documents searched successfully.",
+        data: documents,
+      });
+    } catch (error) {
+      console.error("Error searching documents:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred while searching for documents.",
+        error: error.message,
+      });
+    }
+  }
 }
 
 module.exports = DocumentService;
