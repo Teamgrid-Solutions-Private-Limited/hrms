@@ -3,7 +3,7 @@ const upload = require("../middlewares/fileUpload");
 const UserProfile = require("../models/userProfileSchema"); // Import the UserProfile model
 const User = require("../models/userSchema"); // Import the User model
 const BASE_URL = process.env.BASE_URL || "http://localhost:6010/";
-const upload_URL = `${BASE_URL}images/`;
+const upload_URL = `${BASE_URL}uploads/`;
 
 class UserProfileController {
   // Create a new user profile

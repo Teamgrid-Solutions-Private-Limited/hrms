@@ -33,7 +33,8 @@ module.exports = function (allowedRoles) {
     try {
       // Assuming req.user is set by the authentication middleware (e.g., JWT)
       const userRole = req.user.role; // User's role
-
+console.log("User Role:", userRole);
+      console.log("Allowed Roles:", allowedRoles);
       // Check if user's role is in the allowed roles array
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({
