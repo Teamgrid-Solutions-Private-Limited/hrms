@@ -9,7 +9,7 @@ router.post("/employmentinfo", EmploymentInfoController.createEmploymentInfo);
 
 // Get all employment infos (GET)
 router.get("/employmentinfo",authJwt(),
-checkRole(["admin", "super_admin","hr"]), EmploymentInfoController.getAllEmploymentInfos);
+checkRole(["admin", "super_admin","hr", "employee"]), EmploymentInfoController.getAllEmploymentInfos);
 
 // Get employment info by user ID (GET)
 router.get("/employmentinfo/:id",authJwt(),

@@ -8,7 +8,7 @@ const checkRole = require("../middlewares/checkRole");
 router.post(
   "/documentReuest",
   authJwt("create"),
-  checkRole(["hr", "admin"]), // Only HR and Admin can create document requests
+  checkRole(["hr", "admin","super_admin"]), // Only HR and Admin can create document requests
   DocumentRequestController.createDocumentRequest
 );
 
@@ -16,7 +16,7 @@ router.post(
 router.get(
   "/documentReuest",
   authJwt("view"),
-  checkRole(["hr", "admin"]),
+  checkRole(["hr", "admin","super_admin"]),
   DocumentRequestController.getDocumentRequests
 );
 
@@ -24,7 +24,7 @@ router.get(
 router.get(
   "/documentReuest/:id",
   authJwt("view"),
-  checkRole(["hr", "admin", "employee"]), // HR/Admin/Employee can view
+  checkRole(["hr", "admin", "employee","super_admin"]), // HR/Admin/Employee can view
   DocumentRequestController.getDocumentRequestById
 );
 
@@ -32,7 +32,7 @@ router.get(
 router.put(
   "/documentReuest/:id",
   authJwt,
-  checkRole(["hr", "admin"]),
+  checkRole(["hr", "admin","super_admin"]),
   DocumentRequestController.updateDocumentRequest
 );
 
@@ -40,7 +40,7 @@ router.put(
 router.delete(
   "/documentReuest/:id",
   authJwt,
-  checkRole(["admin"]), // Only Admin can delete document requests
+  checkRole(["admin","super_admin"]), // Only Admin can delete document requests
   DocumentRequestController.deleteDocumentRequest
 );
 
@@ -48,7 +48,7 @@ router.delete(
 router.put(
   "/documentReuest/:id/status",
   authJwt,
-  checkRole(["hr", "admin"]),
+  checkRole(["hr", "admin","super_admin"]),
   DocumentRequestController.updateDocumentRequestStatus
 );
 

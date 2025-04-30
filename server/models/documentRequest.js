@@ -8,7 +8,7 @@ const documentRequest = new Schema({
   requestedBy: { type: Schema.Types.ObjectId, ref: "users" }, // HR/Admin who requested
   employee: {
     type: Schema.Types.ObjectId,
-    ref: "userprofiles",
+    ref: "users",
     required: true,
   }, // Employee expected to submit
   format: { type: String, required: true }, // File format (e.g., PDF)
