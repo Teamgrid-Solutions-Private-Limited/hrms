@@ -104,7 +104,8 @@ static async getDocumentRequestById(req, res) {
       .populate("categoryId", "name")
       .populate("requestedBy", "name email")
       .populate("employee", "name email")
-      
+      .populate("templateId", "title");
+    
 
     // Log the employee field to debug
     console.log("Employee populated value:", documentRequest.employee);
@@ -120,6 +121,56 @@ static async getDocumentRequestById(req, res) {
     res.status(500).json({ success: false, message: error.message });
   }
 }
+
+// Get document requests by employee userId
+static async getRequestsByEmployee(req, res) {
+  try {
+    const { userId } = req.params;
+
+    const documentRequests = await DocumentRequest.find({ employee: userId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email")
+      .populate("employee", "name email")
+      .populate("templateId", "title");
+
+    if (!documentRequests.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No document requests found for this employee" });
+    }
+
+    res.status(200).json({ success: true, data: documentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+// Get document requests for the currently logged-in employee
+static async getLoggedInEmployeeRequests(req, res) {
+  try {
+    const employeeId = req.user.id; // From JWT middleware
+
+    const documentRequests = await DocumentRequest.find({ employee: employeeId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email")
+      .populate("employee", "name email")
+      .populate("templateId", "title");
+
+    if (!documentRequests.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No document requests found for this employee",
+      });
+    }
+
+    res.status(200).json({ success: true, data: documentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 
   // // Get a specific document request by ID
   // static async getDocumentRequestById(req, res) {
