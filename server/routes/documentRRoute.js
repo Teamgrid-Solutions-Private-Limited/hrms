@@ -28,6 +28,17 @@ router.get(
   DocumentRequestController.getDocumentRequestById
 );
 
+// Get all document requests by empUserId
+router.get('/documentRequest/byEmployee/:userId', 
+  authJwt("view"),
+  checkRole(["hr", "admin", "employee","super_admin"]), 
+  DocumentRequestController.getRequestsByEmployee);
+
+  router.get("/documentRequest/employee/requests",
+  authJwt("view"),
+  checkRole([ "employee"]), 
+  DocumentRequestController.getLoggedInEmployeeRequests
+  )
 // Update a document request (HR/Admin only)
 router.put(
   "/documentReuest/:id",
