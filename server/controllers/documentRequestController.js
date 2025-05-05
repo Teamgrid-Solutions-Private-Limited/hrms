@@ -67,8 +67,8 @@ class DocumentRequestController {
 
       // Fetch document requests with pagination
       const documentRequests = await DocumentRequest.find(query)
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit))
+        // .skip((page - 1) * limit)
+        // .limit(parseInt(limit))
         .sort({ createdAt: -1 }) // Sort by latest created
         .populate("categoryId employee requestedBy templateId"); // Populate related fields
 
@@ -126,12 +126,11 @@ static async getDocumentRequestById(req, res) {
 static async getRequestsByEmployee(req, res) {
   try {
     const { userId } = req.params;
-
     const documentRequests = await DocumentRequest.find({ employee: userId })
       .sort({ createdAt: -1 })
       .populate("categoryId", "name")
       .populate("requestedBy", "name email")
-      .populate("employee", "name email")
+      .populate("employee",)
       .populate("templateId", "title");
 
     if (!documentRequests.length) {
@@ -155,7 +154,7 @@ static async getLoggedInEmployeeRequests(req, res) {
       .sort({ createdAt: -1 })
       .populate("categoryId", "name")
       .populate("requestedBy", "name email")
-      .populate("employee", "name email")
+      .populate("employee",)
       .populate("templateId", "title");
 
     if (!documentRequests.length) {
