@@ -153,7 +153,7 @@ static async getLoggedInEmployeeRequests(req, res) {
     const documentRequests = await DocumentRequest.find({ employee: employeeId })
       .sort({ createdAt: -1 })
       .populate("categoryId", "name")
-      .populate("requestedBy", "name email")
+      .populate("requestedBy", "name email firstName lastName")
       .populate("employee",)
       .populate("templateId", "title");
 
