@@ -66,7 +66,7 @@ router.get(
 router.get(
   "/viewall-user",
   authJwt(),
-  checkRole(["admin", "super_admin"]),
+  checkRole(["admin", "super_admin","employee"]),
   viewUsers
 );
 

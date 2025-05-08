@@ -65,7 +65,6 @@ app.use('/contact',contactRoute);
 app.use("/leave", leaveRoute);
 app.use("/allocation",leaveAllocationRoute);
 app.use("/leaveType",leaveTypeRoute);
-
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });

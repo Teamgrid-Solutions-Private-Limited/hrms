@@ -47,7 +47,7 @@ router.delete(
 router.get(
   "/profile/findAll/",
   authJwt(),
-  checkRole(["super_admin", "admin"]),  
+  checkRole(["super_admin", "admin",'employee']),  
   UserProfileController.findAll  
 );
 

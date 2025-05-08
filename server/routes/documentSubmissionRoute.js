@@ -41,7 +41,7 @@ router.get(
 // Route to fetch all submissions by an employee
 router.get(
   "/submissions/employee/:employeeId",
-
+  authJwt("view"),
   DocumentSubmissionController.getSubmissionsByEmployee
 );
 

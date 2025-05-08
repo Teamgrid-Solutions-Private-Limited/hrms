@@ -115,7 +115,7 @@ class UserController {
       );
 
       // Send a success response with the token
-      return res.status(200).json({ message: "Login successful", token });
+      return res.status(200).json({ message: "Login successful", token ,user});
     } catch (error) {
       console.error("Error during login:", error.message);
       return res.status(500).json({

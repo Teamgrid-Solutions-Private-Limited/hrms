@@ -43,4 +43,4 @@ const UserProfileSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("userprofile", UserProfileSchema);
+module.exports = mongoose.model("userprofiles", UserProfileSchema);
