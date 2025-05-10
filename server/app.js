@@ -52,7 +52,7 @@ app.use("/api", worktyprequestRoute);
 app.use("/api", worktypeAssignRoute);
 app.use("/api", shiftRequestRoute);
 app.use("/api", rotatingShiftRoute);
-app.use("/api", employmentRoute);
+app.use("/api/emp", employmentRoute);
 app.use("/documents/v1", documentCategoryRoute);
 app.use("/documents/v1", documentRequestRoute);
 app.use("/documentsubmission/v1", documentSubmissionRoute);
@@ -65,7 +65,6 @@ app.use('/contact',contactRoute);
 app.use("/leave", leaveRoute);
 app.use("/allocation",leaveAllocationRoute);
 app.use("/leaveType",leaveTypeRoute);
-
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });

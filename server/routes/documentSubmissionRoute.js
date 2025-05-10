@@ -41,7 +41,7 @@ router.get(
 // Route to fetch all submissions by an employee
 router.get(
   "/submissions/employee/:employeeId",
-
+  authJwt("view"),
   DocumentSubmissionController.getSubmissionsByEmployee
 );
 
@@ -52,5 +52,7 @@ router.get(
   checkRole(["HR_Manager", "super_admin", "hr"]),
   DocumentSubmissionController.getAllSubmissions
 );
+
+
 
 module.exports = router;

@@ -76,7 +76,7 @@ class DocumentSubmissionController {
       const { status, feedback } = req.body;
 
       // Validate status
-      if (!["reviewed", "approved", "rejected"].includes(status)) {
+      if (!["reviewed", "approved", "rejected","pending"].includes(status)) {
         return res.status(400).json({ message: "Invalid status" });
       }
 

@@ -5,7 +5,7 @@ const documentSchema = new Schema({
   title: { type: String, required: true }, // Document title
   description: { type: String }, // Optional description
   filePath: { type: String, required: true }, // File path
-  categoryId: { type: Schema.Types.ObjectId, ref: "documentcategory" }, // Document category (Public, Private)
+  categoryId: { type: Schema.Types.ObjectId, ref: "documentcategories" }, // Document category (Public, Private)
   uploadedBy: { type: Schema.Types.ObjectId, ref: "users" }, // Who uploaded the document
   recipients: [
     {

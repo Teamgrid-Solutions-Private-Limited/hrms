@@ -3,6 +3,7 @@ const DocumentCategory = require("../models/documentCategory");
 const DocumentTemplate = require("../models/documentTemplateSchema");
 const userprofiles = require("../models/userProfileSchema");
 
+
 class DocumentRequestController {
   // Create a new document request
   static async createDocumentRequest(req, res) {
@@ -66,8 +67,8 @@ class DocumentRequestController {
 
       // Fetch document requests with pagination
       const documentRequests = await DocumentRequest.find(query)
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit))
+        // .skip((page - 1) * limit)
+        // .limit(parseInt(limit))
         .sort({ createdAt: -1 }) // Sort by latest created
         .populate("categoryId employee requestedBy templateId"); // Populate related fields
 
@@ -95,27 +96,102 @@ class DocumentRequestController {
     }
   }
 
-  // Get a specific document request by ID
-  static async getDocumentRequestById(req, res) {
-    try {
-      const { id } = req.params;
-      const documentRequest = await DocumentRequest.findById(id)
-        .populate("categoryId", "name")
-        .populate("requestedBy", "name email")
-        .populate("employee", "name email")
-        .populate("templateId", "title");
+// Get a specific document request by ID
+static async getDocumentRequestById(req, res) {
+  try {
+    const { id } = req.params;
+    const documentRequest = await DocumentRequest.findById(id)
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email")
+      .populate("employee", "name email")
+      .populate("templateId", "title");
+    
 
-      if (!documentRequest) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Document request not found" });
-      }
+    // Log the employee field to debug
+    console.log("Employee populated value:", documentRequest.employee);
 
-      res.status(200).json({ success: true, data: documentRequest });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+    if (!documentRequest) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Document request not found" });
     }
+
+    res.status(200).json({ success: true, data: documentRequest });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
+}
+
+// Get document requests by employee userId
+static async getRequestsByEmployee(req, res) {
+  try {
+    const { userId } = req.params;
+    const documentRequests = await DocumentRequest.find({ employee: userId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email")
+      .populate("employee",)
+      .populate("templateId", "title");
+
+    if (!documentRequests.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No document requests found for this employee" });
+    }
+
+    res.status(200).json({ success: true, data: documentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+// Get document requests for the currently logged-in employee
+static async getLoggedInEmployeeRequests(req, res) {
+  try {
+    const employeeId = req.user.id; // From JWT middleware
+
+    const documentRequests = await DocumentRequest.find({ employee: employeeId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email firstName lastName")
+      .populate("employee",)
+      .populate("templateId", "title");
+
+    if (!documentRequests.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No document requests found for this employee",
+      });
+    }
+
+    res.status(200).json({ success: true, data: documentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+
+  // // Get a specific document request by ID
+  // static async getDocumentRequestById(req, res) {
+  //   try {
+  //     const { id } = req.params;
+  //     const documentRequest = await DocumentRequest.findById(id)
+  //       .populate("categoryId", "name")
+  //       .populate("requestedBy", "name email")
+  //       .populate("employee", "name email")
+  //       .populate("templateId", "title");
+
+  //     if (!documentRequest) {
+  //       return res
+  //         .status(404)
+  //         .json({ success: false, message: "Document request not found" });
+  //     }
+
+  //     res.status(200).json({ success: true, data: documentRequest });
+  //   } catch (error) {
+  //     res.status(500).json({ success: false, message: error.message });
+  //   }
+  // }
 
   // Update a document request
   static async updateDocumentRequest(req, res) {

@@ -374,7 +374,7 @@ class leaveController {
 
       const leaveRequest = await Leave.find().populate({
         path: "userId",
-        select: "name organizationId",
+        select: "name organizationId ",
         match: { organizationId: validOrganizationId },
       });
 
