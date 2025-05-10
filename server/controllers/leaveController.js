@@ -488,6 +488,59 @@ static updateLeave = async (req, res) => {
   }
 };
 
+static deleteLeave = async (req, res) => {
+  const { leaveId } = req.params;
+
+  try {
+    // Find the leave request to check if it exists and get its status
+    const leaveRequest = await Leave.findById(leaveId);
+
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Optionally: Prevent deletion of approved leaves
+    if (leaveRequest.status === "approved") {
+      return res.status(400).json({ 
+        message: "Cannot delete an approved leave request" 
+      });
+    }
+
+    // Delete the leave request
+    await Leave.findByIdAndDelete(leaveId);
+
+    // If there was a supporting document, delete it from the filesystem
+    if (leaveRequest.supportingDocuments) {
+      const filePath = path.join(
+        "my-upload/uploads/leaves",
+        leaveRequest.userId.toString(),
+        leaveId,
+        leaveRequest.supportingDocuments
+      );
+
+      // Delete the file if it exists
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      // Optionally: Remove the empty directory
+      const dirPath = path.dirname(filePath);
+      if (fs.existsSync(dirPath)) {
+        fs.rmdirSync(dirPath, { recursive: true });
+      }
+    }
+
+    res.status(200).json({ 
+      message: "Leave request deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Error deleting leave request:", error);
+    res.status(500).json({ 
+      error: "Error deleting leave request",
+      message: error.message 
+    });
+  }
+};
   
 
 }
