@@ -8,7 +8,7 @@ const checkRole = require("../middlewares/checkRole");
 router.post(
   "/documentReuest",
   authJwt("create"),
-  checkRole(["hr", "admin","super_admin"]), // Only HR and Admin can create document requests
+  checkRole(["hr", "admin","super_admin","employee"]), // Only HR and Admin can create document requests
   DocumentRequestController.createDocumentRequest
 );
 
@@ -16,7 +16,7 @@ router.post(
 router.get(
   "/documentReuest",
   authJwt("view"),
-  checkRole(["hr", "admin","super_admin"]),
+  checkRole(["hr", "admin","super_admin", "employee"]), // HR/Admin can view all document requests
   DocumentRequestController.getDocumentRequests
 );
 
