@@ -8,13 +8,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "jwt-token";
 class UserController {
   static addUser = async (req, res) => {
     try {
-      const {email, password, roleId, organizationId , firstName, lastName } = req.body;
-      console.log(email,password,roleId,organizationId,firstName,lastName);
+      const {email, password, roleId, organizationId , firstName, lastName , team } = req.body;
+      console.log(email,password,roleId,organizationId,firstName,lastName , team);
       
 
       // Validate required fields
       if ( !firstName || !lastName) {
-        return res.status(400).json({ error: "All fields are required" });
+        return res.status(400).json({ msg: "All fields are required" });
       }
       // if (!mongoose.Types.ObjectId.isValid(roleId) || !mongoose.Types.ObjectId.isValid(organizationId)) {
       //   return res.status(400).json({ error: "Invalid roleId or organizationId" });
@@ -46,6 +46,7 @@ class UserController {
         organizationId,
         firstName,
         lastName,
+        team,
       });
       await user.save();
       res.status(201).json({ message: "User created successfully", user });
@@ -167,68 +168,71 @@ class UserController {
   //   }
   // };
 
-  static updateUser = async (req, res) => {
-    try {
-      const { username, email, password, roleId, firstName, lastName } = req.body;
-      const userId = req.params.id; // Assuming user ID is passed as a parameter
-  
-      // Validate that at least one field to update is provided
-      if (!username && !email && !password && !roleId && !firstName && !lastName) {
-        return res.status(400).json({
-          error: "VALIDATION_ERROR",
-          message: "At least one field must be provided to update.",
-        });
-      }
-  
-      // Find the user by ID
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({
-          error: "USER_NOT_FOUND",
-          message: "User not found.",
-        });
-      }
-  
-      // Check for duplicate email if email is updated
-      if (email && email !== user.email) {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-          return res.status(400).json({
-            error: "EMAIL_IN_USE",
-            message: "Email already in use.",
-          });
-        }
-        user.email = email;
-      }
-  
-      // Update user fields if provided
-      if (username) user.username = username;
-      if (roleId) user.roleId = roleId;
-      if (firstName) user.firstName = firstName;
-      if (lastName) user.lastName = lastName;
-  
-      // Hash and update the password if provided
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        user.password = hashedPassword;
-      }
-  
-      // Save the updated user to the database
-      await user.save();
-  
-      res.status(200).json({
-        message: "User updated successfully",
-        user,
-      });
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({
-        error: "SERVER_ERROR",
-        message: "An error occurred while updating the user.",
-        details: error.message,
+ static updateUser = async (req, res) => {
+  try {
+    const { username, email, password, newPassword, roleId, firstName, lastName, team } = req.body;
+    const userId = req.params.id;
+
+    if (!username && !email && !password && !newPassword && !roleId && !firstName && !lastName && !team) {
+      return res.status(400).json({
+        error: "VALIDATION_ERROR",
+        message: "At least one field must be provided to update.",
       });
     }
-  };
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        error: "USER_NOT_FOUND",
+        message: "User not found.",
+      });
+    }
+
+    // 🔐 Password change logic
+    if (password && newPassword) {
+      const isMatch = await bcrypt.compare(password, user.password); // Compare current password
+      if (!isMatch) {
+        return res.status(400).json({
+          error: "INVALID_PASSWORD",
+          message: "Current password is incorrect.",
+        });
+      }
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedNewPassword;
+    }
+
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          error: "EMAIL_IN_USE",
+          message: "Email already in use.",
+        });
+      }
+      user.email = email;
+    }
+
+    if (username) user.username = username;
+    if (roleId) user.roleId = roleId;
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (team) user.team = team;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      error: "SERVER_ERROR",
+      message: "An error occurred while updating the user.",
+      details: error.message,
+    });
+  }
+};
   
   static deleteUser = async (req, res) => {
     try {

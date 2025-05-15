@@ -53,4 +53,15 @@ router.get(
   DocumentSubmissionController.getAllSubmissions
 );
 
+// Route to delete a submission by ID
+router.delete(
+  "/submissions/:id",
+  authJwt("delete"),
+  checkRole(["HR_Manager", "super_admin", "hr"]),
+  DocumentSubmissionController.deleteSubmission
+);
+
+
+
+
 module.exports = router;

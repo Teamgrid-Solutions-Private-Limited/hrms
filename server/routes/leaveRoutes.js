@@ -23,4 +23,14 @@ router.put("/leaves/:leaveId/update",authJwt(),checkRole(["employee", "admin","h
 router.get("/leaves/view/:userId",authJwt(),
 checkRole(["super_admin", "admin","employee"]), LeaveController.getLeaveByUserId);
 
+
+//Added  here new route delete leave request
+router.delete(
+  "/leaves/:leaveId",
+  authJwt(),
+  checkRole(["super_admin", "admin", "employee"]), 
+  LeaveController.deleteLeave
+);
+
+
 module.exports = router;
