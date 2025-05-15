@@ -241,7 +241,7 @@ class DocumentService {
         recipients: {
           $elemMatch: { userId: userId }
         }
-      }).populate("uploadedBy", "name email")
+      }).populate("uploadedBy", "firstName lastName email")
         .populate("recipients.userId", " email");
 
       res.status(200).json(documents);
