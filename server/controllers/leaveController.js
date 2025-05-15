@@ -8,86 +8,109 @@ const EmployeeLeaveAllocation = require("../models/leaveAllocationSchema");
 
 class leaveController {
   static createLeaveRequest = async (req, res) => {
-    const {
+  const {
+    userId,
+    leaveTypeId,
+    startDate,
+    endDate,
+    leaveDuration,
+    reason,
+  } = req.body;
+
+  try {
+    // Validate inputs for half-day leave
+    let half = null;
+    if (leaveDuration === "half_day") {
+      if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
+        return res.status(400).json({ 
+          error: "Half-day leave must have the same start and end date" 
+        });
+      }
+      half = "first_half";
+    }
+
+    // Calculate leave units
+    let leaveUnits = 0;
+    if (leaveDuration === "half_day") {
+      leaveUnits = 0.5;
+    } else {
+      leaveUnits = this.calculateLeaveDays(startDate, endDate);
+    }
+
+    // Check leave balance before deducting
+    const allocation = await EmployeeLeaveAllocation.findOne({
+      userId,
+      leaveTypeId
+    });
+
+    if (!allocation) {
+      return res.status(400).json({ 
+        error: "No leave allocation found for this leave type" 
+      });
+    }
+
+    const availableLeaves = allocation.allocatedLeaves - allocation.usedLeaves;
+    if (leaveUnits > availableLeaves) {
+      return res.status(400).json({ 
+        error: "Insufficient leave balance" 
+      });
+    }
+
+    // Deduct leaves immediately
+    allocation.usedLeaves += leaveUnits;
+    await allocation.save();
+
+    // Create leave request with "pending" status
+    const leaveRequest = new Leave({
       userId,
       leaveTypeId,
       startDate,
       endDate,
-      leaveDuration, // "half_day", "full_day", "multiple_days"
+      leaveDuration,
+      half,
+      leaveUnits,
       reason,
-    } = req.body;
+      status: "pending", // Default status
+      supportingDocuments: null,
+    });
 
-    try {
-      // Validate inputs for half-day leave
-      let half = null; // Default value for half-day indication
+    // Handle file upload if present
+    if (req.file) {
+      const leaveId = leaveRequest._id.toString();
+      const originalFileName = req.file.originalname;
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${originalFileName}`;
 
-      if (leaveDuration === "half_day") {
-        if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
-          return res
-            .status(400)
-            .json({ error: "Half-day leave must have the same start and end date" });
-        }
-        half = "first_half"; // Default to "first_half"
-      }
-
-      // Dynamically calculate leaveUnits
-      let leaveUnits = 0;
-      if (leaveDuration === "half_day") {
-        leaveUnits = 0.5; // Set for half-day leave
-      } else {
-        leaveUnits = this.calculateLeaveDays(startDate, endDate); // Full-day or multiple days
-      }
-
-      // Create the leave request
-      const leaveRequest = new Leave({
+      const userFolderPath = path.join(
+        "my-upload/uploads/leaves",
         userId,
-        leaveTypeId,
-        startDate,
-        endDate,
-        leaveDuration,
-        half,
-        leaveUnits,
-        reason,
-        supportingDocuments: null, // Default null; updated after processing file
-      });
+        leaveId
+      );
 
-      // Save leaveRequest to get its ID
-      await leaveRequest.save();
+      fs.mkdirSync(userFolderPath, { recursive: true });
+      const filePath = path.join(userFolderPath, fileName);
+      fs.renameSync(req.file.path, filePath);
 
-      // Handle file upload if supporting document is present
-      if (req.file) {
-        const leaveId = leaveRequest._id.toString(); // Get leave ID
-        const originalFileName = req.file.originalname;
-        const timestamp = Date.now();
-        const fileName = `${timestamp}-${originalFileName}`;
-
-        // Create user and leave-specific folder
-        const userFolderPath = path.join(
-          "my-upload/uploads/leaves",
-          userId,
-          leaveId
-        );
-
-        // Ensure the folder exists
-        fs.mkdirSync(userFolderPath, { recursive: true });
-
-        // Move the file to the specific folder
-        const filePath = path.join(userFolderPath, fileName);
-        fs.renameSync(req.file.path, filePath);
-
-        // Save the file name (not full path) in the leave request
-        leaveRequest.supportingDocuments = fileName;
-        await leaveRequest.save();
-      }
-
-      res
-        .status(201)
-        .json({ message: "Leave request created successfully", leaveRequest });
-    } catch (err) {
-      console.error("Error creating leave request:", err);
-      res.status(500).json({ error: "Error creating leave request" });
+      leaveRequest.supportingDocuments = fileName;
     }
-  };
+
+    await leaveRequest.save();
+
+    res.status(201).json({ 
+      message: "Leave request created successfully", 
+      leaveRequest,
+      updatedBalance: {
+        allocated: allocation.allocatedLeaves,
+        used: allocation.usedLeaves,
+        available: allocation.allocatedLeaves - allocation.usedLeaves
+      }
+    });
+
+  } catch (err) {
+    console.error("Error creating leave request:", err);
+    res.status(500).json({ error: "Error creating leave request" });
+  }
+};
 
   // Calculate leave days (inclusive of both start and end dates)
   static calculateLeaveDays(startDate, endDate) {
@@ -239,117 +262,143 @@ class leaveController {
   //   }
   // };
 
-  static approveLeaveRequest = async (req, res) => {
-    const { leaveId } = req.params;
-    const { managerComments } = req.body;
+static approveLeaveRequest = async (req, res) => {
+  const { leaveId } = req.params;
+  const { managerComments } = req.body;
 
-    try {
-        const leaveRequest = await Leave.findById(leaveId)
-            .populate("userId")
-            .populate("leaveTypeId");
+  try {
+    const leaveRequest = await Leave.findById(leaveId)
+      .populate("userId")
+      .populate("leaveTypeId");
 
-        if (!leaveRequest) {
-            return res.status(404).json({ message: "Leave request not found" });
-        }
-
-        // Logic for leaveUnits based on leave type
-        let leaveUnits = 0;
-        if (leaveRequest.leaveDuration === "half_day") {
-            leaveUnits = 0.5;
-
-            // Handle first-half or second-half logic
-            if (leaveRequest.half === "first_half") {
-                console.log("Leave is for the first half of the day.");
-            } else if (leaveRequest.half === "second_half") {
-                console.log("Leave is for the second half of the day.");
-            }
-        } else {
-            leaveUnits = this.calculateLeaveDays(
-                leaveRequest.startDate,
-                leaveRequest.endDate
-            );
-        }
-
-        leaveRequest.leaveUnits = leaveUnits;
-        leaveRequest.status = "approved";
-        leaveRequest.managerComments = managerComments;
-
-        // Fetch leave allocation
-        const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
-            userId: leaveRequest.userId._id,
-            leaveTypeId: leaveRequest.leaveTypeId._id,
-        });
-
-        if (!employeeLeaveAllocation) {
-            return res.status(400).json({ message: "No leave allocation found" });
-        }
-
-        // Check if sufficient leaves are available
-        const remainingLeaves =
-            employeeLeaveAllocation.allocatedLeaves -
-            employeeLeaveAllocation.usedLeaves;
-
-        if (leaveUnits > remainingLeaves) {
-            return res
-                .status(400)
-                .json({ message: "Insufficient allocated leaves" });
-        }
-
-        // Update used leaves
-        employeeLeaveAllocation.usedLeaves += leaveUnits;
-
-        // Update user status if necessary
-        const user = await Employment.findOne({ userId: leaveRequest.userId._id });
-        console.log(user);
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Update user status to "on_leave" or other appropriate status
-        user.employmentStatus = "on leave";
-
-        // Save changes
-        await leaveRequest.save();
-        await employeeLeaveAllocation.save();
-        await user.save();
-
-        res.status(200).json({ message: "Leave request approved", leaveRequest });
-    } catch (err) {
-        console.error("Error approving leave request:", err);
-        res.status(500).json({ error: "Error approving leave request" });
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
     }
+
+    // Check if already approved
+    if (leaveRequest.status === "approved") {
+      return res.status(400).json({ message: "Leave request already approved" });
+    }
+
+    // Only calculate leave units if not already set
+    if (!leaveRequest.leaveUnits) {
+      let leaveUnits = 0;
+      if (leaveRequest.leaveDuration === "half_day") {
+        leaveUnits = 0.5;
+      } else {
+        leaveUnits = this.calculateLeaveDays(
+          leaveRequest.startDate,
+          leaveRequest.endDate
+        );
+      }
+      leaveRequest.leaveUnits = leaveUnits;
+    }
+
+    // Fetch leave allocation (no need to deduct again)
+    const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
+      userId: leaveRequest.userId._id,
+      leaveTypeId: leaveRequest.leaveTypeId._id,
+    });
+
+    if (!employeeLeaveAllocation) {
+      return res.status(400).json({ message: "No leave allocation found" });
+    }
+
+    // Verify sufficient leaves are available (should already be checked at creation)
+    const remainingLeaves = employeeLeaveAllocation.allocatedLeaves - employeeLeaveAllocation.usedLeaves;
+    if (leaveRequest.leaveUnits > remainingLeaves) {
+      return res.status(400).json({ message: "Insufficient allocated leaves" });
+    }
+
+    // Update status and comments (no need to update usedLeaves again)
+    leaveRequest.status = "approved";
+    leaveRequest.managerComments = managerComments;
+
+    // Update user status to "on leave"
+    const user = await Employment.findOne({ userId: leaveRequest.userId._id });
+    if (user) {
+      user.employmentStatus = "on leave";
+      await user.save();
+    }
+
+    // Save changes
+    await leaveRequest.save();
+
+    res.status(200).json({ 
+      message: "Leave request approved", 
+      leaveRequest,
+      updatedBalance: {
+        allocated: employeeLeaveAllocation.allocatedLeaves,
+        used: employeeLeaveAllocation.usedLeaves,
+        available: remainingLeaves
+      }
+    });
+  } catch (err) {
+    console.error("Error approving leave request:", err);
+    res.status(500).json({ error: "Error approving leave request" });
+  }
 };
 
 
   // Reject leave request
   static rejectLeaveRequest = async (req, res) => {
-    try {
-      const { leaveId } = req.params;
-      const { managerComments } = req.body;
+  try {
+    const { leaveId } = req.params;
+    const { managerComments } = req.body;
 
-      const leaveRequest = await Leave.findById(leaveId).populate("userId");
+    const leaveRequest = await Leave.findById(leaveId)
+      .populate("userId")
+      .populate("leaveTypeId");
 
-      if (!leaveRequest) {
-        return res.status(404).json({ message: "Leave request not found" });
-      }
-
-      leaveRequest.status = "rejected";
-      leaveRequest.managerComments = managerComments;
-      await leaveRequest.save();
-
-      res.status(200).json({ message: "Leave request rejected", leaveRequest });
-    } catch (error) {
-      console.error("Error rejecting leave request:", error);
-      res
-        .status(500)
-        .json({
-          message: "Error rejecting leave request",
-          error: error.message,
-        });
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
     }
-  };
 
+    // Only refund leaves if status was previously approved
+    
+      const allocation = await EmployeeLeaveAllocation.findOne({
+        userId: leaveRequest.userId._id,
+        leaveTypeId: leaveRequest.leaveTypeId._id
+      });
+
+      if (allocation) {
+        allocation.usedLeaves -= leaveRequest.leaveUnits;
+        await allocation.save();
+      }
+    
+
+    // Update leave request status
+    leaveRequest.status = "rejected";
+    leaveRequest.managerComments = managerComments;
+    await leaveRequest.save();
+
+    // Update user status back to active if needed
+    const user = await Employment.findOne({ 
+      userId: leaveRequest.userId._id 
+    });
+    if (user && user.employmentStatus === "on leave") {
+      user.employmentStatus = "active";
+      await user.save();
+    }
+
+    res.status(200).json({ 
+      message: "Leave request rejected", 
+      leaveRequest,
+      updatedBalance: allocation ? {
+        allocated: allocation.allocatedLeaves,
+        used: allocation.usedLeaves,
+        available: allocation.allocatedLeaves - allocation.usedLeaves
+      } : null
+    });
+
+  } catch (error) {
+    console.error("Error rejecting leave request:", error);
+    res.status(500).json({
+      message: "Error rejecting leave request",
+      error: error.message,
+    });
+  }
+};
   // Calculate leave days
   static calculateLeaveDays(startDate, endDate) {
     const start = new Date(startDate);
@@ -493,7 +542,9 @@ static deleteLeave = async (req, res) => {
 
   try {
     // Find the leave request to check if it exists and get its status
-    const leaveRequest = await Leave.findById(leaveId);
+     const leaveRequest = await Leave.findById(leaveId)
+      .populate('userId')
+      .populate('leaveTypeId');
 
     if (!leaveRequest) {
       return res.status(404).json({ message: "Leave request not found" });
@@ -505,6 +556,19 @@ static deleteLeave = async (req, res) => {
         message: "Cannot delete an approved leave request" 
       });
     }
+
+     const allocation = await EmployeeLeaveAllocation.findOne({
+      userId: leaveRequest.userId._id,
+      leaveTypeId: leaveRequest.leaveTypeId._id
+    });
+
+    if (!allocation) {
+      return res.status(400).json({ message: "Leave allocation not found" });
+    }
+     if (allocation) {
+        allocation.usedLeaves -= leaveRequest.leaveUnits;
+        await allocation.save();
+      }
 
     // Delete the leave request
     await Leave.findByIdAndDelete(leaveId);
