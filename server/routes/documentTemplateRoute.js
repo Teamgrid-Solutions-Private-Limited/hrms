@@ -17,7 +17,7 @@ router.post(
 router.get(
   "/",
   authJwt("create"), // Middleware to verify JWT and authenticate the user
-  checkRole(["admin", "hr", "manager", "employee"]), // Ensures only authenticated users can access templates
+  checkRole(["admin", "hr", "manager", "employee","super_admin"]), // Ensures only authenticated users can access templates
   DocumentTemplateController.getAllTemplates
 );
 

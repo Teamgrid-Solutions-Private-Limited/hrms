@@ -46,7 +46,7 @@
 
 const path = require("path");
 const Document = require("../models/documentSchema"); // Assuming this is your Document model
-// const notifyUsers = require("../utility/notifyUsers");
+const notifyUsers = require("../utility/notifyUsers");
 const User = require("../models/userSchema");
 
 // const BASE_URL = process.env.BASE_URL || "http://localhost:3000"; // Fallback for base URL
@@ -54,20 +54,27 @@ const User = require("../models/userSchema");
 class DocumentService {
   static async uploadDocumentWithRecipients(req, res) {
     try {
-      const { title, categoryId, recipients, uploadedBy } = req.body;
+      const { title, categoryId, recipients, uploadedBy,description } = req.body;
+      console.log("passed recipients", recipients);
 
       if (!title || !categoryId || !uploadedBy) {
         return res
           .status(400)
           .json({ success: false, message: "Missing required fields." });
       }
-
-      if (!Array.isArray(recipients) || recipients.length === 0) {
+      let parsedRecipients = [];
+      try {
+        parsedRecipients = JSON.parse(recipients);
+        if (!Array.isArray(parsedRecipients)) {
+          throw new Error("Recipients should be an array");
+        }
+      } catch (error) {
         return res.status(400).json({
           success: false,
-          message: "Recipients must be a non-empty array.",
+          message: "Invalid recipients format. Should be an array.",
         });
       }
+
 
       if (!req.file) {
         return res.status(400).json({
@@ -76,13 +83,13 @@ class DocumentService {
         });
       }
 
-      const filePath = `${req.protocol}://${req.get("host")}/uploads/images/${
-        req.file.filename
-      }`;
-
+      const filePath = `${req.protocol}://${req.get("host")}/uploads/images/${req.file.filename
+        }`;
       // Fetch user details
-      const userIds = recipients.map((id) => id);
+      const userIds = parsedRecipients.map((user) => user._id);
+      console.log("paased userIds", userIds);
       const users = await User.find({ _id: { $in: userIds } });
+      console.log("Fetched users", users);
 
       if (users.length !== userIds.length) {
         return res.status(400).json({
@@ -95,16 +102,19 @@ class DocumentService {
         userId: user._id.toString(),
         email: user.email,
       }));
+      console.log("Complete recipients", completeRecipients);
 
       // Create document
       const document = await Document.create({
         title,
+        description,
         filePath,
         categoryId,
         uploadedBy,
         recipients: completeRecipients.map((recipient) => ({
           userId: recipient.userId,
           status: "pending",
+          email: recipient.email,
         })),
       });
 
@@ -125,6 +135,7 @@ class DocumentService {
       });
     }
   }
+
   // Get all documents
   static async getAllDocuments(req, res) {
     try {
@@ -220,6 +231,25 @@ class DocumentService {
       });
     }
   }
+
+  // GET  by userid  /api/documents/user/:userId
+  static async getDocumentsForLoggedInUser(req, res) {
+    const { userId } = req.params;
+
+    try {
+      const documents = await Document.find({
+        recipients: {
+          $elemMatch: { userId: userId }
+        }
+      }).populate("uploadedBy", "firstName lastName email")
+        .populate("recipients.userId", " email");
+
+      res.status(200).json(documents);
+    } catch (err) {
+      console.error("Error fetching documents:", err);
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  };
 
   // Delete a document
   static async deleteDocument(req, res) {

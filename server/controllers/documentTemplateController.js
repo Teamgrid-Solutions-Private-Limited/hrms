@@ -64,14 +64,12 @@ const DocumentTemplateController = {
       if (!template) {
         return res.status(404).json({ error: "Template not found." });
       }
-
       res.status(200).json(template);
     } catch (error) {
       console.error("Error fetching template:", error);
       res.status(500).json({ error: "Error fetching template." });
     }
   },
-
   // Delete a document template
   deleteTemplate: async (req, res) => {
     try {
@@ -81,12 +79,10 @@ const DocumentTemplateController = {
       if (!template) {
         return res.status(404).json({ error: "Template not found." });
       }
-
       // Delete the file from the file system
       if (fs.existsSync(path.resolve(template.filePath))) {
         fs.unlinkSync(path.resolve(template.filePath));
       }
-
       await DocumentTemplate.findByIdAndDelete(id);
 
       res.status(200).json({ message: "Template deleted successfully." });
@@ -96,5 +92,4 @@ const DocumentTemplateController = {
     }
   },
 };
-
 module.exports = DocumentTemplateController;

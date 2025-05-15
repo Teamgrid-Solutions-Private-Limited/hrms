@@ -9,7 +9,7 @@ const documentSchema = new Schema({
   uploadedBy: { type: Schema.Types.ObjectId, ref: "users" }, // Who uploaded the document
   recipients: [
     {
-      recipientId: { type: Schema.Types.ObjectId, ref: "users" },
+      userId: { type: Schema.Types.ObjectId, ref: "users" },
       status: {
         type: String,
         enum: ["pending", "viewed", "acknowledged"],

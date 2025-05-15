@@ -215,6 +215,39 @@ class DocumentSubmissionController {
       return res.status(500).json({ message: "Internal server error" });
     }
   }
+
+  /**
+ * Delete a document submission by ID
+ */
+static async deleteSubmission(req, res) {
+  try {
+    const { id } = req.params;
+
+    const deletedSubmission = await DocumentSubmission.findByIdAndDelete(id);
+
+    if (!deletedSubmission) {
+      return res.status(404).json({
+        success: false,
+        message: "Document submission not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Document submission deleted successfully",
+      data: deletedSubmission,
+    });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 }
+
+}
+
+
 
 module.exports = DocumentSubmissionController;
