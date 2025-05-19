@@ -36,8 +36,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+console.log('Serving uploads from:', path.join(__dirname, "my-upload/uploads"));
 app.use("/uploads", express.static(path.join(__dirname, "my-upload/uploads")));
-
 app.use("/roles", roleRoute);
 app.use("/permissions", permissionRoute);
 app.use("/role-permissions", rolePermissionRoute);

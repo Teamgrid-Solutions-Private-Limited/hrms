@@ -17,6 +17,7 @@ class DocumentRequestController {
         maxSize,
         dueDate,
         templateId,
+        requestedBy
       } = req.body;
 
       // Create a new document request
@@ -24,7 +25,7 @@ class DocumentRequestController {
         title,
         description,
         categoryId,
-        requestedBy: req.user.id, // Assuming JWT middleware adds req.user
+        requestedBy,
         employee,
         format,
         maxSize,
