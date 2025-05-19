@@ -18,7 +18,9 @@ class leaveController {
   } = req.body;
 
   try {
-    // Validate inputs for half-day leave
+
+    let requestingUserRole = req.user.role;
+
     let half = null;
     if (leaveDuration === "half_day") {
       if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
@@ -29,7 +31,6 @@ class leaveController {
       half = "first_half";
     }
 
-    // Calculate leave units
     let leaveUnits = 0;
     if (leaveDuration === "half_day") {
       leaveUnits = 0.5;
@@ -37,7 +38,7 @@ class leaveController {
       leaveUnits = this.calculateLeaveDays(startDate, endDate);
     }
 
-    // Check leave balance before deducting
+
     const allocation = await EmployeeLeaveAllocation.findOne({
       userId,
       leaveTypeId
@@ -56,11 +57,17 @@ class leaveController {
       });
     }
 
-    // Deduct leaves immediately
+
     allocation.usedLeaves += leaveUnits;
     await allocation.save();
 
-    // Create leave request with "pending" status
+    const status = requestingUserRole === 'super_admin'? 'approved':'pending'
+
+    //  if (status === 'approved' && requestingUserRole==='super_admin') {
+    //   allocation.usedLeaves += leaveUnits;
+    //   await allocation.save();
+    // }
+
     const leaveRequest = new Leave({
       userId,
       leaveTypeId,
@@ -70,7 +77,7 @@ class leaveController {
       half,
       leaveUnits,
       reason,
-      status: "pending", // Default status
+      status,
       supportingDocuments: null,
     });
 

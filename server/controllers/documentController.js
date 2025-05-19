@@ -83,7 +83,7 @@ class DocumentService {
         });
       }
 
-      const filePath = `${req.protocol}://${req.get("host")}/uploads/images/${req.file.filename
+      const filePath = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename
         }`;
       // Fetch user details
       const userIds = parsedRecipients.map((user) => user._id);

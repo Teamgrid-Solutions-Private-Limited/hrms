@@ -36,7 +36,7 @@ router.get('/documentRequest/byEmployee/:userId',
 
   router.get("/documentRequest/employee/requests",
   authJwt("view"),
-  checkRole([ "employee"]), 
+  checkRole([ "employee","super_admin"]), 
   DocumentRequestController.getLoggedInEmployeeRequests
   )
 // Update a document request (HR/Admin only)
