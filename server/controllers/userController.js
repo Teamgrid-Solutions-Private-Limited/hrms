@@ -9,7 +9,7 @@ class UserController {
   static addUser = async (req, res) => {
     try {
       const {email, password, roleId, organizationId , firstName, lastName , team } = req.body;
-      console.log(email,password,roleId,organizationId,firstName,lastName , team);
+      console.log(email,password,'Role id',roleId,organizationId,firstName,lastName ,'team', team);
       
 
       // Validate required fields
