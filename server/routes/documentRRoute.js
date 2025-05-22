@@ -22,7 +22,7 @@ router.get(
 
 // Get a specific document request by ID (HR/Admin/Employee)
 router.get(
-  "/documentReuest/:id",
+  "/documentRequest/:id",
   authJwt("view"),
   checkRole(["hr", "admin", "employee","super_admin"]), // HR/Admin/Employee can view
   DocumentRequestController.getDocumentRequestById
@@ -57,9 +57,9 @@ router.delete(
 
 // Update the status of a document request (HR/Admin only)
 router.put(
-  "/documentReuest/:id/status",
-  authJwt,
-  checkRole(["hr", "admin","super_admin"]),
+  "/documentRequest/:id/status",
+  authJwt("update"),
+  checkRole(["hr", "admin","super_admin","employee"]),
   DocumentRequestController.updateDocumentRequestStatus
 );
 

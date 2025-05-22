@@ -21,7 +21,7 @@ checkRole(["admin", "manager","super_admin","employee"]),DocumentService.getDocu
 router.get("/:documentId", authJwt("view"), // Ensure user is authenticated to update recipient statuses
 checkRole(["admin","employee", "manager"]),DocumentService.getDocumentById);
 router.put("/:documentId/recipients/:recipientId",authJwt("update"), // Ensure user is authenticated to update recipient statuses
-checkRole(["admin", "hr", "manager"]), DocumentService.updateRecipientStatus);
+checkRole(["admin", "hr", "manager","super_admin",'employee']), DocumentService.updateRecipientStatus);
 router.delete("/:documentId", authJwt("delete"), // Ensure user is authenticated to delete documents
 checkRole(["admin", "hr"]),DocumentService.deleteDocument);
 router.get("/search",authJwt("view"),

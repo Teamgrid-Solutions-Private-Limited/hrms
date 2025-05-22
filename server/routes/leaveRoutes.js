@@ -5,10 +5,34 @@ const LeaveController = require("../controllers/leaveController");
 const authJwt = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
 const upload = require("../middlewares/fileUpload");
+const path = require('path');
+const fs = require('fs');
 
 // Routes
 router.post("/leaves",authJwt(),
 checkRole(["super_admin", "admin","employee"]),upload.single("supportingDocument"),LeaveController.createLeaveRequest);
+router.get("/document/:userId/:leaveId/:fileName", (req, res) => {
+  const { userId, leaveId, fileName } = req.params;
+
+  const filePath = path.join(
+    __dirname,
+    "..",
+    "my-upload",
+    "uploads",
+    "leaves",
+    userId,
+    leaveId,
+    fileName
+  );
+
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: "File not found" });
+  }
+});
+
+
 router.put("/leaves/:leaveId/approve",authJwt(),
 checkRole(["super_admin", "admin"]), LeaveController.approveLeaveRequest);
 router.get(
@@ -24,7 +48,7 @@ router.get("/leaves/view/:userId",authJwt(),
 checkRole(["super_admin", "admin","employee"]), LeaveController.getLeaveByUserId);
 
 
-//Added  here new route delete leave request
+
 router.delete(
   "/leaves/:leaveId",
   authJwt(),

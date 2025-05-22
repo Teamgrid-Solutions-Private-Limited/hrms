@@ -252,9 +252,11 @@ class UserController {
       res.status(500).json({ error: "Server error", details: error.message });
     }
   };
+  // View all users
   static viewUsers = async (req, res) => {
     try {
-      const user = await User.find(); // Fetch all jobs from the database
+      const user = await User.find().populate("roleId", "name") // Populate role name only
+       // Fetch all jobs from the database
       res.status(200).json(user); // Send the jobs as a response
     } catch (err) {
       console.error("Error fetching jobs:", err);
@@ -263,19 +265,17 @@ class UserController {
         .json({ message: "Error fetching jobs", error: err.message });
     }
   };
+
   static viewUserById = async (req, res) => {
     try {
       const { id } = req.params; // Get the user ID from the request parameters
   
-      
-      const user = await User.findById(id).populate("roleId").populate("organizationId");
-  
-       
+      const user = await User.findById(id).populate("roleId","name").populate("organizationId","name");
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-  
-       
+
       res.status(200).json(user);
     } catch (err) {
       console.error("Error fetching user:", err);
