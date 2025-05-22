@@ -548,7 +548,7 @@ static deleteLeave = async (req, res) => {
   const { leaveId } = req.params;
 
   try {
-    // Find the leave request to check if it exists and get its status
+    
      const leaveRequest = await Leave.findById(leaveId)
       .populate('userId')
       .populate('leaveTypeId');
@@ -557,12 +557,16 @@ static deleteLeave = async (req, res) => {
       return res.status(404).json({ message: "Leave request not found" });
     }
 
-    // Optionally: Prevent deletion of approved leaves
+    console.log('Supporting Document:', leaveRequest.supportingDocuments);
+
+
     if (leaveRequest.status === "approved") {
       return res.status(400).json({ 
         message: "Cannot delete an approved leave request" 
       });
     }
+
+    console.log("leave request:",leaveRequest)
 
      const allocation = await EmployeeLeaveAllocation.findOne({
       userId: leaveRequest.userId._id,
@@ -577,29 +581,37 @@ static deleteLeave = async (req, res) => {
         await allocation.save();
       }
 
-    // Delete the leave request
+
     await Leave.findByIdAndDelete(leaveId);
 
-    // If there was a supporting document, delete it from the filesystem
+
     if (leaveRequest.supportingDocuments) {
-      const filePath = path.join(
-        "my-upload/uploads/leaves",
-        leaveRequest.userId.toString(),
-        leaveId,
-        leaveRequest.supportingDocuments
-      );
+  const filePath = path.resolve(
+    "my-upload/uploads/leaves",
+    leaveRequest.userId._id.toString(),
+    leaveId,
+    leaveRequest.supportingDocuments
+  );
 
-      // Delete the file if it exists
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
 
-      // Optionally: Remove the empty directory
-      const dirPath = path.dirname(filePath);
-      if (fs.existsSync(dirPath)) {
-        fs.rmdirSync(dirPath, { recursive: true });
-      }
-    }
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    console.log("File deleted successfully");
+  } else {
+    console.log("File does not exist at path:", filePath);
+  }
+
+
+  const dirPath = path.dirname(filePath);
+  if (fs.existsSync(dirPath)) {
+    fs.rmdirSync(dirPath, { recursive: true });
+    console.log("Directory deleted:", dirPath);
+  } else {
+    console.log("Directory not found:", dirPath);
+  }
+}
+
 
     res.status(200).json({ 
       message: "Leave request deleted successfully" 
