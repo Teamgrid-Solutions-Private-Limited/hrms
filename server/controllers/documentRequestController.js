@@ -146,6 +146,29 @@ static async getRequestsByEmployee(req, res) {
   }
 }
 
+// Get document requests by admin userId
+static async getRequestsByAdmin(req, res) {
+  try {
+    const { userId } = req.params;
+    const documentRequests = await DocumentRequest.find({ employee: userId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId", "name")
+      .populate("requestedBy", "name email firstName lastName")
+      .populate("employee", "name email firstName lastName")
+      .populate("templateId", "title");
+
+    if (!documentRequests.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No document requests found for this admin" });
+    }
+
+    res.status(200).json({ success: true, data: documentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 // Get document requests for the currently logged-in employee
 static async getLoggedInEmployeeRequests(req, res) {
   try {

@@ -34,6 +34,13 @@ router.get('/documentRequest/byEmployee/:userId',
   checkRole(["hr", "admin", "employee","super_admin"]), 
   DocumentRequestController.getRequestsByEmployee);
 
+// Get all document requests by adminUserId
+router.get('/documentRequest/byAdmin/:userId', 
+  authJwt("view"),
+  checkRole(["hr", "admin", "employee","super_admin"]), 
+  DocumentRequestController.getRequestsByAdmin);
+
+
   router.get("/documentRequest/employee/requests",
   authJwt("view"),
   checkRole([ "employee","super_admin"]), 
