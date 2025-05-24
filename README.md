@@ -17,20 +17,7 @@ A scalable, secure, and production-ready backend for a Human Resource Management
 
 ## 📁 Project Structure
 
-hrms-backend/
-│
-├── config/ # Configuration files (e.g., DB connection)
-├── controllers/ # Request handlers for routes
-├── middleware/ # Custom middleware (auth, error handling)
-├── models/ # Mongoose schema definitions
-├── routes/ # Express route handlers
-├── uploads/ # Uploaded files (e.g., resumes, documents)
-├── utils/ # Utility/helper functions
-├── .env # Environment variables
-├── .gitignore
-├── app.js # Express app setup
-├── server.js # Server bootstrap
-└── README.md # Project documentation
+ ```bash 📦 hrms-backend ├── 📁 config # App configuration (e.g., DB, JWT) ├── 📁 controllers # Route logic and business operations ├── 📁 middleware # Express middleware (auth, error handler) ├── 📁 models # Mongoose schema definitions ├── 📁 routes # API route definitions ├── 📁 uploads # Uploaded files (user documents, resumes) ├── 📁 utils # Helper functions/utilities ├── 📄 app.js # Express app setup ├── 📄 server.js # Entry point to start the server ├── 📄 .env # Environment variables ├── 📄 .gitignore # Files to ignore in Git ├── 📄 package.json # Project metadata and scripts └── 📄 README.md # Project documentation ``` 
 
 
 ---
