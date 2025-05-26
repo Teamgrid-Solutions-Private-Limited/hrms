@@ -48,13 +48,13 @@ const path = require("path");
 const Document = require("../models/documentSchema"); // Assuming this is your Document model
 const notifyUsers = require("../utility/notifyUsers");
 const User = require("../models/userSchema");
-
+const fs = require("fs");
 // const BASE_URL = process.env.BASE_URL || "http://localhost:3000"; // Fallback for base URL
 
 class DocumentService {
   static async uploadDocumentWithRecipients(req, res) {
     try {
-      const { title, categoryId, recipients, uploadedBy,description } = req.body;
+      const { title, categoryId, recipients, uploadedBy, description } = req.body;
       console.log("passed recipients", recipients);
 
       if (!title || !categoryId || !uploadedBy) {
@@ -252,6 +252,8 @@ class DocumentService {
   };
 
   // Delete a document
+
+
   static async deleteDocument(req, res) {
     try {
       const { documentId } = req.params;
@@ -265,9 +267,21 @@ class DocumentService {
         });
       }
 
+      // Delete file from the filesystem
+      const fileUrl = document.filePath; // Example: http://localhost:3000/uploads/myfile.pdf
+      const filename = path.basename(fileUrl); // Extract filename
+      const filePath = path.join(__dirname, "../my-upload/uploads", filename);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Failed to delete file:", err.message);
+          // You may choose to ignore this error or return a warning
+        }
+      });
+
       return res.status(200).json({
         success: true,
-        message: "Document deleted successfully.",
+        message: "Document and file deleted successfully.",
       });
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -278,6 +292,33 @@ class DocumentService {
       });
     }
   }
+
+  // static async deleteDocument(req, res) {
+  //   try {
+  //     const { documentId } = req.params;
+
+  //     const document = await Document.findByIdAndDelete(documentId);
+
+  //     if (!document) {
+  //       return res.status(404).json({
+  //         success: false,
+  //         message: "Document not found.",
+  //       });
+  //     }
+
+  //     return res.status(200).json({
+  //       success: true,
+  //       message: "Document deleted successfully.",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error deleting document:", error);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: "An error occurred while deleting the document.",
+  //       error: error.message,
+  //     });
+  //   }
+  // }
   // Search for documents by title
   static async searchDocuments(req, res) {
     try {
