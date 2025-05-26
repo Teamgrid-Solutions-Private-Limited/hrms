@@ -544,6 +544,26 @@ static updateLeave = async (req, res) => {
   }
 };
 
+static serveLeaveDocument = (req,res)=>{
+  const {userId, leaveId, fileName} = req.params;
+
+  const filePath = path.join(
+    __dirname,
+    "..",
+    "my-upload",
+    "uploads",
+    "leaves",
+    userId,
+    leaveId,
+    fileName
+  );
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: "File not found" });
+  }
+}
+
 static deleteLeave = async (req, res) => {
   const { leaveId } = req.params;
 
