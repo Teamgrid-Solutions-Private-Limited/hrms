@@ -57,8 +57,8 @@ router.put(
 // Delete a document request (Admin only)
 router.delete(
   "/documentReuest/:id",
-  authJwt,
-  checkRole(["admin","super_admin"]), // Only Admin can delete document requests
+  authJwt("delete"), // Ensure user is authenticated to delete document requests
+  checkRole(["admin","super_admin","employee"]), // Only Admin can delete document requests
   DocumentRequestController.deleteDocumentRequest
 );
 
