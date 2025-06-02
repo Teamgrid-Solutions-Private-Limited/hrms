@@ -39,6 +39,14 @@ const employeementSchema = new Schema(
     salary: {
       type: Schema.Types.Decimal128,
     },
+    reportingmanager: {
+      type: Schema.Types.ObjectId,
+      ref: "users", // Reference to the User model
+    },
+    reportingtimeoff: {
+      type: Schema.Types.ObjectId,
+      ref: "users", // Reference to the TimeOffRequests model
+    },
   },
   { timestamps: true, versionKey: false }
 );

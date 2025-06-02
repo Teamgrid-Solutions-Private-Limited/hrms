@@ -39,7 +39,14 @@ const userSchema = new mongoose.Schema(
     },
     team: {
       type: String,
+
     },
+      department: {
+      type: String,
+
+    },
+    inviteToken: { type: String },
+
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt fields
