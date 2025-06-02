@@ -30,6 +30,7 @@ const worktypeAssignRoute = require("./routes/workTypeAssignmentRoutes");
 const leaveRoute = require("./routes/leaveRoutes");
 const leaveAllocationRoute =require("./routes/leaveAllocationRoutes");
 const leaveTypeRoute = require("./routes/leaveTypeRoutes");
+const roleDocumentRoute = require("./routes/roleDocumentRoutes");
 const PORT = process.env.PORT || 6010;
 const app = express();
 
@@ -57,6 +58,7 @@ app.use("/documents/v1", documentCategoryRoute);
 app.use("/documents/v1", documentRequestRoute);
 app.use("/documentsubmission/v1", documentSubmissionRoute);
 app.use("/documents/v1", documentRoute);
+app.use("/documents/v1", roleDocumentRoute);
 app.use("/documents-template/v1", documentTemplateRoute);
 app.use("/organization",organizationRoute);
 app.use("/email",emailRoute);
