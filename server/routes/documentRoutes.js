@@ -22,10 +22,11 @@ router.get("/:documentId", authJwt("view"), // Ensure user is authenticated to u
 checkRole(["admin","employee", "manager"]),DocumentService.getDocumentById);
 router.put("/:documentId/recipients/:recipientId",authJwt("update"), // Ensure user is authenticated to update recipient statuses
 checkRole(["admin", "hr", "manager","super_admin",'employee']), DocumentService.updateRecipientStatus);
-router.delete("/:documentId", authJwt("delete"), // Ensure user is authenticated to delete documents
-checkRole(["admin", "hr"]),DocumentService.deleteDocument);
+router.delete("/deleteById/:documentId", authJwt("delete"), // Ensure user is authenticated to delete documents
+checkRole(["admin", "hr","super_admin"]),DocumentService.deleteDocument);
 router.get("/search",authJwt("view"),
 checkRole(["admin", "hr", "manager"]), DocumentService.searchDocuments);
+
 
 
 

@@ -48,13 +48,16 @@ const path = require("path");
 const Document = require("../models/documentSchema"); // Assuming this is your Document model
 const notifyUsers = require("../utility/notifyUsers");
 const User = require("../models/userSchema");
+const EmploymentInfo = require("../models/employeementSchema"); // Your employment schema
+const RoleDocument = require("../models/roleDocumentSchema");
 
+const fs = require("fs");
 // const BASE_URL = process.env.BASE_URL || "http://localhost:3000"; // Fallback for base URL
 
 class DocumentService {
   static async uploadDocumentWithRecipients(req, res) {
     try {
-      const { title, categoryId, recipients, uploadedBy,description } = req.body;
+      const { title, categoryId, recipients, uploadedBy, description } = req.body;
       console.log("passed recipients", recipients);
 
       if (!title || !categoryId || !uploadedBy) {
@@ -139,7 +142,10 @@ class DocumentService {
   // Get all documents
   static async getAllDocuments(req, res) {
     try {
-      const documents = await Document.find().populate("uploadedBy", "name email").populate("categoryId", "name");
+      const documents = await Document.find()
+        .populate("uploadedBy", "name email firstName lastName ")
+        .populate("categoryId", "name")
+        .populate("recipients.userId", "name email firstName lastName organizationId")
       return res.status(200).json({
         success: true,
         message: "Documents fetched successfully.",
@@ -252,6 +258,8 @@ class DocumentService {
   };
 
   // Delete a document
+
+
   static async deleteDocument(req, res) {
     try {
       const { documentId } = req.params;
@@ -265,9 +273,21 @@ class DocumentService {
         });
       }
 
+      // Delete file from the filesystem
+      const fileUrl = document.filePath; // Example: http://localhost:3000/uploads/myfile.pdf
+      const filename = path.basename(fileUrl); // Extract filename
+      const filePath = path.join(__dirname, "../my-upload/uploads", filename);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Failed to delete file:", err.message);
+          // You may choose to ignore this error or return a warning
+        }
+      });
+
       return res.status(200).json({
         success: true,
-        message: "Document deleted successfully.",
+        message: "Document and file deleted successfully.",
       });
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -278,6 +298,33 @@ class DocumentService {
       });
     }
   }
+
+  // static async deleteDocument(req, res) {
+  //   try {
+  //     const { documentId } = req.params;
+
+  //     const document = await Document.findByIdAndDelete(documentId);
+
+  //     if (!document) {
+  //       return res.status(404).json({
+  //         success: false,
+  //         message: "Document not found.",
+  //       });
+  //     }
+
+  //     return res.status(200).json({
+  //       success: true,
+  //       message: "Document deleted successfully.",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error deleting document:", error);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: "An error occurred while deleting the document.",
+  //       error: error.message,
+  //     });
+  //   }
+  // }
   // Search for documents by title
   static async searchDocuments(req, res) {
     try {
@@ -308,6 +355,109 @@ class DocumentService {
       });
     }
   }
+
+  // static async uploadDocumentByJobTitle(req, res) {
+  //   try {
+  //     const { title, categoryId, uploadedBy, description, jobTitle } = req.body;
+
+  //     // Validate fields
+  //     const missingFields = [];
+  //     if (!title) missingFields.push("title");
+  //     if (!categoryId) missingFields.push("categoryId");
+  //     if (!uploadedBy) missingFields.push("uploadedBy");
+  //     if (!jobTitle) missingFields.push("jobTitle");
+  //     if (!req.file) missingFields.push("file");
+
+  //     if (missingFields.length > 0) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: `Missing required fields: ${missingFields.join(", ")}`,
+  //       });
+  //     }
+
+  //     // Define filePath now (important)
+  //     const filePath = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+  //     // Sanitize jobTitle
+  //     const cleanJobTitle = jobTitle.trim();
+  //     console.log('Searching EmploymentInfo for jobTitle:', cleanJobTitle);
+
+  //     // Find employment records
+  //     const employmentRecords = await EmploymentInfo.find({
+  //       jobTitle: { $regex: `^${cleanJobTitle}$`, $options: "i" }
+  //     });
+
+  //     if (!employmentRecords || employmentRecords.length === 0) {
+  //       return res.status(404).json({
+  //         success: false,
+  //         message: `No users found with job title: "${cleanJobTitle}"`,
+  //       });
+  //     }
+
+  //     const userIds = employmentRecords.map((record) => record.userId);
+
+  //     // Fetch user details
+  //     const users = await User.find({ _id: { $in: userIds } });
+
+  //     const completeRecipients = users.map((user) => ({
+  //       userId: user._id.toString(),
+  //       email: user.email,
+  //     }));
+
+  //     // Create document
+  //     const document = await RoleDocument.create({
+  //       title,
+  //       description,
+  //       filePath,
+  //       categoryId,
+  //       uploadedBy,
+  //       recipients: completeRecipients.map((recipient) => ({
+  //         userId: recipient.userId,
+  //         status: "pending",
+  //         email: recipient.email,
+  //       })),
+  //     });
+
+  //     // Notify users
+  //     await notifyUsers(completeRecipients, document);
+
+  //     return res.status(201).json({
+  //       success: true,
+  //       message: `Document uploaded and sent to ${completeRecipients.length} recipients with job title: ${cleanJobTitle}`,
+  //       data: document,
+  //     });
+
+  //   } catch (error) {
+  //     console.error("Error uploading document by job title:", error);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: "An error occurred while uploading the document.",
+  //       error: error.message,
+  //     });
+  //   }
+  // }
+  // //GetALLdocumentsSendByRole
+  // static async viewAllDocumentsByRole(req, res) {
+  //   try {
+  //     const documents = await RoleDocument.find().sort({ createdAt: -1 });
+
+  //     return res.status(200).json({
+  //       success: true,
+  //       message: "All documents fetched successfully.",
+  //       data: documents,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching documents:", error);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: "An error occurred while fetching documents.",
+  //       error: error.message,
+  //     });
+  //   }
+  // }
+
+
+
 }
 
 module.exports = DocumentService;

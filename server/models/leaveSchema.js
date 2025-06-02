@@ -5,6 +5,10 @@ const leaveSchema = mongoose.Schema({
     ref: "users",
     required: true,
   },
+  appliedBy: {
+    type: String,
+    required: true,
+  },
   leaveTypeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "leave_types",

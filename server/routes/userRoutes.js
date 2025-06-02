@@ -28,6 +28,7 @@ const {
   deleteUser,
   viewUserById,
   viewUsers,
+  setPasswordWithToken
 } = require("../controllers/userController");
 const authJwt = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
@@ -39,6 +40,10 @@ router.post("/add-user",addUser);
 
 // Route to handle user login (no role required for login)
 router.post("/loginuser", loginUser);
+
+router.post("/set-password",setPasswordWithToken );
+
+
 
 // Route to update a user
 router.put(
