@@ -107,44 +107,77 @@ class roleDocumentController {
       });
     }
   }
-// Fetch documents shared with a specific user
-static async getRoleDocumentsForUser(req, res) {
-  try {
-    const { userId } = req.params;
+  
+  // Fetch documents shared with a specific user
+  static async getRoleDocumentsForUser(req, res) {
+    try {
+      const { userId } = req.params;
 
-    if (!userId) {
-      return res.status(400).json({
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing userId in request parameters.",
+        });
+      }
+
+      // 1. Fetch documents with populated user info
+      const documents = await RoleDocument.find({
+        recipients: { $elemMatch: { userId } },
+      })
+        .populate("categoryId", "name description")
+        .populate("recipients.userId", "firstName lastName email") // basic user info
+        .populate("uploadedBy", "firstName lastName")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      // 2. Collect all unique recipient userIds
+      const recipientUserIds = Array.from(
+        new Set(
+          documents.flatMap((doc) =>
+            doc.recipients.map((rec) => rec.userId?._id?.toString())
+          )
+        )
+      );
+
+      // 3. Fetch employment info for those userIds
+      const employmentInfos = await EmploymentInfo.find({
+        userId: { $in: recipientUserIds },
+      })
+        .select("userId jobTitle")
+        .lean();
+
+      const jobTitleMap = {};
+      employmentInfos.forEach((info) => {
+        jobTitleMap[info.userId.toString()] = info.jobTitle || "Unknown";
+      });
+
+      // 4. Inject jobTitle into each recipient
+      documents.forEach((doc) => {
+        doc.recipients.forEach((rec) => {
+          const uid = rec.userId?._id?.toString();
+          rec.jobTitle = jobTitleMap[uid] || "Unknown";
+        });
+      });
+
+      return res.status(200).json({
+        success: true,
+        message:
+          documents.length === 0
+            ? "No documents found for this userRole."
+            : `Documents shared with user ${userId} fetched successfully.`,
+        data: {
+          documents,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching role-based documents for user:", error);
+      return res.status(500).json({
         success: false,
-        message: "Missing userId in request parameters.",
+        message: "Failed to fetch documents.",
+        error: error.message,
       });
     }
-
-    // Fetch documents where user is a recipient
-    const documents = await RoleDocument.find({
-      recipients: { $elemMatch: { userId } },
-    }).sort({ createdAt: -1 });
-
-    // Fetch job title for the user
-    const employmentInfo = await EmploymentInfo.findOne({ userId });
-    const jobTitle = employmentInfo?.jobTitle || "Unknown";
-
-    return res.status(200).json({
-      success: true,
-      message: `Documents shared with user ${userId} fetched successfully.`,
-      data: {
-        documents,
-        jobTitle,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching role-based documents for user:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch documents.",
-      error: error.message,
-    });
-  }
-}
+  };
 
 }
 
