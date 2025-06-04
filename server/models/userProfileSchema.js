@@ -37,6 +37,9 @@ const UserProfileSchema = new Schema(
     idNumber:{
       type:String
     },
+    uanNumber:{
+      type:String
+    },
     dob: { type: Date},
     contactNumber: { type: String},
   },
