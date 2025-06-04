@@ -32,6 +32,7 @@ const leaveAllocationRoute =require("./routes/leaveAllocationRoutes");
 const leaveTypeRoute = require("./routes/leaveTypeRoutes");
 const roleDocumentRoute = require("./routes/roleDocumentRoutes");
 const orgDocumentRoute=require("./routes/orgDocumentRoutes")
+const holidayRoutes = require("./routes/holidayRoutes");
 const PORT = process.env.PORT || 6010;
 const app = express();
 
@@ -69,6 +70,8 @@ app.use('/contact',contactRoute);
 app.use("/leave", leaveRoute);
 app.use("/allocation",leaveAllocationRoute);
 app.use("/leaveType",leaveTypeRoute);
+app.use("/api/leave", leaveRoute);
+app.use("/api/v1/holidays", holidayRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });
