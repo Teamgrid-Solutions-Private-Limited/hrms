@@ -12,7 +12,6 @@ class roleDocumentController {
     try {
       const { title, categoryId, uploadedBy, description, jobTitle } = req.body;
 
-      // Validate fields
       const missingFields = [];
       if (!title) missingFields.push("title");
       if (!categoryId) missingFields.push("categoryId");
@@ -27,36 +26,42 @@ class roleDocumentController {
         });
       }
 
-      // Define filePath now (important)
       const filePath = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-
-      // Sanitize jobTitle
       const cleanJobTitle = jobTitle.trim();
-      console.log('Searching EmploymentInfo for jobTitle:', cleanJobTitle);
 
-      // Find employment records
+      //  1. Get organizationId of uploadedBy user
+      const uploader = await User.findById(uploadedBy);
+      if (!uploader) {
+        return res.status(404).json({ success: false, message: "Uploader not found." });
+      }
+
+      const uploaderOrgId = uploader.organizationId;
+
+      //  2. Get employment records for users matching jobTitle
       const employmentRecords = await EmploymentInfo.find({
         jobTitle: { $regex: `^${cleanJobTitle}$`, $options: "i" }
       });
 
-      if (!employmentRecords || employmentRecords.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: `No users found with job title: "${cleanJobTitle}"`,
-        });
-      }
-
       const userIds = employmentRecords.map((record) => record.userId);
 
-      // Fetch user details
-      const users = await User.find({ _id: { $in: userIds } });
+      //  3. Get users matching both jobTitle AND same organizationId
+      const users = await User.find({
+        _id: { $in: userIds },
+        organizationId: uploaderOrgId,
+      });
+
+      if (!users.length) {
+        return res.status(404).json({
+          success: false,
+          message: `No users with job title "${cleanJobTitle}" found in the same organization.`,
+        });
+      }
 
       const completeRecipients = users.map((user) => ({
         userId: user._id.toString(),
         email: user.email,
       }));
 
-      // Create document
       const document = await RoleDocument.create({
         title,
         description,
@@ -70,7 +75,6 @@ class roleDocumentController {
         })),
       });
 
-      // Notify users
       await notifyUsers(completeRecipients, document);
 
       return res.status(201).json({
@@ -88,14 +92,49 @@ class roleDocumentController {
       });
     }
   }
+
   //GetALLdocumentsSendByRole
   static async viewAllDocumentsByRole(req, res) {
     try {
-      const documents = await RoleDocument.find().sort({ createdAt: -1 });
+      // 1. Fetch all documents with necessary population
+      const documents = await RoleDocument.find()
+        .populate("uploadedBy", "firstName lastName")
+        .populate("recipients.userId", "firstName lastName email") // recipient info
+        .sort({ createdAt: -1 })
+        .lean();
+
+      // 2. Collect all unique recipient userIds
+      const recipientUserIds = Array.from(
+        new Set(
+          documents.flatMap((doc) =>
+            doc.recipients.map((rec) => rec.userId?._id?.toString())
+          )
+        )
+      );
+
+      // 3. Fetch employment info for those userIds
+      const employmentInfos = await EmploymentInfo.find({
+        userId: { $in: recipientUserIds },
+      })
+        .select("userId jobTitle")
+        .lean();
+
+      const jobTitleMap = {};
+      employmentInfos.forEach((info) => {
+        jobTitleMap[info.userId.toString()] = info.jobTitle || "Unknown";
+      });
+
+      // 4. Inject jobTitle into each recipient
+      documents.forEach((doc) => {
+        doc.recipients.forEach((rec) => {
+          const uid = rec.userId?._id?.toString();
+          rec.jobTitle = jobTitleMap[uid] || "Unknown";
+        });
+      });
 
       return res.status(200).json({
         success: true,
-        message: "All documents fetched successfully.",
+        message: "All documents fetched successfully with job titles.",
         data: documents,
       });
     } catch (error) {
@@ -107,7 +146,7 @@ class roleDocumentController {
       });
     }
   }
-  
+
   // Fetch documents shared with a specific user
   static async getRoleDocumentsForUser(req, res) {
     try {
@@ -178,6 +217,58 @@ class roleDocumentController {
       });
     }
   };
+
+  //update status 
+  // Update recipient's status in a role document
+static async updateRecipientStatus(req, res) {
+  try {
+    const { documentId, userId } = req.params;
+    const { status } = req.body;
+
+    if (!["pending", "viewed", "acknowledged"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Must be one of: pending, viewed, acknowledged",
+      });
+    }
+
+    const updatedDoc = await RoleDocument.findOneAndUpdate(
+      {
+        _id: documentId,
+        "recipients.userId": userId,
+      },
+      {
+        $set: {
+          "recipients.$.status": status,
+        },
+      },
+      { new: true }
+    )
+      .populate("uploadedBy", "firstName lastName")
+      .populate("recipients.userId", "firstName lastName email");
+
+    if (!updatedDoc) {
+      return res.status(404).json({
+        success: false,
+        message: "Document or recipient not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Status updated to '${status}' for user ${userId}.`,
+      data: updatedDoc,
+    });
+  } catch (error) {
+    console.error("Error updating recipient status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating recipient status.",
+      error: error.message,
+    });
+  }
+}
+
 
 }
 

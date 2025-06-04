@@ -8,16 +8,21 @@ const checkRole = require("../middlewares/checkRole");
 router.post(
   "/upload-by-job-title",
   authJwt("create"), // Middleware to verify JWT and authenticate the user
-  checkRole(["admin", "hr", "manager","super_admin"]), 
+  checkRole(["admin", "hr", "manager", "super_admin"]),
   upload.single("file"),
   RoleDocumentController.uploadDocumentByJobTitle
 );
-router.get('/role-documents/user/:userId',authJwt("view"),
-checkRole(["admin", "manager","super_admin","employee"]),
- RoleDocumentController.getRoleDocumentsForUser);
+router.get('/role-documents/user/:userId', authJwt("view"),
+  checkRole(["admin", "manager", "super_admin", "employee"]),
+  RoleDocumentController.getRoleDocumentsForUser);
 
+router.get("/by-role/allDocByRole", authJwt("view"), // Ensure user is authenticated to update recipient statuses
+  checkRole(["admin", "manager", "super_admin", "employee"]),
+  RoleDocumentController.viewAllDocumentsByRole);
 
-router.get("/by-role/allDocByRole",authJwt("view"), // Ensure user is authenticated to update recipient statuses
-checkRole(["admin", "manager","super_admin","employee"]),
-   RoleDocumentController.viewAllDocumentsByRole);
-   module.exports = router;
+router.put(
+  "/role-documents/:documentId/recipient/:userId/status", authJwt("update"),
+  checkRole(["admin", "manager", "super_admin", "employee"]),
+  RoleDocumentController.updateRecipientStatus
+);
+module.exports = router;
