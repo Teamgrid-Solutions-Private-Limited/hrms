@@ -47,6 +47,9 @@ const employeementSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "users", // Reference to the TimeOffRequests model
     },
+    emptype: {
+      type: String,
+    },
   },
   { timestamps: true, versionKey: false }
 );
