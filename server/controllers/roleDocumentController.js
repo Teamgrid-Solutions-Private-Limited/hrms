@@ -98,7 +98,7 @@ class roleDocumentController {
     try {
       // 1. Fetch all documents with necessary population
       const documents = await RoleDocument.find()
-        .populate("uploadedBy", "firstName lastName")
+        .populate("uploadedBy", "firstName lastName organizationId")
         .populate("recipients.userId", "firstName lastName email") // recipient info
         .sort({ createdAt: -1 })
         .lean();
