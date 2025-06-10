@@ -63,39 +63,87 @@ class orgDocumentController {
       });
     }
   }
-  
+
   //fetchallOrgDocuments
   static async getDocumentsByOrganization(req, res) {
-  try {
-    const { organizationId } = req.params;
+    try {
+      const { organizationId } = req.params;
 
-    if (!organizationId) {
-      return res.status(400).json({
+      if (!organizationId) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing organizationId in request parameters.",
+        });
+      }
+
+      const documents = await OrgDocument.find({ organizationId })
+        .populate("uploadedBy", "firstName lastName email")
+        .populate("organizationId", "name")
+        .populate("categoryId", "name description")
+        .populate("recipients.userId", "firstName lastName email")
+        .sort({ createdAt: -1 });
+
+      return res.status(200).json({
+        success: true,
+        message: `Found ${documents.length} documents for organization.`,
+        data: documents,
+      });
+    } catch (error) {
+      console.error("Error fetching organization documents:", error);
+      return res.status(500).json({
         success: false,
-        message: "Missing organizationId in request parameters.",
+        message: "Failed to fetch documents by organization.",
+        error: error.message,
       });
     }
-
-    const documents = await OrgDocument.find({ organizationId })
-      .populate("uploadedBy", "firstName lastName email")
-      .populate("categoryId", "name description")
-      .populate("recipients.userId", "firstName lastName email")
-      .sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      message: `Found ${documents.length} documents for organization.`,
-      data: documents,
-    });
-  } catch (error) {
-    console.error("Error fetching organization documents:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch documents by organization.",
-      error: error.message,
-    });
   }
-}
+  static async updateRecipientStatus(req, res) {
+    try {
+      const { documentId } = req.params;
+      const { userId, status } = req.body;
+
+      if (!userId || !status) {
+        return res.status(400).json({
+          success: false,
+          message: "userId and status are required",
+        });
+      }
+
+      const updatedDoc = await OrgDocument.findOneAndUpdate(
+        {
+          _id: documentId,
+          "recipients.userId": userId,
+        },
+        {
+          $set: {
+            "recipients.$.status": status,
+          },
+        },
+        { new: true }
+      ).populate("recipients.userId", "firstName lastName email");
+
+      if (!updatedDoc) {
+        return res.status(404).json({
+          success: false,
+          message: "Document or recipient not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: `Status updated to '${status}'`,
+        data: updatedDoc,
+      });
+    } catch (error) {
+      console.error("Update Status Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update recipient status",
+        error: error.message,
+      });
+    }
+  }
+
 
 }
 
