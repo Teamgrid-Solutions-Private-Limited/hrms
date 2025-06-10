@@ -272,9 +272,7 @@ static async updateRecipientStatus(req, res) {
 static async deleteRoleDocument(req, res) {
   try {
     const { documentId } = req.params;
-
     const document = await RoleDocument.findByIdAndDelete(documentId);
-
     if (!document) {
       return res.status(404).json({
         success: false,

@@ -1,5 +1,7 @@
 const User = require("../models/userSchema");
 const TeamDocument = require("../models/teamDocumentSchema");
+const fs = require("fs");
+const path = require("path");
 
 class teamDocumentController {
 
@@ -120,6 +122,46 @@ class teamDocumentController {
             res.status(500).json({ message: "Internal server error" });
         }
     };
+
+    //deleteteamdocbyid
+    static async deleteTeamDocument(req, res) {
+  try {
+    const { documentId } = req.params;
+
+    const document = await TeamDocument.findByIdAndDelete(documentId);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Team document not found.",
+      });
+    }
+
+    // Delete the file from the filesystem
+    const fileUrl = document.filePath; // e.g., http://localhost:6010/uploads/xyz.pdf
+    const filename = path.basename(fileUrl);
+    const filePath = path.join(__dirname, "../my-upload/uploads", filename); // adjust path if needed
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("File deletion failed:", err.message);
+        // Do not block DB deletion if file deletion fails
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Team document and file deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error deleting team document:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the team document.",
+      error: error.message,
+    });
+  }
+}
 
 
 }

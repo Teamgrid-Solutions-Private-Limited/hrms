@@ -28,6 +28,10 @@ router.put('/team-documents/update-status',
     checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
     teamDocumentController.updateTeamDocumentStatus);
 
+router.delete('/delete/:documentId',
+    authJwt("delete"),
+    teamDocumentController.deleteTeamDocument);
+
 //  New: Get all documents by orgId
 // router.get("/by-team/:organizationId",
 //     authJwt("view"),

@@ -22,5 +22,10 @@ router.put("/status/:documentId",
     checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
     orgDocumentController.updateRecipientStatus);
 
+router.delete("/delete/:documentId",
+    authJwt("delete"),
+    checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
+    orgDocumentController.deleteOrgDocument);
+
 
 module.exports = router;
