@@ -28,7 +28,15 @@ const {
   deleteUser,
   viewUserById,
   viewUsers,
-  setPasswordWithToken
+  setPasswordWithToken,
+  addOrUpdateEducation,
+  getEducation,
+  deleteEducation,
+  addOrUpdateWorkExperience,
+  getWorkExperience,
+  deleteWorkExperience,
+  
+  
 } = require("../controllers/userController");
 const authJwt = require("../middlewares/authJwt");
 const checkRole = require("../middlewares/checkRole");
@@ -74,5 +82,16 @@ router.get(
   checkRole(["admin", "super_admin","employee"]),
   viewUsers
 );
+
+router.put("/:userId/education", addOrUpdateEducation);
+router.get("/:userId/education", getEducation);
+router.delete("/:userId/education/:eduId", deleteEducation);
+
+router.put("/:userId/work-experience",addOrUpdateWorkExperience);
+router.get("/:userId/work-experience",getWorkExperience);
+router.delete("/:userId/work-experience/:workId",deleteWorkExperience);
+
+
+
 
 module.exports = router;
