@@ -19,7 +19,7 @@ router.get("/document/:userId/:leaveId/:fileName",
 
 
 router.put("/leaves/:leaveId/approve",authJwt(),
-checkRole(["super_admin", "admin"]), LeaveController.approveLeaveRequest);
+checkRole(["super_admin", "admin","employee"]), LeaveController.approveLeaveRequest);
 router.get(
   "/leave/viewall",
   authJwt(),
@@ -27,7 +27,7 @@ router.get(
   LeaveController.viewLeave
 );
 router.put("/leaves/:leaveId/reject",authJwt(),
-checkRole(["super_admin", "admin"]), LeaveController.rejectLeaveRequest);
+checkRole(["super_admin", "admin","employee"]), LeaveController.rejectLeaveRequest);
 router.put("/leaves/:leaveId/update",authJwt(),checkRole(["employee", "admin","hr"]), LeaveController.updateLeave);
 router.get("/leaves/view/:userId",authJwt(),
 checkRole(["super_admin", "admin","employee"]), LeaveController.getLeaveByUserId);

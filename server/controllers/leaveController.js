@@ -130,7 +130,7 @@ class leaveController {
         await allocation.save();
       }
 
-      const status = requestingUserRole === 'super_admin'? 'approved':'pending';
+      const status = (requestingUserRole === 'super_admin' || requestingUserRole === 'admin') ? 'approved' : 'pending';
 
       const leaveRequest = new Leave({
         userId,
@@ -190,13 +190,11 @@ class leaveController {
   
 
   static isAlternateSaturday(date) {
-    // Reference date known to be an alternate Saturday (31/05/2025)
-    const referenceDate = new Date(2025, 4, 31); // Month is 0-based
+    const referenceDate = new Date(2025, 4, 31); 
     
-    // Calculate weeks between the reference date and the given date
+    
     const weeksDiff = Math.floor((date - referenceDate) / (7 * 24 * 60 * 60 * 1000));
-    
-    // If weeks difference is even, it follows the same pattern as reference date
+  
     return weeksDiff % 2 === 0;
   }
 
@@ -210,20 +208,19 @@ class leaveController {
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay();
       
-      // Don't count Sundays (0 is Sunday)
+     
       if (dayOfWeek !== 0) {
-        // For Saturdays, check if it's an alternate Saturday
+    
         if (dayOfWeek === 6) {
           if (!this.isAlternateSaturday(currentDate)) {
-            workingDays++; // Count only working Saturdays
+            workingDays++; 
           }
         } else {
-          // Count all other weekdays
+         
           workingDays++;
         }
       }
       
-      // Move to next day
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
@@ -243,12 +240,12 @@ class leaveController {
         return res.status(404).json({ message: "Leave request not found" });
       }
 
-      // Check if already approved
+    
       if (leaveRequest.status === "approved") {
         return res.status(400).json({ message: "Leave request already approved" });
       }
 
-      // Only calculate leave units if not already set
+    
       if (!leaveRequest.leaveUnits) {
         let leaveUnits = 0;
         if (leaveRequest.leaveDuration === "half_day") {
@@ -262,7 +259,7 @@ class leaveController {
         leaveRequest.leaveUnits = leaveUnits;
       }
 
-      // Fetch leave allocation (no need to deduct again)
+
       const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
         userId: leaveRequest.userId._id,
         leaveTypeId: leaveRequest.leaveTypeId._id,
