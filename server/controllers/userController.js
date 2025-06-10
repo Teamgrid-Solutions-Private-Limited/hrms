@@ -19,6 +19,7 @@ class UserController {
         team,
         department,
       } = req.body;
+      if (status) user.status = status;
 
       if (!firstName || !lastName) {
         return res
@@ -93,7 +94,7 @@ class UserController {
         subject: "You're Invited! Set Your Password",
         html: `
           <p>Hello ${user.firstName},</p>
-          <p>You’ve been added to our system. Click below to set your password:</p>
+          <p>You've been added to our system. Click below to set your password:</p>
           <a href="${link}" style="padding:10px 20px; background:#007bff; color:white; text-decoration:none;">Set Your Password</a>
           <p>This link is valid for 24 hours.</p>
         `,
@@ -272,6 +273,7 @@ static updateUser = async (req, res) => {
       team,
       department,
       organizationId,
+      status,
     } = req.body;
 
     const userId = req.params.id;
@@ -287,7 +289,8 @@ static updateUser = async (req, res) => {
       !lastName &&
       !team &&
       !department &&
-      !organizationId
+      !organizationId &&
+      !status
     ) {
       return res.status(400).json({
         error: "VALIDATION_ERROR",
@@ -339,6 +342,7 @@ static updateUser = async (req, res) => {
     if (team) user.team = team;
     if (department) user.department = department;
     if (organizationId) user.organizationId = organizationId;
+    if (status) user.status = status;
 
     await user.save();
 
@@ -418,6 +422,178 @@ static updateUser = async (req, res) => {
         .json({ message: "Error fetching user", error: err.message });
     }
   };
+static addOrUpdateEducation = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { educationDetails } = req.body;
+
+    console.log("REQ.PARAMS:", req.params);
+    console.log("REQ.BODY:", req.body);
+
+    if (!Array.isArray(educationDetails)) {
+      return res.status(400).json({
+        error: "VALIDATION_ERROR",
+        message: "educationDetails must be an array",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.educationDetails = educationDetails;
+    user.markModified("educationDetails"); // <-- Try this
+    await user.save();
+
+    res.status(200).json({
+      message: "Education details updated successfully",
+      educationDetails: user.educationDetails,
+    });
+  } catch (error) {
+    console.error("Error updating education:", error);
+    res.status(500).json({
+      error: "SERVER_ERROR",
+      message: "Error updating education details",
+      details: error.message,
+    });
+  }
+};
+
+
+  // 📄 Get Education Details
+  static getEducation = async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      const user = await User.findById(userId).select("educationDetails");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json(user.educationDetails);
+    } catch (error) {
+      console.error("Error fetching education:", error);
+      res.status(500).json({
+        message: "Error fetching education details",
+        error: error.message,
+      });
+    }
+  };
+
+  // 🗑️ Delete a Single Education Entry
+  static deleteEducation = async (req, res) => {
+    try {
+      const { userId, eduId } = req.params;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      user.educationDetails = user.educationDetails.filter(
+        (edu) => edu._id.toString() !== eduId
+      );
+
+      await user.save();
+      res.status(200).json({
+        message: "Education entry deleted successfully",
+        educationDetails: user.educationDetails,
+      });
+    } catch (error) {
+      console.error("Error deleting education:", error);
+      res.status(500).json({
+        message: "Error deleting education entry",
+        error: error.message,
+      });
+
+    }
+  };
+
+  static addOrUpdateWorkExperience = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { workExperience } = req.body;
+
+    if (!Array.isArray(workExperience)) {
+      return res.status(400).json({
+        error: "VALIDATION_ERROR",
+        message: "workExperience must be an array",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.workExperience = workExperience;
+    user.markModified("workExperience");
+    await user.save();
+
+    res.status(200).json({
+      message: "Work experience updated successfully",
+      workExperience: user.workExperience,
+    });
+  } catch (error) {
+    console.error("Error updating work experience:", error);
+    res.status(500).json({
+      error: "SERVER_ERROR",
+      message: "Error updating work experience",
+      details: error.message,
+    });
+  }
+};
+
+static getWorkExperience = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select("workExperience");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user.workExperience);
+  } catch (error) {
+    console.error("Error fetching work experience:", error);
+    res.status(500).json({
+      message: "Error fetching work experience",
+      error: error.message,
+    });
+  }
+};
+
+static deleteWorkExperience = async (req, res) => {
+  try {
+    const { userId, workId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.workExperience = user.workExperience.filter(
+      (exp) => exp._id.toString() !== workId
+    );
+
+    await user.save();
+    res.status(200).json({
+      message: "Work experience entry deleted successfully",
+      workExperience: user.workExperience,
+    });
+  } catch (error) {
+    console.error("Error deleting work experience:", error);
+    res.status(500).json({
+      message: "Error deleting work experience entry",
+      error: error.message,
+    });
+  }
+};
+
+  
+
+
 }
 
 module.exports = UserController;

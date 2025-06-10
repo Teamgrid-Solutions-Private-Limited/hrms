@@ -1,6 +1,25 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const educationSchema = new mongoose.Schema({
+  instituteName: { type: String, required: true },
+  degree: { type: String, required: true },
+  specialization: { type: String, required: true },
+  completionDate: { type: Date, required: true },
+});
+
+const workExperienceSchema = new mongoose.Schema(
+  // Define the schema for work experience
+  {
+    companyName: { type: String, required: true },
+    jobTitle: { type: String, required: true },
+    fromDate: { type: Date, required: true },
+    toDate: { type: Date },
+    jobDescription: { type: String },
+    relevant: { type: Boolean, default: false },
+  }
+);
+
 const userSchema = new mongoose.Schema(
   {
     // username: {
@@ -39,15 +58,15 @@ const userSchema = new mongoose.Schema(
     },
     team: {
       type: String,
-
     },
-      department: {
+    department: {
       type: String,
-
     },
     inviteToken: { type: String },
-
+    educationDetails: [educationSchema], // 👈 Embedded education array
+    workExperience: [workExperienceSchema], // 👈 Embedded work experience array
   },
+
   {
     timestamps: true, // Automatically manages createdAt and updatedAt fields
   }
