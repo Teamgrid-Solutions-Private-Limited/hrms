@@ -25,4 +25,10 @@ router.put(
   checkRole(["admin", "manager", "super_admin", "employee"]),
   RoleDocumentController.updateRecipientStatus
 );
+
+// DELETE a role document
+router.delete("/role-doc/:documentId", authJwt("delete"),
+  checkRole(["admin", "manager", "super_admin", "employee"]),
+  RoleDocumentController.deleteRoleDocument);
+
 module.exports = router;

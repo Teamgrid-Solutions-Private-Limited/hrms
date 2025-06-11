@@ -10,4 +10,22 @@ router.post("/orgDocument/create-upload",
     checkRole(["admin", "hr", "manager", "super_admin"]),
     orgDocumentController.uploadOrgDocument
 )
+
+//  New: Get all documents by orgId
+router.get("/by-org/:organizationId",
+    authJwt("view"),
+    checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
+    orgDocumentController.getDocumentsByOrganization);
+
+router.put("/status/:documentId",
+    authJwt("update"),
+    checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
+    orgDocumentController.updateRecipientStatus);
+
+router.delete("/delete/:documentId",
+    authJwt("delete"),
+    checkRole(["admin", "hr", "manager", "super_admin", "employee"]),
+    orgDocumentController.deleteOrgDocument);
+
+
 module.exports = router;

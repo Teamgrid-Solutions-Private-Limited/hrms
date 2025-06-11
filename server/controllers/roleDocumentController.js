@@ -98,7 +98,7 @@ class roleDocumentController {
     try {
       // 1. Fetch all documents with necessary population
       const documents = await RoleDocument.find()
-        .populate("uploadedBy", "firstName lastName")
+        .populate("uploadedBy", "firstName lastName organizationId")
         .populate("recipients.userId", "firstName lastName email") // recipient info
         .sort({ createdAt: -1 })
         .lean();
@@ -268,6 +268,44 @@ static async updateRecipientStatus(req, res) {
     });
   }
 }
+
+static async deleteRoleDocument(req, res) {
+  try {
+    const { documentId } = req.params;
+    const document = await RoleDocument.findByIdAndDelete(documentId);
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Role document not found.",
+      });
+    }
+
+    // Delete the file from the filesystem
+    const fileUrl = document.filePath; // e.g., http://localhost:6010/uploads/file.pdf
+    const filename = path.basename(fileUrl);
+    const filePath = path.join(__dirname, "../my-upload/uploads", filename);
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Failed to delete file:", err.message);
+        // Continue without throwing; file deletion failure shouldn't block DB delete
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Role document and file deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error deleting role document:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the role document.",
+      error: error.message,
+    });
+  }
+}
+
 
 
 }
