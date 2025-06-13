@@ -26,8 +26,8 @@ const sendEmailNotifications = async (recipients, document) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "mrayush2000@gmail.com",
-      pass: "qmye dlnj jpkj vatv", // Replace with your App Password
+      user: "thesufian0@gmail.com",
+      pass: "qbos snac aakc ogwz", // Replace with your App Password
     },
   });
 
@@ -38,7 +38,7 @@ const sendEmailNotifications = async (recipients, document) => {
     }
 
     const mailOptions = {
-      from: "mrayush2000@gmail.com",
+      from: "thesufian0@gmail.com",
       to: recipient.email,
       subject: `New Document: ${document.title}`,
       text: `Hello,\n\nYou have received a new document titled "${document.title}". Please review and acknowledge it by the due date.\n\nThanks,\nYour HR Team`,
