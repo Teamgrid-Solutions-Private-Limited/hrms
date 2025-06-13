@@ -62,7 +62,7 @@ class UserController {
         team,
         inviteToken,
         department,
-        
+
       });
 
       await user.save();
@@ -76,14 +76,15 @@ class UserController {
       res.status(500).json({ error: "Server error", details: error.message });
     }
   };
+ 
 
   static sendInvitationEmail = async (user) => {
     try {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "mrayush2000@gmail.com",
-          pass: "qmye dlnj jpkj vatv",
+          user: "thesufian0@gmail.com",
+          pass: "qbos snac aakc ogwz",
         },
       });
 
@@ -261,114 +262,114 @@ class UserController {
   };
 
 
-static updateUser = async (req, res) => {
-  try {
-    const {
-      username,
-      email,
-      password,
-      newPassword,
-      roleId,
-      firstName,
-      lastName,
-      team,
-      department,
-      organizationId,
-      status,
-    } = req.body;
+  static updateUser = async (req, res) => {
+    try {
+      const {
+        username,
+        email,
+        password,
+        newPassword,
+        roleId,
+        firstName,
+        lastName,
+        team,
+        department,
+        organizationId,
+        status,
+      } = req.body;
 
-    const userId = req.params.id;
+      const userId = req.params.id;
 
-    // Ensure at least one field is provided for update
-    if (
-      !username &&
-      !email &&
-      !password &&
-      !newPassword &&
-      !roleId &&
-      !firstName &&
-      !lastName &&
-      !team &&
-      !department &&
-      !organizationId &&
-      !status
-    ) {
-      return res.status(400).json({
-        error: "VALIDATION_ERROR",
-        message: "At least one field must be provided to update.",
-      });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        error: "USER_NOT_FOUND",
-        message: "User not found.",
-      });
-    }
-
-    // 🔐 Handle password update
-    if (password && newPassword) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
+      // Ensure at least one field is provided for update
+      if (
+        !username &&
+        !email &&
+        !password &&
+        !newPassword &&
+        !roleId &&
+        !firstName &&
+        !lastName &&
+        !team &&
+        !department &&
+        !organizationId &&
+        !status
+      ) {
         return res.status(400).json({
-          error: "INVALID_PASSWORD",
-          message: "Current password is incorrect.",
+          error: "VALIDATION_ERROR",
+          message: "At least one field must be provided to update.",
         });
       }
-      user.password = await bcrypt.hash(newPassword, 10);
-    } else if (!password && newPassword) {
-      // Password setup from invite/reset
-      user.password = await bcrypt.hash(newPassword, 10);
-      user.inviteToken = undefined; // 🔄 Invalidate token after use
-    }
 
-    // ✉️ Email update check
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({
-          error: "EMAIL_IN_USE",
-          message: "Email already in use.",
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          error: "USER_NOT_FOUND",
+          message: "User not found.",
         });
       }
-      user.email = email;
-    }
 
-    // ✅ Update other fields
-    if (username) user.username = username;
-    if (roleId) user.roleId = roleId;
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (team) user.team = team;
-    if (department) user.department = department;
-    if (organizationId) user.organizationId = organizationId;
-    if (status) user.status = status;
+      // 🔐 Handle password update
+      if (password && newPassword) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(400).json({
+            error: "INVALID_PASSWORD",
+            message: "Current password is incorrect.",
+          });
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+      } else if (!password && newPassword) {
+        // Password setup from invite/reset
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.inviteToken = undefined; // 🔄 Invalidate token after use
+      }
 
-    await user.save();
+      // ✉️ Email update check
+      if (email && email !== user.email) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          return res.status(400).json({
+            error: "EMAIL_IN_USE",
+            message: "Email already in use.",
+          });
+        }
+        user.email = email;
+      }
 
-    // 🎟️ Auto-login if password was set via invite
-    let token;
-    if (!password && newPassword) {
-      token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
+      // ✅ Update other fields
+      if (username) user.username = username;
+      if (roleId) user.roleId = roleId;
+      if (firstName) user.firstName = firstName;
+      if (lastName) user.lastName = lastName;
+      if (team) user.team = team;
+      if (department) user.department = department;
+      if (organizationId) user.organizationId = organizationId;
+      if (status) user.status = status;
+
+      await user.save();
+
+      // 🎟️ Auto-login if password was set via invite
+      let token;
+      if (!password && newPassword) {
+        token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+          expiresIn: "7d",
+        });
+      }
+
+      res.status(200).json({
+        message: "User updated successfully",
+        user,
+        token, // 👉 frontend can store this for login
+      });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({
+        error: "SERVER_ERROR",
+        message: "An error occurred while updating the user.",
+        details: error.message,
       });
     }
-
-    res.status(200).json({
-      message: "User updated successfully",
-      user,
-      token, // 👉 frontend can store this for login
-    });
-  } catch (error) {
-    console.error("Error updating user:", error);
-    res.status(500).json({
-      error: "SERVER_ERROR",
-      message: "An error occurred while updating the user.",
-      details: error.message,
-    });
-  }
-};
+  };
 
 
   static deleteUser = async (req, res) => {
@@ -423,43 +424,43 @@ static updateUser = async (req, res) => {
         .json({ message: "Error fetching user", error: err.message });
     }
   };
-static addOrUpdateEducation = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { educationDetails } = req.body;
+  static addOrUpdateEducation = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { educationDetails } = req.body;
 
-    console.log("REQ.PARAMS:", req.params);
-    console.log("REQ.BODY:", req.body);
+      console.log("REQ.PARAMS:", req.params);
+      console.log("REQ.BODY:", req.body);
 
-    if (!Array.isArray(educationDetails)) {
-      return res.status(400).json({
-        error: "VALIDATION_ERROR",
-        message: "educationDetails must be an array",
+      if (!Array.isArray(educationDetails)) {
+        return res.status(400).json({
+          error: "VALIDATION_ERROR",
+          message: "educationDetails must be an array",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      user.educationDetails = educationDetails;
+      user.markModified("educationDetails"); // <-- Try this
+      await user.save();
+
+      res.status(200).json({
+        message: "Education details updated successfully",
+        educationDetails: user.educationDetails,
+      });
+    } catch (error) {
+      console.error("Error updating education:", error);
+      res.status(500).json({
+        error: "SERVER_ERROR",
+        message: "Error updating education details",
+        details: error.message,
       });
     }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    user.educationDetails = educationDetails;
-    user.markModified("educationDetails"); // <-- Try this
-    await user.save();
-
-    res.status(200).json({
-      message: "Education details updated successfully",
-      educationDetails: user.educationDetails,
-    });
-  } catch (error) {
-    console.error("Error updating education:", error);
-    res.status(500).json({
-      error: "SERVER_ERROR",
-      message: "Error updating education details",
-      details: error.message,
-    });
-  }
-};
+  };
 
 
   // 📄 Get Education Details
@@ -512,87 +513,87 @@ static addOrUpdateEducation = async (req, res) => {
   };
 
   static addOrUpdateWorkExperience = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { workExperience } = req.body;
+    try {
+      const { userId } = req.params;
+      const { workExperience } = req.body;
 
-    if (!Array.isArray(workExperience)) {
-      return res.status(400).json({
-        error: "VALIDATION_ERROR",
-        message: "workExperience must be an array",
+      if (!Array.isArray(workExperience)) {
+        return res.status(400).json({
+          error: "VALIDATION_ERROR",
+          message: "workExperience must be an array",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      user.workExperience = workExperience;
+      user.markModified("workExperience");
+      await user.save();
+
+      res.status(200).json({
+        message: "Work experience updated successfully",
+        workExperience: user.workExperience,
+      });
+    } catch (error) {
+      console.error("Error updating work experience:", error);
+      res.status(500).json({
+        error: "SERVER_ERROR",
+        message: "Error updating work experience",
+        details: error.message,
       });
     }
+  };
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+  static getWorkExperience = async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      const user = await User.findById(userId).select("workExperience");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json(user.workExperience);
+    } catch (error) {
+      console.error("Error fetching work experience:", error);
+      res.status(500).json({
+        message: "Error fetching work experience",
+        error: error.message,
+      });
     }
+  };
 
-    user.workExperience = workExperience;
-    user.markModified("workExperience");
-    await user.save();
+  static deleteWorkExperience = async (req, res) => {
+    try {
+      const { userId, workId } = req.params;
 
-    res.status(200).json({
-      message: "Work experience updated successfully",
-      workExperience: user.workExperience,
-    });
-  } catch (error) {
-    console.error("Error updating work experience:", error);
-    res.status(500).json({
-      error: "SERVER_ERROR",
-      message: "Error updating work experience",
-      details: error.message,
-    });
-  }
-};
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-static getWorkExperience = async (req, res) => {
-  try {
-    const { userId } = req.params;
+      user.workExperience = user.workExperience.filter(
+        (exp) => exp._id.toString() !== workId
+      );
 
-    const user = await User.findById(userId).select("workExperience");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      await user.save();
+      res.status(200).json({
+        message: "Work experience entry deleted successfully",
+        workExperience: user.workExperience,
+      });
+    } catch (error) {
+      console.error("Error deleting work experience:", error);
+      res.status(500).json({
+        message: "Error deleting work experience entry",
+        error: error.message,
+      });
     }
+  };
 
-    res.status(200).json(user.workExperience);
-  } catch (error) {
-    console.error("Error fetching work experience:", error);
-    res.status(500).json({
-      message: "Error fetching work experience",
-      error: error.message,
-    });
-  }
-};
 
-static deleteWorkExperience = async (req, res) => {
-  try {
-    const { userId, workId } = req.params;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.workExperience = user.workExperience.filter(
-      (exp) => exp._id.toString() !== workId
-    );
-
-    await user.save();
-    res.status(200).json({
-      message: "Work experience entry deleted successfully",
-      workExperience: user.workExperience,
-    });
-  } catch (error) {
-    console.error("Error deleting work experience:", error);
-    res.status(500).json({
-      message: "Error deleting work experience entry",
-      error: error.message,
-    });
-  }
-};
-
-  
 
 
 }
