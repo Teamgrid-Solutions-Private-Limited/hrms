@@ -19,7 +19,7 @@ router.get("/document/:userId/:leaveId/:fileName",
 
 
 router.put("/leaves/:leaveId/approve",authJwt(),
-checkRole(["super_admin", "admin","employee"]), LeaveController.approveLeaveRequest);
+ checkRole(["super_admin", "admin","employee"]), LeaveController.approveLeaveRequest);
 router.get(
   "/leave/viewall",
   authJwt(),
