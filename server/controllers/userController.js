@@ -20,7 +20,6 @@ class UserController {
         department,
       } = req.body;
       // if (status) user.status = status;
-      // if (status) user.status = status;
 
       if (!firstName || !lastName) {
         return res
@@ -84,8 +83,6 @@ class UserController {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "thesufian0@gmail.com",
-          pass: "qbos snac aakc ogwz",
           user: "thesufian0@gmail.com",
           pass: "qbos snac aakc ogwz",
         },
@@ -265,64 +262,38 @@ class UserController {
   };
 
 
-static updateUser = async (req, res) => {
-  try {
-    console.log("=== UPDATE USER REQUEST ===");
-    console.log("Request body:", req.body);
-    console.log("Request params:", req.params);
-    console.log("Team field in request:", req.body.team);
-    console.log("Team field type:", typeof req.body.team);
-    
-    const {
-      username,
-      email,
-      password,
-      newPassword,
-      roleId,
-      firstName,
-      lastName,
-      team,
-      department,
-      organizationId,
-      status,
-      hireDate,
-    } = req.body;
+  static updateUser = async (req, res) => {
+    try {
+      const {
+        username,
+        email,
+        password,
+        newPassword,
+        roleId,
+        firstName,
+        lastName,
+        team,
+        department,
+        organizationId,
+        status,
+      } = req.body;
 
       const userId = req.params.id;
 
-    // Ensure at least one field is provided for update
-    if (
-      !username &&
-      !email &&
-      !password &&
-      !newPassword &&
-      !roleId &&
-      !firstName &&
-      !lastName &&
-      team === undefined &&
-      !department &&
-      !organizationId &&
-      !status &&
-      !hireDate
-    ) {
-      return res.status(400).json({
-        error: "VALIDATION_ERROR",
-        message: "At least one field must be provided to update.",
-      });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        error: "USER_NOT_FOUND",
-        message: "User not found.",
-      });
-    }
-
-    // 🔐 Handle password update
-    if (password && newPassword) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
+      // Ensure at least one field is provided for update
+      if (
+        !username &&
+        !email &&
+        !password &&
+        !newPassword &&
+        !roleId &&
+        !firstName &&
+        !lastName &&
+        !team &&
+        !department &&
+        !organizationId &&
+        !status
+      ) {
         return res.status(400).json({
           error: "VALIDATION_ERROR",
           message: "At least one field must be provided to update.",
@@ -337,108 +308,33 @@ static updateUser = async (req, res) => {
         });
       }
 
-    // ✅ Update other fields
-    if (username) user.username = username;
-    if (roleId) user.roleId = roleId;
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (team !== undefined) {
-      console.log("Updating team field:", { oldTeam: user.team, newTeam: team });
-      user.team = team;
-      user.markModified('team'); // Explicitly mark team field as modified
-    }
-    if (department) user.department = department;
-    if (organizationId) user.organizationId = organizationId;
-    if (status) user.status = status;
-
-    console.log("User object before save:", { 
-      id: user._id, 
-      team: user.team, 
-      department: user.department,
-      modifiedPaths: user.modifiedPaths() 
-    });
-
-    // Try using findByIdAndUpdate instead of save
-    const updateData = {};
-    if (username) updateData.username = username;
-    if (roleId) updateData.roleId = roleId;
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (team !== undefined) updateData.team = team;
-    if (department) updateData.department = department;
-    if (organizationId) updateData.organizationId = organizationId;
-    if (status) updateData.status = status;
-    if (password && newPassword) {
-      updateData.password = await bcrypt.hash(newPassword, 10);
-    } else if (!password && newPassword) {
-      updateData.password = await bcrypt.hash(newPassword, 10);
-      updateData.inviteToken = undefined;
-    }
-    if (email && email !== user.email) {
-      updateData.email = email;
-    }
-
-    console.log("Update data:", updateData);
-
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true, runValidators: true }
-      );
-      console.log("User updated successfully with findByIdAndUpdate");
-      console.log("Updated user:", updatedUser);
-      
-      // Update the user object for response
-      Object.assign(user, updatedUser);
-    } catch (updateError) {
-      console.error("Error updating user with findByIdAndUpdate:", updateError);
-      throw updateError;
-    }
-
-    console.log("User object after save:", { 
-      id: user._id, 
-      team: user.team, 
-      department: user.department 
-    });
-
-    // Verify the save actually happened by querying the database
-    const savedUser = await User.findById(userId);
-    console.log("User from database after save:", { 
-      id: savedUser._id, 
-      team: savedUser.team, 
-      department: savedUser.department 
-    });
-
-    // Check if the team field matches what we expect
-    if (savedUser.team !== user.team) {
-      console.error("TEAM FIELD MISMATCH!");
-      console.error("Expected team:", user.team);
-      console.error("Actual team in DB:", savedUser.team);
-    }
-
-    // 🏢 Handle hireDate update in employment info
-    if (hireDate !== undefined) {
-      try {
-        const EmploymentInfo = require("../models/employeementSchema");
-        const employmentInfo = await EmploymentInfo.findOne({ userId });
-        
-        if (employmentInfo) {
-          employmentInfo.hireDate = hireDate;
-          await employmentInfo.save();
-        } else {
-          // Create employment info if it doesn't exist
-          const newEmploymentInfo = new EmploymentInfo({
-            userId,
-            hireDate,
+      // 🔐 Handle password update
+      if (password && newPassword) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(400).json({
+            error: "INVALID_PASSWORD",
+            message: "Current password is incorrect.",
           });
-          await newEmploymentInfo.save();
         }
-      } catch (employmentError) {
-        console.error("Error updating employment info:", employmentError);
-        // Don't fail the entire request if employment update fails
+        user.password = await bcrypt.hash(newPassword, 10);
+      } else if (!password && newPassword) {
+        // Password setup from invite/reset
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.inviteToken = undefined; // 🔄 Invalidate token after use
       }
-    }
+
+      // ✉️ Email update check
+      if (email && email !== user.email) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          return res.status(400).json({
+            error: "EMAIL_IN_USE",
+            message: "Email already in use.",
+          });
+        }
+        user.email = email;
+      }
 
       // ✅ Update other fields
       if (username) user.username = username;
@@ -450,94 +346,7 @@ static updateUser = async (req, res) => {
       if (organizationId) user.organizationId = organizationId;
       if (status) user.status = status;
 
-    console.log("User object before save:", { 
-      id: user._id, 
-      team: user.team, 
-      department: user.department,
-      modifiedPaths: user.modifiedPaths() 
-    });
-
-    // Try using findByIdAndUpdate instead of save
-    const updateData = {};
-    if (username) updateData.username = username;
-    if (roleId) updateData.roleId = roleId;
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (team !== undefined) updateData.team = team;
-    if (department) updateData.department = department;
-    if (organizationId) updateData.organizationId = organizationId;
-    if (status) updateData.status = status;
-    if (password && newPassword) {
-      updateData.password = await bcrypt.hash(newPassword, 10);
-    } else if (!password && newPassword) {
-      updateData.password = await bcrypt.hash(newPassword, 10);
-      updateData.inviteToken = undefined;
-    }
-    if (email && email !== user.email) {
-      updateData.email = email;
-    }
-
-    console.log("Update data:", updateData);
-
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true, runValidators: true }
-      );
-      console.log("User updated successfully with findByIdAndUpdate");
-      console.log("Updated user:", updatedUser);
-      
-      // Update the user object for response
-      Object.assign(user, updatedUser);
-    } catch (updateError) {
-      console.error("Error updating user with findByIdAndUpdate:", updateError);
-      throw updateError;
-    }
-
-    console.log("User object after save:", { 
-      id: user._id, 
-      team: user.team, 
-      department: user.department 
-    });
-
-    // Verify the save actually happened by querying the database
-    const savedUser = await User.findById(userId);
-    console.log("User from database after save:", { 
-      id: savedUser._id, 
-      team: savedUser.team, 
-      department: savedUser.department 
-    });
-
-    // Check if the team field matches what we expect
-    if (savedUser.team !== user.team) {
-      console.error("TEAM FIELD MISMATCH!");
-      console.error("Expected team:", user.team);
-      console.error("Actual team in DB:", savedUser.team);
-    }
-
-    // 🏢 Handle hireDate update in employment info
-    if (hireDate !== undefined) {
-      try {
-        const EmploymentInfo = require("../models/employeementSchema");
-        const employmentInfo = await EmploymentInfo.findOne({ userId });
-        
-        if (employmentInfo) {
-          employmentInfo.hireDate = hireDate;
-          await employmentInfo.save();
-        } else {
-          // Create employment info if it doesn't exist
-          const newEmploymentInfo = new EmploymentInfo({
-            userId,
-            hireDate,
-          });
-          await newEmploymentInfo.save();
-        }
-      } catch (employmentError) {
-        console.error("Error updating employment info:", employmentError);
-        // Don't fail the entire request if employment update fails
-      }
-    }
+      await user.save();
 
       // 🎟️ Auto-login if password was set via invite
       let token;
