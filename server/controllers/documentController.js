@@ -146,6 +146,8 @@ class DocumentService {
         .populate("uploadedBy", "name email firstName lastName ")
         .populate("categoryId", "name")
         .populate("recipients.userId", "name email firstName lastName organizationId")
+        .sort({ createdAt: -1 })
+
       return res.status(200).json({
         success: true,
         message: "Documents fetched successfully.",

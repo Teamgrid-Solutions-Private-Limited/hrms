@@ -19,7 +19,7 @@ class UserController {
         team,
         department,
       } = req.body;
-      if (status) user.status = status;
+      // if (status) user.status = status;
 
       if (!firstName || !lastName) {
         return res
@@ -62,6 +62,7 @@ class UserController {
         team,
         inviteToken,
         department,
+        
       });
 
       await user.save();
