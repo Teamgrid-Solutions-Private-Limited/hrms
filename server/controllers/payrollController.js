@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const { Payroll, PaySchedule, SalaryComponent, Form16 } = require("../models/payrollSchema");
 const fs = require('fs');
 const path = require('path');
@@ -137,6 +138,27 @@ const updateSalaryComponent = async (req, res) => {
   }
 };
 
+// Delete Salary Component
+const deleteSalaryComponent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const component = await SalaryComponent.findByIdAndDelete(id);
+
+    if (!component) {
+      return res.status(404).json({ success: false, message: 'Salary component not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Salary component deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Salary Component Error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting salary component' });
+  }
+};
+
 // Pay Schedule Management
 const createPaySchedule = async (req, res) => {
   try {
@@ -175,9 +197,61 @@ const getAllPaySchedules = async (req, res) => {
   }
 };
 
+// Update Pay Schedule
+const updatePaySchedule = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const schedule = await PaySchedule.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!schedule) {
+      return res.status(404).json({ success: false, message: 'Pay schedule not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Pay schedule updated successfully',
+      data: schedule
+    });
+  } catch (error) {
+    console.error('Update Pay Schedule Error:', error);
+    res.status(500).json({ success: false, message: 'Error updating pay schedule' });
+  }
+};
+
+// Delete Pay Schedule
+const deletePaySchedule = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const schedule = await PaySchedule.findByIdAndDelete(id);
+
+    if (!schedule) {
+      return res.status(404).json({ success: false, message: 'Pay schedule not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Pay schedule deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Pay Schedule Error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting pay schedule' });
+  }
+};
+
 // Employee Payroll Management
 const createEmployeePayroll = async (req, res) => {
   try {
+    console.log('=== CREATE EMPLOYEE PAYROLL START ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user);
+    
     const {
       employeeId,
       payPeriod,
@@ -187,32 +261,67 @@ const createEmployeePayroll = async (req, res) => {
       taxDetails
     } = req.body;
 
+    // Validate required fields
+    if (!employeeId) {
+      console.log('❌ Validation failed: employeeId is missing');
+      return res.status(400).json({ success: false, message: 'employeeId is required' });
+    }
+
+    if (!payPeriod || !payPeriod.month || !payPeriod.year) {
+      console.log('❌ Validation failed: payPeriod is missing or invalid');
+      return res.status(400).json({ success: false, message: 'payPeriod with month and year is required' });
+    }
+
+    if (!basicSalary || isNaN(basicSalary) || basicSalary <= 0) {
+      console.log('❌ Validation failed: basicSalary is missing or invalid');
+      return res.status(400).json({ success: false, message: 'Valid basicSalary is required' });
+    }
+
+    console.log('✅ Validation passed');
+
     // Calculate totals
     let totalEarnings = 0;
     let totalDeductions = 0;
 
-    salaryComponents.forEach(component => {
-      if (component.type === 'earnings' || component.type === 'allowances') {
-        totalEarnings += component.amount;
-      } else if (component.type === 'deductions') {
-        totalDeductions += component.amount;
-      }
-    });
+    if (salaryComponents && Array.isArray(salaryComponents)) {
+      console.log('Processing salary components:', salaryComponents.length);
+      salaryComponents.forEach((component, index) => {
+        console.log(`Component ${index}:`, component);
+        if (component.type === 'earnings' || component.type === 'allowances') {
+          totalEarnings += component.amount || 0;
+        } else if (component.type === 'deductions') {
+          totalDeductions += component.amount || 0;
+        }
+      });
+    } else {
+      console.log('No salary components provided or invalid format');
+    }
 
     const grossSalary = basicSalary + totalEarnings;
     const netSalary = grossSalary - totalDeductions;
 
+    console.log('Calculated values:', {
+      basicSalary,
+      totalEarnings,
+      totalDeductions,
+      grossSalary,
+      netSalary
+    });
+
     // Calculate tax if tax details provided
     let calculatedTaxDetails = null;
     if (taxDetails) {
+      console.log('Calculating tax details:', taxDetails);
       calculatedTaxDetails = calculateTax(taxDetails);
+      console.log('Calculated tax details:', calculatedTaxDetails);
     }
 
-    const payroll = new Payroll({
+    // Create payroll object
+    const payrollData = {
       employeeId,
       payPeriod,
       paySchedule,
-      salaryComponents,
+      salaryComponents: salaryComponents || [],
       basicSalary,
       grossSalary,
       totalEarnings,
@@ -220,9 +329,28 @@ const createEmployeePayroll = async (req, res) => {
       netSalary,
       taxDetails: calculatedTaxDetails,
       createdBy: req.user?.id
-    });
+    };
 
+    console.log('Creating Payroll with data:', JSON.stringify(payrollData, null, 2));
+
+    // Validate mongoose ObjectId
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+      console.log('❌ Invalid employeeId ObjectId:', employeeId);
+      return res.status(400).json({ success: false, message: 'Invalid employeeId format' });
+    }
+
+    if (paySchedule && !mongoose.Types.ObjectId.isValid(paySchedule)) {
+      console.log('❌ Invalid paySchedule ObjectId:', paySchedule);
+      return res.status(400).json({ success: false, message: 'Invalid paySchedule format' });
+    }
+
+    console.log('✅ ObjectId validation passed');
+
+    const payroll = new Payroll(payrollData);
+
+    console.log('Payroll model created, attempting to save...');
     await payroll.save();
+    console.log('✅ Payroll saved successfully');
 
     res.status(201).json({
       success: true,
@@ -230,8 +358,39 @@ const createEmployeePayroll = async (req, res) => {
       data: payroll
     });
   } catch (error) {
-    console.error('Create Employee Payroll Error:', error);
-    res.status(500).json({ success: false, message: 'Error creating payroll' });
+    console.error('=== CREATE EMPLOYEE PAYROLL ERROR ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Check for specific mongoose validation errors
+    if (error.name === 'ValidationError') {
+      console.error('Validation errors:', error.errors);
+      const validationErrors = Object.keys(error.errors).map(key => ({
+        field: key,
+        message: error.errors[key].message
+      }));
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Validation error', 
+        errors: validationErrors 
+      });
+    }
+
+    // Check for duplicate key errors
+    if (error.code === 11000) {
+      console.error('Duplicate key error:', error.keyValue);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Duplicate payroll entry for this employee and period' 
+      });
+    }
+
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error creating payroll',
+      error: error.message 
+    });
   }
 };
 
@@ -268,6 +427,54 @@ const getEmployeePayrolls = async (req, res) => {
   } catch (error) {
     console.error('Get Employee Payrolls Error:', error);
     res.status(500).json({ success: false, message: 'Error fetching payrolls' });
+  }
+};
+
+// Update Employee Payroll
+const updateEmployeePayroll = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const payroll = await Payroll.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!payroll) {
+      return res.status(404).json({ success: false, message: 'Payroll not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Payroll updated successfully',
+      data: payroll
+    });
+  } catch (error) {
+    console.error('Update Employee Payroll Error:', error);
+    res.status(500).json({ success: false, message: 'Error updating payroll' });
+  }
+};
+
+// Delete Employee Payroll
+const deleteEmployeePayroll = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const payroll = await Payroll.findByIdAndDelete(id);
+
+    if (!payroll) {
+      return res.status(404).json({ success: false, message: 'Payroll not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Payroll deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Employee Payroll Error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting payroll' });
   }
 };
 
@@ -503,6 +710,89 @@ const downloadForm16 = async (req, res) => {
   }
 };
 
+// Get All Form 16s
+const getAllForm16s = async (req, res) => {
+  try {
+    const form16s = await Form16.find()
+      .populate('employeeId', 'firstName lastName email')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: form16s
+    });
+  } catch (error) {
+    console.error('Get All Form 16s Error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching Form 16s' });
+  }
+};
+
+// Create Form 16
+const createForm16 = async (req, res) => {
+  try {
+    const form16Data = req.body;
+    const form16 = new Form16(form16Data);
+    await form16.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Form 16 created successfully',
+      data: form16
+    });
+  } catch (error) {
+    console.error('Create Form 16 Error:', error);
+    res.status(500).json({ success: false, message: 'Error creating Form 16' });
+  }
+};
+
+// Update Form 16
+const updateForm16 = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const form16 = await Form16.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!form16) {
+      return res.status(404).json({ success: false, message: 'Form 16 not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Form 16 updated successfully',
+      data: form16
+    });
+  } catch (error) {
+    console.error('Update Form 16 Error:', error);
+    res.status(500).json({ success: false, message: 'Error updating Form 16' });
+  }
+};
+
+// Delete Form 16
+const deleteForm16 = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const form16 = await Form16.findByIdAndDelete(id);
+
+    if (!form16) {
+      return res.status(404).json({ success: false, message: 'Form 16 not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Form 16 deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Form 16 Error:', error);
+    res.status(500).json({ success: false, message: 'Error deleting Form 16' });
+  }
+};
+
 // Bulk Payroll Processing
 const processBulkPayroll = async (req, res) => {
   try {
@@ -540,12 +830,21 @@ module.exports = {
   createSalaryComponent,
   getAllSalaryComponents,
   updateSalaryComponent,
+  deleteSalaryComponent,
   createPaySchedule,
   getAllPaySchedules,
+  updatePaySchedule,
+  deletePaySchedule,
   createEmployeePayroll,
   getEmployeePayrolls,
+  updateEmployeePayroll,
+  deleteEmployeePayroll,
   processPayroll,
   generateForm16,
   downloadForm16,
+  getAllForm16s,
+  createForm16,
+  updateForm16,
+  deleteForm16,
   processBulkPayroll
 }; 
