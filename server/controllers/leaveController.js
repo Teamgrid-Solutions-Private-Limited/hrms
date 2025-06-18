@@ -5,6 +5,7 @@ const Employment = require("../models/employeementSchema");
 const fs = require("fs");
 const path = require("path");
 const EmployeeLeaveAllocation = require("../models/leaveAllocationSchema");
+const Holiday = require("../models/holidaySchema");
 
 class leaveController {
   static createLeaveRequest = async (req, res) => {
@@ -30,97 +31,128 @@ class leaveController {
       // Check for existing leave requests that overlap with the requested dates
       const existingLeave = await Leave.findOne({
         userId,
-        status: { $ne: 'rejected' }, // Exclude rejected leaves
+        status: { $ne: "rejected" }, // Exclude rejected leaves
         $or: [
           {
             $and: [
               { startDate: { $lte: newEndDate } },
-              { endDate: { $gte: newStartDate } }
-            ]
-          }
-        ]
+              { endDate: { $gte: newStartDate } },
+            ],
+          },
+        ],
       });
 
       if (existingLeave) {
-        console.log('Found overlapping leave:', existingLeave);
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: "You already have a leave request for these dates",
           existingLeave: {
             startDate: existingLeave.startDate,
             endDate: existingLeave.endDate,
-            status: existingLeave.status
-          }
+            status: existingLeave.status,
+          },
         });
       }
 
       let half = null;
       if (leaveDuration === "half_day") {
-        if (new Date(startDate).toDateString() !== new Date(endDate).toDateString()) {
-          return res.status(400).json({ 
-            error: "Half-day leave must have the same start and end date" 
+        if (
+          new Date(startDate).toDateString() !==
+          new Date(endDate).toDateString()
+        ) {
+          return res.status(400).json({
+            error: "Half-day leave must have the same start and end date",
           });
         }
 
         // For half-day, check if there's already any leave on this date
         const existingHalfDayLeave = await Leave.findOne({
           userId,
-          status: { $ne: 'rejected' },
+          status: { $ne: "rejected" },
           $and: [
             { startDate: { $lte: newEndDate } },
-            { endDate: { $gte: newStartDate } }
-          ]
+            { endDate: { $gte: newStartDate } },
+          ],
         });
 
         if (existingHalfDayLeave) {
-          console.log('Found existing half-day leave:', existingHalfDayLeave);
-          return res.status(400).json({ 
+          console.log("Found existing half-day leave:", existingHalfDayLeave);
+          return res.status(400).json({
             error: "You already have a leave request for this date",
             existingLeave: {
               startDate: existingHalfDayLeave.startDate,
               endDate: existingHalfDayLeave.endDate,
-              status: existingHalfDayLeave.status
-            }
+              status: existingHalfDayLeave.status,
+            },
           });
         }
 
         half = "first_half";
       }
 
+      const holidays = await Holiday.find({
+        organizationId: req.user.organizationId,
+        date: {
+          $gte: newStartDate,
+          $lte: newEndDate,
+        },
+      });
+
       // Calculate total days and working days
-      const totalDays = Math.ceil(Math.abs(newEndDate - newStartDate) / (1000 * 60 * 60 * 24)) + 1;
+      const totalDays =
+        Math.ceil(Math.abs(newEndDate - newStartDate) / (1000 * 60 * 60 * 24)) +
+        1;
       let leaveUnits = 0;
 
       if (leaveDuration === "half_day") {
         const date = new Date(startDate);
         const dayOfWeek = date.getDay();
-        
+
+        const isHoliday = holidays.some((holiday) => {
+          const holidayDate = new Date(holiday.date);
+          holidayDate.setHours(0, 0, 0, 0);
+
+          const current = new Date(currentDate);
+          current.setHours(0, 0, 0, 0);
+
+          return holidayDate.getTime() === current.getTime();
+        });
+
         // For half days, check if it's a working day
-        if (dayOfWeek === 0 || // Sunday
-            (dayOfWeek === 6 && this.isAlternateSaturday(date))) { // Alternate Saturday
+        if (
+          dayOfWeek === 0 || // Sunday
+          (dayOfWeek === 6 && this.isAlternateSaturday(date)) ||
+          isHoliday
+        ) {
+          // Alternate Saturday
           leaveUnits = 0; // Non-working day
         } else {
           leaveUnits = 0.5;
         }
       } else {
         // For full days, calculate only working days
-        leaveUnits = this.calculateLeaveDays(startDate, endDate);
+        leaveUnits = leaveController.calculateLeaveDays(
+          startDate,
+          endDate,
+          holidays
+        );
       }
 
       const allocation = await EmployeeLeaveAllocation.findOne({
         userId,
-        leaveTypeId
+        leaveTypeId,
       });
 
       if (!allocation) {
-        return res.status(400).json({ 
-          error: "No leave allocation found for this leave type" 
+        return res.status(400).json({
+          error: "No leave allocation found for this leave type",
         });
       }
 
-      const availableLeaves = allocation.allocatedLeaves - allocation.usedLeaves;
+      const availableLeaves =
+        allocation.allocatedLeaves - allocation.usedLeaves;
       if (leaveUnits > availableLeaves) {
-        return res.status(400).json({ 
-          error: "Insufficient leave balance" 
+        return res.status(400).json({
+          error: "Insufficient leave balance",
         });
       }
 
@@ -130,7 +162,10 @@ class leaveController {
         await allocation.save();
       }
 
-      const status = (requestingUserRole === 'super_admin' || requestingUserRole === 'admin') ? 'approved' : 'pending';
+      const status =
+        requestingUserRole === "super_admin" || requestingUserRole === "admin"
+          ? "approved"
+          : "pending";
 
       const leaveRequest = new Leave({
         userId,
@@ -170,60 +205,65 @@ class leaveController {
       // Calculate non-working days for the response
       const nonWorkingDays = totalDays - leaveUnits;
 
-      res.status(201).json({ 
-        message: "Leave request created successfully", 
+      res.status(201).json({
+        message: "Leave request created successfully",
         leaveRequest,
         updatedBalance: {
           allocated: allocation.allocatedLeaves,
           used: allocation.usedLeaves,
           available: allocation.allocatedLeaves - allocation.usedLeaves,
-          nonWorkingDaysIncluded: nonWorkingDays
-        }
+          nonWorkingDaysIncluded: nonWorkingDays,
+        },
       });
-
     } catch (err) {
       console.error("Error creating leave request:", err);
       res.status(500).json({ error: "Error creating leave request" });
     }
   };
 
-  
-
   static isAlternateSaturday(date) {
-    const referenceDate = new Date(2025, 4, 31); 
-    
-    
-    const weeksDiff = Math.floor((date - referenceDate) / (7 * 24 * 60 * 60 * 1000));
-  
+    const referenceDate = new Date(2025, 4, 31);
+
+    const weeksDiff = Math.floor(
+      (date - referenceDate) / (7 * 24 * 60 * 60 * 1000)
+    );
+
     return weeksDiff % 2 === 0;
   }
 
-  static calculateLeaveDays(startDate, endDate) {
+  static calculateLeaveDays(startDate, endDate, holidays = []) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     let workingDays = 0;
     const currentDate = new Date(start);
 
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay();
-      
-     
+
+      const isHoliday = holidays.some((holiday) => {
+        const holidayDate = new Date(holiday.date);
+        holidayDate.setHours(0, 0, 0, 0);
+
+        const checkDate = new Date(currentDate);
+        checkDate.setHours(0, 0, 0, 0);
+
+        return holidayDate.getTime() === checkDate.getTime();
+      });
+
       if (dayOfWeek !== 0) {
-    
         if (dayOfWeek === 6) {
           if (!this.isAlternateSaturday(currentDate)) {
-            workingDays++; 
+            workingDays++;
           }
-        } else {
-         
+        } else if (!isHoliday) {
           workingDays++;
         }
       }
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    
+
     return workingDays;
   }
 
@@ -240,12 +280,12 @@ class leaveController {
         return res.status(404).json({ message: "Leave request not found" });
       }
 
-    
       if (leaveRequest.status === "approved") {
-        return res.status(400).json({ message: "Leave request already approved" });
+        return res
+          .status(400)
+          .json({ message: "Leave request already approved" });
       }
 
-    
       if (!leaveRequest.leaveUnits) {
         let leaveUnits = 0;
         if (leaveRequest.leaveDuration === "half_day") {
@@ -259,7 +299,6 @@ class leaveController {
         leaveRequest.leaveUnits = leaveUnits;
       }
 
-
       const employeeLeaveAllocation = await EmployeeLeaveAllocation.findOne({
         userId: leaveRequest.userId._id,
         leaveTypeId: leaveRequest.leaveTypeId._id,
@@ -270,9 +309,13 @@ class leaveController {
       }
 
       // Verify sufficient leaves are available (should already be checked at creation)
-      const remainingLeaves = employeeLeaveAllocation.allocatedLeaves - employeeLeaveAllocation.usedLeaves;
+      const remainingLeaves =
+        employeeLeaveAllocation.allocatedLeaves -
+        employeeLeaveAllocation.usedLeaves;
       if (leaveRequest.leaveUnits > remainingLeaves) {
-        return res.status(400).json({ message: "Insufficient allocated leaves" });
+        return res
+          .status(400)
+          .json({ message: "Insufficient allocated leaves" });
       }
 
       // Update status and comments (no need to update usedLeaves again)
@@ -280,7 +323,9 @@ class leaveController {
       leaveRequest.managerComments = managerComments;
 
       // Update user status to "on leave"
-      const user = await Employment.findOne({ userId: leaveRequest.userId._id });
+      const user = await Employment.findOne({
+        userId: leaveRequest.userId._id,
+      });
       if (user) {
         user.employmentStatus = "on leave";
         await user.save();
@@ -289,14 +334,14 @@ class leaveController {
       // Save changes
       await leaveRequest.save();
 
-      res.status(200).json({ 
-        message: "Leave request approved", 
+      res.status(200).json({
+        message: "Leave request approved",
         leaveRequest,
         updatedBalance: {
           allocated: employeeLeaveAllocation.allocatedLeaves,
           used: employeeLeaveAllocation.usedLeaves,
-          available: remainingLeaves
-        }
+          available: remainingLeaves,
+        },
       });
     } catch (err) {
       console.error("Error approving leave request:", err);
@@ -318,17 +363,16 @@ class leaveController {
       }
 
       // Only refund leaves if status was previously approved
-      
-        const allocation = await EmployeeLeaveAllocation.findOne({
-          userId: leaveRequest.userId._id,
-          leaveTypeId: leaveRequest.leaveTypeId._id
-        });
 
-        if (allocation) {
-          allocation.usedLeaves -= leaveRequest.leaveUnits;
-          await allocation.save();
-        }
-      
+      const allocation = await EmployeeLeaveAllocation.findOne({
+        userId: leaveRequest.userId._id,
+        leaveTypeId: leaveRequest.leaveTypeId._id,
+      });
+
+      if (allocation) {
+        allocation.usedLeaves -= leaveRequest.leaveUnits;
+        await allocation.save();
+      }
 
       // Update leave request status
       leaveRequest.status = "rejected";
@@ -336,24 +380,25 @@ class leaveController {
       await leaveRequest.save();
 
       // Update user status back to active if needed
-      const user = await Employment.findOne({ 
-        userId: leaveRequest.userId._id 
+      const user = await Employment.findOne({
+        userId: leaveRequest.userId._id,
       });
       if (user && user.employmentStatus === "on leave") {
         user.employmentStatus = "active";
         await user.save();
       }
 
-      res.status(200).json({ 
-        message: "Leave request rejected", 
+      res.status(200).json({
+        message: "Leave request rejected",
         leaveRequest,
-        updatedBalance: allocation ? {
-          allocated: allocation.allocatedLeaves,
-          used: allocation.usedLeaves,
-          available: allocation.allocatedLeaves - allocation.usedLeaves
-        } : null
+        updatedBalance: allocation
+          ? {
+              allocated: allocation.allocatedLeaves,
+              used: allocation.usedLeaves,
+              available: allocation.allocatedLeaves - allocation.usedLeaves,
+            }
+          : null,
       });
-
     } catch (error) {
       console.error("Error rejecting leave request:", error);
       res.status(500).json({
@@ -456,8 +501,8 @@ class leaveController {
     }
   };
 
-  static serveLeaveDocument = (req,res)=>{
-    const {userId, leaveId, fileName} = req.params;
+  static serveLeaveDocument = (req, res) => {
+    const { userId, leaveId, fileName } = req.params;
 
     const filePath = path.join(
       __dirname,
@@ -474,90 +519,80 @@ class leaveController {
     } else {
       res.status(404).json({ error: "File not found" });
     }
-  }
+  };
 
   static deleteLeave = async (req, res) => {
     const { leaveId } = req.params;
 
     try {
-      
-       const leaveRequest = await Leave.findById(leaveId)
-        .populate('userId')
-        .populate('leaveTypeId');
+      const leaveRequest = await Leave.findById(leaveId)
+        .populate("userId")
+        .populate("leaveTypeId");
 
       if (!leaveRequest) {
         return res.status(404).json({ message: "Leave request not found" });
       }
 
-      console.log('Supporting Document:', leaveRequest.supportingDocuments);
-
+      console.log("Supporting Document:", leaveRequest.supportingDocuments);
 
       if (leaveRequest.status === "approved") {
-        return res.status(400).json({ 
-          message: "Cannot delete an approved leave request" 
+        return res.status(400).json({
+          message: "Cannot delete an approved leave request",
         });
       }
 
-      console.log("leave request:",leaveRequest)
+      console.log("leave request:", leaveRequest);
 
-       const allocation = await EmployeeLeaveAllocation.findOne({
+      const allocation = await EmployeeLeaveAllocation.findOne({
         userId: leaveRequest.userId._id,
-        leaveTypeId: leaveRequest.leaveTypeId._id
+        leaveTypeId: leaveRequest.leaveTypeId._id,
       });
 
       if (!allocation) {
         return res.status(400).json({ message: "Leave allocation not found" });
       }
-       if (allocation) {
-          allocation.usedLeaves -= leaveRequest.leaveUnits;
-          await allocation.save();
-        }
-
+      if (allocation) {
+        allocation.usedLeaves -= leaveRequest.leaveUnits;
+        await allocation.save();
+      }
 
       await Leave.findByIdAndDelete(leaveId);
 
-
       if (leaveRequest.supportingDocuments) {
-    const filePath = path.resolve(
-      "my-upload/uploads/leaves",
-      leaveRequest.userId._id.toString(),
-      leaveId,
-      leaveRequest.supportingDocuments
-    );
+        const filePath = path.resolve(
+          "my-upload/uploads/leaves",
+          leaveRequest.userId._id.toString(),
+          leaveId,
+          leaveRequest.supportingDocuments
+        );
 
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log("File deleted successfully");
+        } else {
+          console.log("File does not exist at path:", filePath);
+        }
 
+        const dirPath = path.dirname(filePath);
+        if (fs.existsSync(dirPath)) {
+          fs.rmdirSync(dirPath, { recursive: true });
+          console.log("Directory deleted:", dirPath);
+        } else {
+          console.log("Directory not found:", dirPath);
+        }
+      }
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log("File deleted successfully");
-    } else {
-      console.log("File does not exist at path:", filePath);
-    }
-
-
-    const dirPath = path.dirname(filePath);
-    if (fs.existsSync(dirPath)) {
-      fs.rmdirSync(dirPath, { recursive: true });
-      console.log("Directory deleted:", dirPath);
-    } else {
-      console.log("Directory not found:", dirPath);
-    }
-  }
-
-
-      res.status(200).json({ 
-        message: "Leave request deleted successfully" 
+      res.status(200).json({
+        message: "Leave request deleted successfully",
       });
     } catch (error) {
       console.error("Error deleting leave request:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Error deleting leave request",
-        message: error.message 
+        message: error.message,
       });
     }
   };
-  
-
 }
 
 module.exports = leaveController;
