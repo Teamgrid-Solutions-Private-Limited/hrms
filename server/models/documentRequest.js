@@ -12,7 +12,7 @@ const documentRequest = new Schema({
     required: true,
   }, // Employee expected to submit
   format: { type: String, required: true }, // File format (e.g., PDF)
-  maxSize: { type: Number, required: true }, // Max size in MB
+  maxSize: { type: Number }, // Max size in MB
   dueDate: { type: Date, required: true }, // Deadline for submission
   status: {
     type: String,
