@@ -122,7 +122,7 @@ const form16Schema = new mongoose.Schema({
   },
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   employerName: {
@@ -190,7 +190,7 @@ const form16Schema = new mongoose.Schema({
 const payrollSchema = new mongoose.Schema({
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   payPeriod: {
@@ -249,11 +249,11 @@ const payrollSchema = new mongoose.Schema({
   remarks: String,
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'users'
   },
   updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'users'
   }
 }, {
   timestamps: true

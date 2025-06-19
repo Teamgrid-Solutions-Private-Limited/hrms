@@ -7,7 +7,8 @@ const {
   getEmployeePayrollDetails,
   getEmployeeForm16,
   getAvailableSalaryComponents,
-  getEmployeePayrollSummary
+  getEmployeePayrollSummary,
+  getAllEmployeePayrolls
 } = require("../controllers/employeePayrollController");
 
 // Employee Payroll Dashboard
@@ -33,5 +34,8 @@ router.get("/available-salary-components", getAvailableSalaryComponents); // Alt
 
 // Employee Payroll Summary
 router.get("/summary/:employeeId", getEmployeePayrollSummary);
+
+// Get All Employee Payrolls
+router.get("/all", getAllEmployeePayrolls);
 
 module.exports = router; 

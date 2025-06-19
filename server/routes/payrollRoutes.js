@@ -21,11 +21,16 @@ const {
   createForm16,
   updateForm16,
   deleteForm16,
-  processBulkPayroll
+  processBulkPayroll,
+  getAllPayrolls,
+  getAllEmployeePayrolls
 } = require("../controllers/payrollController");
 
 // Payroll Dashboard
 router.get("/dashboard", getPayrollDashboard);
+
+// Get All Payrolls
+router.get("/all", getAllPayrolls);
 
 // Salary Components Routes
 router.post("/salary-components", createSalaryComponent);
@@ -46,6 +51,9 @@ router.put("/employee-payroll/:id", updateEmployeePayroll);
 router.delete("/employee-payroll/:id", deleteEmployeePayroll);
 router.put("/process-payroll/:payrollId", processPayroll);
 router.post("/bulk-process", processBulkPayroll);
+
+// Get All Employee Payrolls with Advanced Filtering
+router.get("/employee-payrolls", getAllEmployeePayrolls);
 
 // Form 16 Routes
 router.post("/generate-form16", generateForm16);

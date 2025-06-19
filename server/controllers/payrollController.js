@@ -825,6 +825,321 @@ const processBulkPayroll = async (req, res) => {
   }
 };
 
+// Get All Payrolls with Filtering and Sorting
+const getAllPayrolls = async (req, res) => {
+  try {
+    const {
+      month,
+      year,
+      isProcessed,
+      isPaid,
+      employeeId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 10,
+      search
+    } = req.query;
+
+    // Build query based on filters
+    const query = {};
+
+    // Filter by month and year
+    if (month && year) {
+      query['payPeriod.month'] = parseInt(month);
+      query['payPeriod.year'] = parseInt(year);
+    }
+
+    // Filter by processing status
+    if (isProcessed !== undefined) {
+      query.isProcessed = isProcessed === 'true';
+    }
+
+    // Filter by payment status
+    if (isPaid !== undefined) {
+      query.isPaid = isPaid === 'true';
+    }
+
+    // Filter by employee
+    if (employeeId) {
+      query.employeeId = employeeId;
+    }
+
+    // Search in employee names (requires populate)
+    let searchQuery = {};
+    if (search) {
+      searchQuery = {
+        $or: [
+          { 'employeeId.firstName': { $regex: search, $options: 'i' } },
+          { 'employeeId.lastName': { $regex: search, $options: 'i' } },
+          { 'employeeId.email': { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    // Calculate skip value for pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Prepare sort object
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    // Fetch payrolls with pagination, filtering, and sorting
+    const payrolls = await Payroll.find(query)
+      .populate({
+        path: 'employeeId',
+        select: 'firstName lastName email',
+        match: searchQuery
+      })
+      .populate('paySchedule', 'name frequency')
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Filter out null employeeId results (from search query)
+    const filteredPayrolls = payrolls.filter(payroll => payroll.employeeId);
+
+    // Get total count for pagination (considering search filter)
+    const total = await Payroll.countDocuments(query);
+
+    // Calculate totals for summary
+    const summary = await Payroll.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          totalGrossSalary: { $sum: '$grossSalary' },
+          totalNetSalary: { $sum: '$netSalary' },
+          totalDeductions: { $sum: '$totalDeductions' },
+          processedCount: {
+            $sum: { $cond: ['$isProcessed', 1, 0] }
+          },
+          paidCount: {
+            $sum: { $cond: ['$isPaid', 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        payrolls: filteredPayrolls,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / parseInt(limit)),
+          totalRecords: total
+        },
+        summary: summary[0] || {
+          totalGrossSalary: 0,
+          totalNetSalary: 0,
+          totalDeductions: 0,
+          processedCount: 0,
+          paidCount: 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get All Payrolls Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching payrolls',
+      error: error.message
+    });
+  }
+};
+
+// Get All Employee Payrolls with Advanced Filtering
+const getAllEmployeePayrolls = async (req, res) => {
+  try {
+    const {
+      month,
+      year,
+      department,
+      team,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 10,
+      search
+    } = req.query;
+
+    // Build query based on filters
+    const query = {};
+
+    // Filter by month and year
+    if (month && year) {
+      query['payPeriod.month'] = parseInt(month);
+      query['payPeriod.year'] = parseInt(year);
+    }
+
+    // Build employee search criteria
+    let employeeQuery = {};
+    if (department) {
+      employeeQuery.department = department;
+    }
+    if (team) {
+      employeeQuery.team = team;
+    }
+    if (status) {
+      employeeQuery.status = status;
+    }
+    if (search) {
+      employeeQuery.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Calculate skip value for pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Prepare sort object
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    // Get total employee count (distinct employees)
+    const totalEmployeeCount = await Payroll.distinct('employeeId').length;
+
+    // Get total gross salary sum for all employees
+    const totalGrossSalarySum = await Payroll.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$grossSalary' }
+        }
+      }
+    ]);
+
+    // Fetch payrolls with populated employee details
+    const payrolls = await Payroll.find(query)
+      .populate({
+        path: 'employeeId',
+        select: 'firstName lastName email department team status',
+        match: employeeQuery
+      })
+      .populate('paySchedule', 'name frequency')
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Filter out null employeeId results (from employee query)
+    const filteredPayrolls = payrolls.filter(payroll => payroll.employeeId);
+
+    // Get total count for pagination
+    const total = await Payroll.countDocuments(query);
+
+    // Calculate summary statistics
+    const summary = await Payroll.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          totalEmployees: { $addToSet: '$employeeId' },
+          totalGrossSalary: { $sum: '$grossSalary' },
+          totalNetSalary: { $sum: '$netSalary' },
+          totalDeductions: { $sum: '$totalDeductions' },
+          averageGrossSalary: { $avg: '$grossSalary' },
+          averageNetSalary: { $avg: '$netSalary' },
+          maxSalary: { $max: '$grossSalary' },
+          minSalary: { $min: '$grossSalary' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalEmployees: { $size: '$totalEmployees' },
+          totalGrossSalary: 1,
+          totalNetSalary: 1,
+          totalDeductions: 1,
+          averageGrossSalary: { $round: ['$averageGrossSalary', 2] },
+          averageNetSalary: { $round: ['$averageNetSalary', 2] },
+          maxSalary: 1,
+          minSalary: 1
+        }
+      }
+    ]);
+
+    // Group payrolls by department with employee counts
+    const departmentWiseData = await Payroll.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'employee'
+        }
+      },
+      { $unwind: '$employee' },
+      {
+        $group: {
+          _id: '$employee.department',
+          employeeCount: { $addToSet: '$employeeId' },
+          count: { $sum: 1 },
+          totalSalary: { $sum: '$grossSalary' },
+          averageSalary: { $avg: '$grossSalary' }
+        }
+      },
+      {
+        $project: {
+          department: '$_id',
+          employeeCount: { $size: '$employeeCount' },
+          count: 1,
+          totalSalary: 1,
+          averageSalary: { $round: ['$averageSalary', 2] },
+          _id: 0
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overallSummary: {
+          totalUniqueEmployees: totalEmployeeCount,
+          totalGrossSalaryAllTime: totalGrossSalarySum[0]?.total || 0,
+          currentPeriod: {
+            month: month || 'All',
+            year: year || 'All',
+            totalEmployees: summary[0]?.totalEmployees || 0,
+            totalGrossSalary: summary[0]?.totalGrossSalary || 0
+          }
+        },
+        payrolls: filteredPayrolls,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / parseInt(limit)),
+          totalRecords: total
+        },
+        summary: summary[0] || {
+          totalEmployees: 0,
+          totalGrossSalary: 0,
+          totalNetSalary: 0,
+          totalDeductions: 0,
+          averageGrossSalary: 0,
+          averageNetSalary: 0,
+          maxSalary: 0,
+          minSalary: 0
+        },
+        departmentWiseData: departmentWiseData.map(dept => ({
+          ...dept,
+          percentageOfTotal: ((dept.employeeCount / totalEmployeeCount) * 100).toFixed(2)
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Get All Employee Payrolls Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching employee payrolls',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getPayrollDashboard,
   createSalaryComponent,
@@ -846,5 +1161,7 @@ module.exports = {
   createForm16,
   updateForm16,
   deleteForm16,
-  processBulkPayroll
+  processBulkPayroll,
+  getAllPayrolls,
+  getAllEmployeePayrolls
 }; 

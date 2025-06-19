@@ -391,6 +391,53 @@ const getEmployeePayrollSummary = async (req, res) => {
   }
 };
 
+// Get All Employee Payrolls
+const getAllEmployeePayrolls = async (req, res) => {
+  try {
+    const { month, year, page = 1, limit = 10 } = req.query;
+
+    // Build query based on filters
+    const query = {};
+    if (month && year) {
+      query['payPeriod.month'] = parseInt(month);
+      query['payPeriod.year'] = parseInt(year);
+    }
+
+    // Calculate skip value for pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch payrolls with pagination
+    const payrolls = await Payroll.find(query)
+      .populate('employeeId', 'firstName lastName email')
+      .populate('paySchedule', 'name frequency')
+      .sort({ 'payPeriod.year': -1, 'payPeriod.month': -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const total = await Payroll.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        payrolls,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / parseInt(limit)),
+          totalRecords: total
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get All Employee Payrolls Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching all employee payrolls',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   getEmployeePayrollDashboard,
   configureEmployeeSalary,
@@ -398,5 +445,6 @@ module.exports = {
   getEmployeePayrollDetails,
   getEmployeeForm16,
   getAvailableSalaryComponents,
-  getEmployeePayrollSummary
+  getEmployeePayrollSummary,
+  getAllEmployeePayrolls
 }; 
